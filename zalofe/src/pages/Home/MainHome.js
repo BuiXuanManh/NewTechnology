@@ -2,7 +2,7 @@ import { Route, Routes } from "react-router-dom";
 // import { DefaultLayout } from "../../components/Layout";
 // import { publicMainHomeRoutes } from "../../routes";
 
-import Todo from "../Todo";
+// import Todo from "../Todo";
 
 const MainHome = () => (
       // <Routes>
