@@ -1,6 +1,6 @@
 import { Routes, Route } from "react-router-dom";
 // import { publicRoutes } from "./routes";
-import Router from "./routes/index";
+import Router from "./routes";
 
 const App = () => (
   // <Routes>
@@ -12,4 +12,3 @@ const App = () => (
 );
 
 export default App;
-

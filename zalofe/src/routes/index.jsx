@@ -1,22 +1,22 @@
 import LoginForm from "../pages/Login/LoginForm";
 import Main from "../pages/Home/MainHome";
-import Contact from "../pages/Contact/contract";
-import Todo from "../pages/Todo/todo";
-import Message from "../pages/Message/message";
+import Contact from "../pages/Contact";
+import Todo from "../pages/Todo";
+import Message from "../pages/Message";
 import OtherMessage from "../pages/Message/OtherMessage";
-import Sidebar from "../dashboard/Sidebar/sidebar";
+import Sidebar from "../layouts/dashboard/Sidebar";
 
 import { Suspense, lazy, useEffect, useState } from "react";
 import { Navigate, useLocation, useRoutes } from "react-router-dom";
 // layouts
-import DashboardLayout from "../dashboard/dashboard";
-import AuthLayout from "../auth/auth";
+import DashboardLayout from "../layouts/dashboard";
+import AuthLayout from "../layouts/auth";
 // config
 import { DEFAULT_PATH } from "../config";
 import LoadingScreen from "../components/LoadingScreen";
 import MessageFilterBar from "../pages/Message/MessageFilterBar";
 import SearchBox from "../components/SearchBox";
-import Conversation from "../data/conversations";
+import Conversation from "../components/Conversation";
 import DetailContact from "../components/DetailContact";
 
 const Loadable = (Component) => (props) => {

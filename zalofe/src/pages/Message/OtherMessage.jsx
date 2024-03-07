@@ -1,4 +1,3 @@
-import React from "react";
 function OtherMessage() {
   return (
     <div className="h-screen w-full overflow-auto">

@@ -1,12 +1,13 @@
 import React, { useState, useLayoutEffect } from "react";
-import Sidebar from "./Sidebar/sidebar";
-import Navbar from "./Navbar/navbar";
+import Sidebar from "./Sidebar";
+import Navbar from "./Navbar";
 import { Outlet } from "react-router-dom";
 
-import OtherMessage from "../pages/Message/OtherMessage";
-import Conversation from "../components/Conversation";
+import OtherMessage from "../../pages/Message/OtherMessage";
+import Conversation from "../../components/Conversation";
 
-function DashboardLayout({component}) {  const [width, setWidth] = useState(window.innerWidth);
+function DashboardLayout({component}) {
+  const [width, setWidth] = useState(window.innerWidth);
 
   useLayoutEffect(() => {
     const handleResize = () => {

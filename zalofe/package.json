@@ -1,6 +1,6 @@
 {
   "name": "zalofe",
-  "version": "0.1.0",
+  "version": "0.0.0",
   "private": true,
   "type": "module",
   "dependencies": {
@@ -13,14 +13,24 @@
     "@mui/icons-material": "^5.15.11",
     "@mui/lab": "^5.0.0-alpha.166",
     "@mui/material": "^5.15.11",
+    "@mui/styled-engine-sc": "^6.0.0-alpha.17",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
+    "date-fns": "^3.3.1",
+    "date-fns-tz": "^2.0.0",
+    "react": "^18.2.0",
+    "react-custom-scrollbars-2": "^4.5.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.22.2",
+    "react-scripts": "5.0.1",
+    "react-virtualized": "^9.22.5",
+    "styled-components": "^6.1.8"
+  },
+  "devDependencies": {
     "@types/react": "^18.2.64",
     "@types/react-dom": "^18.2.21",
     "@vitejs/plugin-react": "^4.2.1",
-    "autoprefixer": "^10.4.18",
-    "date-fns": "^3.3.1",
     "eslint": "^8.57.0",
     "eslint-plugin-react": "^7.34.0",
     "eslint-plugin-react-hooks": "^4.6.0",
@@ -28,14 +38,8 @@
     "postcss": "^8.4.35",
     "prettier": "^3.2.5",
     "prettier-plugin-tailwindcss": "^0.5.12",
-    "react": "^18.2.0",
-    "react-custom-scrollbars-2": "^4.5.0",
-    "react-dom": "^18.2.0",
-    "react-router-dom": "^6.22.2",
-    "react-scripts": "5.0.1",
     "tailwindcss": "^3.4.1",
-    "vite": "^5.1.5",
-    "web-vitals": "^2.1.4"
+    "vite": "^5.1.5"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -44,7 +48,8 @@
     "build": "vite build",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
-  },
+  }
+  ,
   "eslintConfig": {
     "extends": [
       "react-app",
