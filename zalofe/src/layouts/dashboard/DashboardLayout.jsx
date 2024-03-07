@@ -1,6 +1,6 @@
 import React, { useState, useLayoutEffect } from "react";
-import Sidebar from "./Sidebar";
-import Navbar from "./Navbar";
+import Sidebar from "./Sidebar/Sidebar";
+import Navbar from "./Navbar/Navbar";
 import { Outlet } from "react-router-dom";
 
 import OtherMessage from "../../pages/Message/OtherMessage";

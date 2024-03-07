@@ -1,15 +1,15 @@
 import LoginForm from "../pages/Login/LoginForm";
 import Main from "../pages/Home/MainHome";
-import Contact from "../pages/Contact";
-import Todo from "../pages/Todo";
-import Message from "../pages/Message";
+import Contact from "../pages/Contact/Contact";
+import Todo from "../pages/Todo/Todo";
+import Message from "../pages/Message/Message";
 import OtherMessage from "../pages/Message/OtherMessage";
-import Sidebar from "../layouts/dashboard/Sidebar";
+import Sidebar from "../layouts/dashboard/Sidebar/Sidebar";
 
 import { Suspense, lazy, useEffect, useState } from "react";
 import { Navigate, useLocation, useRoutes } from "react-router-dom";
 // layouts
-import DashboardLayout from "../layouts/dashboard";
+import DashboardLayout from "../layouts/dashboard/DashboardLayout";
 import AuthLayout from "../layouts/auth";
 // config
 import { DEFAULT_PATH } from "../config";
