@@ -95,11 +95,11 @@ export default function LoginForm() {
                 </div>
 
                 <div className="mt-4">
-                  <button className="w-full py-2 tracking-wide text-blue-400 transition-colors duration-200 transform bg-white-700 border-2 rounded-md"
+                  {/* <button className="w-full py-2 tracking-wide text-blue-400 transition-colors duration-200 transform bg-white-700 border-2 rounded-md"
                     onClick={() => navigate('/')}
                   >
                     Đăng nhập với bằng thiết bị di động
-                  </button>
+                  </button> */}
                 </div>
               </form>
 
@@ -124,15 +124,16 @@ export default function LoginForm() {
               </ul>
 
               <div className='flex flex-col items-center m-6 mx-16 border-2 rounded-lg' >
-                <img src={qrCodeUrl} alt='QR' style={{width:230, height:230, borderRadius: 5, margin:10}} />
+                {/* <img src={qrCodeUrl} alt='QR' style={{width:230, height:230, borderRadius: 5, margin:10}} /> */}
+                <img src={QR_Test} alt='QR' style={{width:230, height:230, borderRadius: 5, margin:10}} />
 
-                <p className="text-base text-center font-normal text-blue-600 w-60"> 
+                {/* <p className="text-base text-center font-normal text-blue-600 w-60"> 
                   Chỉ dùng để đăng nhập
                 </p>
 
                 <p className="text-base text-center font-normal text-black-600 w-60"> 
                   Zalo trên máy tính
-                </p>
+                </p> */}
               </div>
 
                 
