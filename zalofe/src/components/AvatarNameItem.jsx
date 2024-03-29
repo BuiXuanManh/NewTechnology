@@ -1,6 +1,17 @@
-import React from "react";
+import { useQuery } from "@tanstack/react-query";
+import React, { useEffect, useState } from "react";
 
 export default function AvatarNameItem() {
+  const [data, setdata] = useState({});
+  const query = useQuery({
+    queryKey: ['getUser']
+  })
+  useEffect(() => {
+    if (query.data?.firstName) {
+      setdata(query.data);
+      query.refetch();
+    }
+  }, [data])
   return (
     <div
       className={`flex h-[74px] w-full items-center pr-2 ${

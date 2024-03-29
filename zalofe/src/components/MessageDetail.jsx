@@ -77,7 +77,7 @@ const MessageDetail = ({ message }) => {
       )}
       {sender === "other" && (
         <Avatar
-          src={"https://zpsocial-f50-org.zadn.vn/b460c9d113d8fd86a4c9.jpg"}
+          src={"avatar.jpg"}
           alt="Avatar"
           className="mr-3"
         />

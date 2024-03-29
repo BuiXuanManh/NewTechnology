@@ -1,9 +1,12 @@
-import { Routes, Route, Link, useLocation } from "react-router-dom";
-import * as React from "react";
+import {Link, useLocation, useNavigate} from "react-router-dom";
+import React, { useEffect, useState } from "react";
 import Button from "@mui/material/Button";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import Fade from "@mui/material/Fade";
+import { useQuery,useQueryClient } from "@tanstack/react-query";
+import {Skeleton} from "@mui/material";
+import Cookies from "js-cookie";
 
 function Navbar() {
   const location = useLocation();
@@ -30,9 +33,23 @@ function Navbar() {
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
+
+  const navigate= useNavigate();
+  const queryClient = useQueryClient();
   const handleClose = () => {
     setAnchorEl(null);
+
   };
+  const logout=()=>{
+    setAnchorEl(null);
+    Cookies.remove("token");
+    Cookies.remove("phone");
+    queryClient.invalidateQueries();
+    navigate("/auth/login");
+  }
+  const query = useQuery({
+    queryKey: ['getUser']
+  });
 
   return (
     <div className="fixed h-full w-16 bg-[#0091ff]  pt-8">
@@ -50,7 +67,7 @@ function Navbar() {
               >
                 <div>
                   <img
-                    src="https://s120-ava-talk.zadn.vn/2/5/a/5/6/120/5ded83a5856f6d2af9fce6eac4b8d6d2.jpg"
+                    src="avatar.jpg"
                     className="w-14 rounded-full border "
                     alt="avatar"
                   />
@@ -71,7 +88,11 @@ function Navbar() {
                 <div className="px-4 text-sm ">
                   <div className="py-2">
                     <span className="text-lg font-medium text-[#081c36]">
-                      Trần Huy
+                     {query?.data?.firstName ? (
+                         `${query?.data?.firstName} ${query?.data?.lastName}`
+                     ) : (
+                         <Skeleton variant="text" width={150}/> // Display placeholder while loading
+                     )}
                     </span>
                   </div>
                   <div className="w-[270px] border-y py-1 text-sm ">
@@ -106,7 +127,7 @@ function Navbar() {
                       height: 36,
                       color: "#081c36",
                     }}
-                    onClick={handleClose}
+                    onClick={()=>logout()}
                   >
                     Đăng xuất
                   </MenuItem>
@@ -117,12 +138,11 @@ function Navbar() {
           <li>
             <Link
               to="/"
-              className={`flex justify-center p-4 py-5 ${
-                location.pathname === "/app" ||
+              className={`flex justify-center p-4 py-5 ${location.pathname === "/app" ||
                 location.pathname === "/app/other-message"
-                  ? "bg-[#006edc]"
-                  : ""
-              }`}
+                ? "bg-[#006edc]"
+                : ""
+                }`}
             >
               <img
                 src={messageImage}
@@ -134,9 +154,8 @@ function Navbar() {
           <li>
             <Link
               to="/contact"
-              className={`flex justify-center p-4 py-5 ${
-                location.pathname === "/contact" ? "bg-[#006edc]" : ""
-              }`}
+              className={`flex justify-center p-4 py-5 ${location.pathname === "/contact" ? "bg-[#006edc]" : ""
+                }`}
             >
               <img
                 src={contactImage}
@@ -148,9 +167,8 @@ function Navbar() {
           <li>
             <Link
               to="/todo"
-              className={`flex justify-center p-4 py-5 ${
-                location.pathname === "/todo" ? "bg-[#006edc]" : ""
-              }`}
+              className={`flex justify-center p-4 py-5 ${location.pathname === "/todo" ? "bg-[#006edc]" : ""
+                }`}
             >
               <img src={todoImage} className="h-[22px] w-[22px]" alt="avatar" />
             </Link>

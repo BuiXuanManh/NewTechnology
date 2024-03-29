@@ -1,13 +1,12 @@
-import React from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChevronLeft } from "@fortawesome/free-solid-svg-icons";
+// import {  useState } from "react";
 
 import { styled } from "@mui/material/styles";
 import Badge from "@mui/material/Badge";
 import Avatar from "@mui/material/Avatar";
-import Stack from "@mui/material/Stack";
 import MessageDetail from "./MessageDetail";
 import MessageInput from "./MessageInput";
+import { useQuery } from "@tanstack/react-query";
+import { Skeleton } from '@mui/material';
 
 const StyledBadge = styled(Badge)(({ theme }) => ({
   "& .MuiBadge-badge": {
@@ -38,18 +37,18 @@ const StyledBadge = styled(Badge)(({ theme }) => ({
   },
 }));
 
-const Message = ({ sender, content, timestamp }) => (
-  <div
-    className={`flex ${sender === "me" ? "justify-end" : "justify-start"} mb-2`}
-  >
-    <div
-      className={`bg-${sender === "me" ? "blue" : "green"}-300 rounded-md p-2`}
-    >
-      <p className="text-white">{content}</p>
-      <span className="text-xs text-gray-500">{timestamp}</span>
-    </div>
-  </div>
-);
+// const Message = ({ sender, content, timestamp }) => (
+//   <div
+//     className={`flex ${sender === "me" ? "justify-end" : "justify-start"} mb-2`}
+//   >
+//     <div
+//       className={`bg-${sender === "me" ? "blue" : "green"}-300 rounded-md p-2`}
+//     >
+//       <p className="text-white">{content}</p>
+//       <span className="text-xs text-gray-500">{timestamp}</span>
+//     </div>
+//   </div>
+// );
 
 const Conversation = () => {
   const handleSendMessage = (newMessage) => {
@@ -129,13 +128,16 @@ const Conversation = () => {
     },
     // Thêm tin nhắn khác nếu cần
   ];
+  // const [data, setdata] = useState({});
+  const query = useQuery({
+    queryKey: ['getUser']
+  })
 
   return (
     <div className="h-screen w-full">
       <div className="h-[68px] w-full px-4">
         <div className="flex h-full w-full flex-row items-center justify-between">
           <div className="flex flex-row items-center gap-x-2">
-            <FontAwesomeIcon icon={faChevronLeft} className="pl-1 pr-3" />
             <div className="hidden lg:block">
               <StyledBadge
                 overlap="circular"
@@ -145,13 +147,19 @@ const Conversation = () => {
                 <Avatar
                   sx={{ width: 48, height: 48 }}
                   alt="Name"
-                  src="https://zpsocial-f50-org.zadn.vn/b460c9d113d8fd86a4c9.jpg"
+                  src="avatar.jpg"
                 />
               </StyledBadge>
             </div>
             <div className="flex flex-col">
-              <div className="text-lg font-medium text-[#081c36]">
-                <span>Nguyễn Anh Vũ</span>
+              <div className=" text-lg font-medium text-[#081c36]">
+               <span>
+          {query?.data?.firstName ? (
+              `${query?.data?.firstName} ${query?.data?.lastName}`
+          ) : (
+              <Skeleton variant="text" width={150}/> // Display placeholder while loading
+          )}
+        </span>
               </div>
               <div className="flex items-center text-sm text-[#7589a3]">
                 <span>Vừa truy cập</span>
@@ -168,20 +176,20 @@ const Conversation = () => {
           </div>
           <div className="flex flex-row items-center">
             <a href="" className="p-1">
-              <img src="/src/assets/group-user-plus.png" alt="" />
+              <img src="/src/assets/group-user-plus.png" alt=""/>
             </a>
             <a href="" className="p-2">
               <img
-                src="/src/assets/mini-search.png"
-                alt=""
-                className="m-1 h-4 w-4"
+                  src="/src/assets/mini-search.png"
+                  alt=""
+                  className="m-1 h-4 w-4"
               />
             </a>
             <a href="" className="p-2">
-              <img src="/src/assets/video.png" alt="" className="m-1 h-5 w-5" />
+              <img src="/src/assets/video.png" alt="" className="m-1 h-5 w-5"/>
             </a>
             <a href="" className="p-2">
-              <img
+            <img
                 src="/src/assets/right-bar.png"
                 alt=""
                 className="m-1 h-4 w-4"
@@ -189,7 +197,7 @@ const Conversation = () => {
             </a>
           </div>
         </div>
-      </div> 
+      </div>
       {/* -68 */}
       <div className="h-[calc(100vh-174px)] w-full flex-1 overflow-auto bg-[#A4BEEB] p-4 pr-3">
         {/* <Message sender="other" content="Xin chào!" timestamp="15:30" />
