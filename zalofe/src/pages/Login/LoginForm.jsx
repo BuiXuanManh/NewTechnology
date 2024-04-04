@@ -6,8 +6,8 @@ import QR_Test from './../../assets/QR_Test.png';
 import {useMutation, useQuery} from '@tanstack/react-query';
 import LoginService from '../../services/LoginService';
 import Cookies from 'js-cookie';
-import ErrorMessage from '../Message/ErrorMessage';
-import RegexService from '../Message/RegexService';
+import ErrorMessage from '../../services/ErrorMessage';
+import RegexService from '../../services/RegexService';
 import swal from 'sweetalert';
 
 var e = {
@@ -58,7 +58,7 @@ export default function LoginForm() {
         setErrors({...newErrors});
     }
     useEffect(() => {
-        console.log(errors);
+        // console.log(errors);
     }, [errors])
     useEffect(() => {
         // Gọi API ở đây

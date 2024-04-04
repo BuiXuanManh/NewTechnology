@@ -1,16 +1,18 @@
-import {Link, useLocation, useNavigate} from "react-router-dom";
-import React, { useEffect, useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 import Button from "@mui/material/Button";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import Fade from "@mui/material/Fade";
-import { useQuery,useQueryClient } from "@tanstack/react-query";
-import {Skeleton} from "@mui/material";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { Avatar, Skeleton } from "@mui/material";
 import Cookies from "js-cookie";
 
 function Navbar() {
   const location = useLocation();
-
+  const [token, setToken] = useState("");
+  const [phone, setPhone] = useState("");
+  const [profile, setProfile] = useState("");
   let messageImage = "/message-outline.png";
   let contactImage = "/contact-book-outline.png";
   let todoImage = "/todo-outline.png";
@@ -28,29 +30,50 @@ function Navbar() {
     todoImage = "/todo-selected.png";
   }
 
-  const [anchorEl, setAnchorEl] = React.useState(null);
+  const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
 
-  const navigate= useNavigate();
-  const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const handleClose = () => {
     setAnchorEl(null);
 
   };
-  const logout=()=>{
+  const logout = () => {
     setAnchorEl(null);
     Cookies.remove("token");
     Cookies.remove("phone");
-    queryClient.invalidateQueries();
+    Cookies.remove("profile");
+    queryClient.removeQueries({ queryKey: ["getUser"] });
+    // queryClient.removeQueries({ queryKey: ["getUser"] });
+    // queryClient.removeQueries({ queryKey: ["getUser"] });
+    // queryClient.removeQueries({ queryKey: ["getUser"] });
+    // queryClient.removeQueries({ queryKey: ["getUser"] });
     navigate("/auth/login");
-  }
-  const query = useQuery({
-    queryKey: ['getUser']
-  });
 
+  }
+  // const query = queryClient.getQueryData("getUser");
+  useEffect(() => {
+    const tokenFromCookie = Cookies.get("token");
+    const phoneFromCookie = Cookies.get("phone");
+    const profileFromCookie = Cookies.get("profile");
+
+    if (tokenFromCookie && tokenFromCookie !== token) {
+      setToken(tokenFromCookie);
+    }
+
+    if (phoneFromCookie && phoneFromCookie !== phone) {
+      setPhone(phoneFromCookie);
+    }
+
+    if (profileFromCookie && profileFromCookie !== JSON.stringify(profile)) {
+      setProfile(JSON.parse(profileFromCookie));
+    }
+  }, [token, profile, phone, Cookies.get("token")]);
+  const queryClient = useQueryClient();
+  const getUser = queryClient.getQueryData(["getUser"]);
   return (
     <div className="fixed h-full w-16 bg-[#0091ff]  pt-8">
       <nav className="w-full">
@@ -66,11 +89,7 @@ function Navbar() {
                 disableTouchRipple
               >
                 <div>
-                  <img
-                    src="avatar.jpg"
-                    className="w-14 rounded-full border "
-                    alt="avatar"
-                  />
+                  <Avatar sx={{ width: 40, height: 40 }} alt="" src={getUser?.data?.thumbnailAvatar ? getUser?.data?.thumbnailAvatar : profile?.thumbnailAvatar} className='' />
                 </div>
               </Button>
               <Menu
@@ -88,11 +107,11 @@ function Navbar() {
                 <div className="px-4 text-sm ">
                   <div className="py-2">
                     <span className="text-lg font-medium text-[#081c36]">
-                     {query?.data?.firstName ? (
-                         `${query?.data?.firstName} ${query?.data?.lastName}`
-                     ) : (
-                         <Skeleton variant="text" width={150}/> // Display placeholder while loading
-                     )}
+                      {profile?.firstName || getUser?.data ? (
+                        `${getUser?.data?.firstName ? getUser?.data?.firstName : profile?.firstName} ${getUser?.data?.lastName ? getUser?.data?.lastName : profile?.lastName}`
+                      ) : (
+                        <Skeleton variant="text" width={150} /> // Display placeholder while loading
+                      )}
                     </span>
                   </div>
                   <div className="w-[270px] border-y py-1 text-sm ">
@@ -127,7 +146,7 @@ function Navbar() {
                       height: 36,
                       color: "#081c36",
                     }}
-                    onClick={()=>logout()}
+                    onClick={() => logout()}
                   >
                     Đăng xuất
                   </MenuItem>

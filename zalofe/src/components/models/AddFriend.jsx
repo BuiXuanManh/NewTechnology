@@ -1,5 +1,4 @@
-import * as React from "react";
-import { Fragment, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import Button from "@mui/material/Button";
 import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
@@ -17,6 +16,10 @@ import TextField from "@mui/material/TextField";
 import AvatarNameItem from "../AvatarNameItem";
 
 import countries from "../../data/countries";
+import Cookies from "js-cookie";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import UserService from "../../services/UserService";
+import swal from "sweetalert";
 
 const recentSearchesData = [
   { id: 1, name: "John Doe", avatar: "/avatars/john.jpg" },
@@ -31,9 +34,12 @@ const suggestedFriendsData = [
 ];
 
 export default function AddFriendDialog() {
+  const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
   const [prefix, setPrefix] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
+  const [findProfile, setFindProfile] = useState();
+  const [userInfo, setUserInfo] = useState();
   const [friendsList, setFriendsList] = useState([]);
   const [selectedCountry, setSelectedCountry] = useState({
     name: "Vietnam",
@@ -41,6 +47,8 @@ export default function AddFriendDialog() {
     code: "VN",
     dial_code: "+84",
   });
+  const [token, setToken] = useState("");
+  const [phone, setPhone] = useState("");
   const [recentSearches, setRecentSearches] = useState(recentSearchesData);
   const [suggestedFriends, setSuggestedFriends] = useState(suggestedFriendsData);
 
@@ -53,29 +61,119 @@ export default function AddFriendDialog() {
   const handleClose = () => {
     setOpen(false);
   };
+  let service = new UserService();
+  const mutation = useMutation({
+    mutationKey: ['findFriend'],
+    mutationFn: () => {
+      try {
+        if (phoneNumber) {
+          console.log(phoneNumber)
+          const data = service.findByPhone(phoneNumber);
+          if (data) {
+            console.log("find friend data ", data.data);
+            return data;
+          }
+        }
+      } catch (error) {
+        console.error(error);
+      }
 
+    },
+    onError(err) {
+      console.error(err);
+    },
+    onSettled(data) {
+      console.log(data)
+      setFindProfile(data.data);
+      if (data) {
+        addFriend.mutate()
+
+      }
+      queryClient.refetchQueries(['findFriend']);
+      queryClient.invalidateQueries(['findFriend']);
+    },
+
+  });
+  const addFriend = useMutation({
+    mutationKey: ['addFriend'],
+    mutationFn: () => {
+      try {
+        if (findProfile) {
+          console.log(findProfile.id);
+          console.log(token);
+          const data = service.addFriend(token, findProfile.id);
+          if (data) {
+            console.log("add friend data ", data.data);
+            return data;
+          }
+        }
+      } catch (error) {
+        console.error(error);
+      }
+
+    },
+    onError(err) {
+      console.error(err);
+    },
+    onSettled(data) {
+      console.log(data)
+      if (data?.data) {
+        setUserInfo(data.data);
+        swal({
+          title: "Success",
+          text: "You have pressed the button!",
+          icon: "success"
+        });
+        queryClient.refetchQueries(['addFriend']);
+        queryClient.invalidateQueries(['addFriend']);
+      }
+      else swal({
+        title: "Error",
+        text: "You have pressed the button!",
+        icon: "error"
+      });
+    },
+
+  });
+  // console.log(mutation)
   const handleAddFriend = () => {
     console.log(
       `Add friend with prefix: ${prefix}, phone number: ${phoneNumber}`,
     );
+    mutation.mutate();
     setFriendsList((prevList) => [...prevList, { prefix, phoneNumber }]);
     handleClose();
   };
 
   const handleAddSuggestedFriend = (friend) => {
     console.log(`Add suggested friend: ${friend.name}`);
+
     // Thực hiện xử lý thêm bạn bè từ danh sách người có thể quen biết ở đây
   };
 
   const handleSelectCountry = (e) => {
-     const selectedCountryCode = e.target.value;
-     const selectedCountry = countries.find(
-       (country) => country.code === selectedCountryCode,
-     );
-     setSelectedCountry(selectedCountry);
-     console.log(selectedCountry);
+    const selectedCountryCode = e.target.value;
+    const selectedCountry = countries.find(
+      (country) => country.code === selectedCountryCode,
+    );
+    setSelectedCountry(selectedCountry);
+    console.log(selectedCountry);
   };
 
+  useEffect(() => {
+    if (Cookies.get("token") || Cookies.get("phone")) {
+      setToken(Cookies.get("token"));
+      setPhone(Cookies.get("phone"));
+      console.log(findProfile)
+      if (findProfile) {
+
+        console.log(findProfile);
+      }
+      if (userInfo) {
+        console.log(userInfo);
+      }
+    }
+  }, [Cookies.get("token"), token, findProfile, userInfo])
   return (
     <Fragment>
       <div
@@ -86,7 +184,7 @@ export default function AddFriendDialog() {
           src="/src/assets/user-plus.png"
           alt=""
           className="cursor-pointer items-center justify-center"
-          style={{ width: "100%", height: "100%"}}
+          style={{ width: "100%", height: "100%" }}
         />
       </div>
 

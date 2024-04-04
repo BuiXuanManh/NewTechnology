@@ -6,31 +6,22 @@ import Cookies from "js-cookie";
 import LoginService from "../../services/LoginService";
 
 function Message() {
-  const [phone, setPhone] = useState("");
-  const [token, setToken] = useState("");
-  useEffect(() => {
-    if (Cookies.get("phone") && Cookies.get("token")) {
-      console.log("token ", Cookies.get("token"));
-      setPhone(Cookies.get("phone"));
-      setToken(Cookies.get("token"));
-    }
-  }, [phone]);
-  let service = new LoginService();
-  const query = useQuery({
-    queryKey: ['getUser'], queryFn:  () =>  service.getUser(token).then(res => {
-      console.log(res.data);
-      return res.data;
-    }),
-    onSuccess:()=>{
-      query.refetch();
-    },
-    onSettled: () => {
-      console.log("done");
-      query.refetch();
-    },
-    cacheTime: 3600000,
-  });
-  console.log(query);
+  // const [phone, setPhone] = useState("");
+  // const [token, setToken] = useState("");
+  // useEffect(() => {
+  //   const tokenFromCookie = Cookies.get("token");
+  //   const phoneFromCookie = Cookies.get("phone");
+  //   // const profileFromCookie = Cookies.get("profile");
+
+  //   if (tokenFromCookie && tokenFromCookie !== token) {
+  //     setToken(tokenFromCookie);
+  //   }
+
+  //   if (phoneFromCookie && phoneFromCookie !== phone) {
+  //     setPhone(phoneFromCookie);
+  //   }
+  // }, [token, phone]);
+  
 
 
   return (

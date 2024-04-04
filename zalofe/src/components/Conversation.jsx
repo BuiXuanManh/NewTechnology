@@ -5,8 +5,11 @@ import Badge from "@mui/material/Badge";
 import Avatar from "@mui/material/Avatar";
 import MessageDetail from "./MessageDetail";
 import MessageInput from "./MessageInput";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Skeleton } from '@mui/material';
+import { useEffect, useState } from "react";
+import Cookies from "js-cookie";
+import LoginService from "../services/LoginService";
 
 const StyledBadge = styled(Badge)(({ theme }) => ({
   "& .MuiBadge-badge": {
@@ -51,11 +54,13 @@ const StyledBadge = styled(Badge)(({ theme }) => ({
 // );
 
 const Conversation = () => {
+  // const queryClient = useQueryClient();
   const handleSendMessage = (newMessage) => {
     // Xử lý logic gửi tin nhắn, có thể thêm tin nhắn mới vào danh sách messages
     // hoặc sử dụng một hàm callback để truyền tin nhắn lên component cha.
     console.log("Gửi tin nhắn:", newMessage);
   };
+
   const messages = [
     {
       sender: "other",
@@ -128,10 +133,43 @@ const Conversation = () => {
     },
     // Thêm tin nhắn khác nếu cần
   ];
-  // const [data, setdata] = useState({});
-  const query = useQuery({
-    queryKey: ['getUser']
-  })
+  const [token, setToken] = useState("");
+  const [phone, setPhone] = useState("");
+  const [profile, setProfile] = useState("");
+  useEffect(() => {
+    const tokenFromCookie = Cookies.get("token");
+    const phoneFromCookie = Cookies.get("phone");
+    const profileFromCookie = Cookies.get("profile");
+
+    if (tokenFromCookie && tokenFromCookie !== token) {
+      setToken(tokenFromCookie);
+    }
+
+    if (phoneFromCookie && phoneFromCookie !== phone) {
+      setPhone(phoneFromCookie);
+    }
+
+    if (profileFromCookie && profileFromCookie !== JSON.stringify(profile)) {
+      setProfile(JSON.parse(profileFromCookie));
+    }
+  }, [token, profile, phone, Cookies.get("token")]);
+  let service = new LoginService();
+  const getUser = useQuery({
+    queryKey: ['getUser'], queryFn: () => service.getUser(token).then(res => {
+      // console.log(res.data);
+      Cookies.set("profile", JSON.stringify(res.data));
+      return res.data;
+    }),
+    onSuccess: () => {
+      // query.refetch();
+    },
+    onSettled: () => {
+      console.log("done");
+      // query.refetch();
+    },
+    // cacheTime: 3600000,
+  });
+  console.log(getUser);
 
   return (
     <div className="h-screen w-full">
@@ -144,22 +182,18 @@ const Conversation = () => {
                 anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
                 variant="dot"
               >
-                <Avatar
-                  sx={{ width: 48, height: 48 }}
-                  alt="Name"
-                  src="avatar.jpg"
-                />
+                <Avatar sx={{ width: 40, height: 40 }} alt="" src={getUser?.data?.thumbnailAvatar} className='m-4' />
               </StyledBadge>
             </div>
             <div className="flex flex-col">
               <div className=" text-lg font-medium text-[#081c36]">
-               <span>
-          {query?.data?.firstName ? (
-              `${query?.data?.firstName} ${query?.data?.lastName}`
-          ) : (
-              <Skeleton variant="text" width={150}/> // Display placeholder while loading
-          )}
-        </span>
+                <span>
+                  {profile?.firstName || getUser?.data ? (
+                    `${getUser?.data?.firstName ? getUser?.data?.firstName : profile?.firstName} ${getUser?.data?.lastName ? getUser?.data?.lastName : profile?.lastName}`
+                  ) : (
+                    <Skeleton variant="text" width={150} /> // Display placeholder while loading
+                  )}
+                </span>
               </div>
               <div className="flex items-center text-sm text-[#7589a3]">
                 <span>Vừa truy cập</span>
@@ -176,20 +210,20 @@ const Conversation = () => {
           </div>
           <div className="flex flex-row items-center">
             <a href="" className="p-1">
-              <img src="/src/assets/group-user-plus.png" alt=""/>
+              <img src="/src/assets/group-user-plus.png" alt="" />
             </a>
             <a href="" className="p-2">
               <img
-                  src="/src/assets/mini-search.png"
-                  alt=""
-                  className="m-1 h-4 w-4"
+                src="/src/assets/mini-search.png"
+                alt=""
+                className="m-1 h-4 w-4"
               />
             </a>
             <a href="" className="p-2">
-              <img src="/src/assets/video.png" alt="" className="m-1 h-5 w-5"/>
+              <img src="/src/assets/video.png" alt="" className="m-1 h-5 w-5" />
             </a>
             <a href="" className="p-2">
-            <img
+              <img
                 src="/src/assets/right-bar.png"
                 alt=""
                 className="m-1 h-4 w-4"

@@ -18,7 +18,12 @@ import MessageFilterBar from "../pages/Message/MessageFilterBar";
 import SearchBox from "../components/SearchBox";
 import Conversation from "../components/Conversation";
 import DetailContact from "../components/DetailContact";
-
+import Connection from '../pages/connect/Connection';
+import FriendRequest from "../components/FriendRequest";
+import Cookies from "js-cookie";
+import FriendList from "../components/FriendList";
+import LoginService from "../services/LoginService";
+import { useQuery } from "@tanstack/react-query";
 const Loadable = (Component) => (props) => {
   return (
     <Suspense fallback={<LoadingScreen />}>
@@ -30,23 +35,26 @@ const Loadable = (Component) => (props) => {
 
 
 export default function Router() {
-  const [comp, setComp] = useState(<Conversation/>)
+  
+  const [comp, setComp] = useState(<Conversation />)
+  
 
   function handleComp() {
-    setComp(<DetailContact/>)
+    setComp(<DetailContact />)
   }
+
 
   const location = useLocation();
 
   useEffect(() => {
     if (location.pathname === "/app") {
-      setComp(<Conversation/>);
-    } 
+      setComp(<Conversation />);
+    }
     else if (location.pathname === "/contact") {
-      setComp(<DetailContact/>);
+      setComp(<FriendList />);
     }
   }, [location.pathname]);
-
+  
   return useRoutes([
     {
       path: "/auth",
@@ -66,11 +74,14 @@ export default function Router() {
             { path: "other-message", element: <OtherMessage /> },
           ],
         },
-        { path: "/contact", element: [<SearchBox/>,  <Contact/>], },
+        { path: "/contact", element: [<SearchBox />, <Contact setComp={setComp} />], },
         { path: "todo", element: <Todo /> },
-        
+
       ],
+
+
     },
+    { path: "/connect", element: <Connection /> },
 
     // { path: "*", element: <Navigate to="/404" replace /> },
   ]);
