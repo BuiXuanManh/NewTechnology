@@ -26,11 +26,18 @@ export default function LoginForm() {
         phone: '*',
         password: '*'
     });
+
+    
     const validateForm = () => {
         handleBlur('phone');
         handleBlur('password');
         return errors.phone == "*" && errors.password == "*";
     }
+
+ 
+    const handleForgotPassword = () => {
+        navigate('/auth/forgot-password');
+    } // Điều hướng đến đường dẫn của PasswordForm
     let errorService = new ErrorMessage();
     let regexService = new RegexService();
     const handleBlur = (field) => {
@@ -127,15 +134,14 @@ export default function LoginForm() {
     return (
         <div className='w-full'>
             <div className="absolute inset-0">
+              
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 654" preserveAspectRatio="xMinYMin slice">
 
                     <rect x="1" y="1" width="1280" height="654" fill="#e8f3ff"/>
                     <path fill="#e8f3ff" d="M1181.68 655C1163.95 469.296 1031.95 86.8402 963 1H1279V655H1181.68Z"/>
                     <path fill="#e8f3ff" d="M1.5 142.5C52.5 267 131.5 487 172 653H1.5V142.5Z"/>
-                    <path fill="#aad6ff"
-                          d="M519.5 1.5H685H964.5C1046 135 1167 469 1180 655.5H767.5C704.5 505.5 604.5 304.5 464 148.5L519.5 1.5Z"/>
-                    <path fill="#d0e4fc"
-                          d="M1 144V1.5H519.5C456 189 322.5 475.5 220 652.5H171.5C138.5 509 51.5 262.5 1 144Z"/>
+                    <path fill="#aad6ff" d="M519.5 1.5H685H964.5C1046 135 1167 469 1180 655.5H767.5C704.5 505.5 604.5 304.5 464 148.5L519.5 1.5Z"/>
+                    <path fill="#d0e4fc" d="M1 144V1.5H519.5C456 189 322.5 475.5 220 652.5H171.5C138.5 509 51.5 262.5 1 144Z"/>
 
                 </svg>
 
@@ -209,6 +215,7 @@ export default function LoginForm() {
                                 <a
                                     href="#"
                                     className="font-medium text-black-100 hover:underline"
+                                    onClick={handleForgotPassword} 
                                 >
                                     Quên mật khẩu?
                                 </a>

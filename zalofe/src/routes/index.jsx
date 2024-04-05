@@ -18,7 +18,7 @@ import MessageFilterBar from "../pages/Message/MessageFilterBar";
 import SearchBox from "../components/SearchBox";
 import Conversation from "../components/Conversation";
 import DetailContact from "../components/DetailContact";
-
+import PasswordForm from "../pages/Login/PasswordForm";
 const Loadable = (Component) => (props) => {
   return (
     <Suspense fallback={<LoadingScreen />}>
@@ -51,7 +51,10 @@ export default function Router() {
     {
       path: "/auth",
       element: <AuthLayout />,
-      children: [{ path: "login", element: <LoginForm /> }],
+      children: [
+        { path: "login", element: <LoginForm /> },
+        { path: "forgot-password", element: <PasswordForm /> } // Thêm PasswordForm vào routing
+      ],
     },
     {
       path: "/",
