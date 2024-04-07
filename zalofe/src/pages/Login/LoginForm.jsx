@@ -1,9 +1,9 @@
-import {faLock, faMobileScreen} from '@fortawesome/free-solid-svg-icons';
-import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import {useEffect, useState} from 'react';
-import {useNavigate} from 'react-router-dom';
+import { faLock, faMobileScreen } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import QR_Test from './../../assets/QR_Test.png';
-import {useMutation, useQuery} from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import LoginService from '../../services/LoginService';
 import Cookies from 'js-cookie';
 import ErrorMessage from '../../services/ErrorMessage';
@@ -34,7 +34,7 @@ export default function LoginForm() {
     let errorService = new ErrorMessage();
     let regexService = new RegexService();
     const handleBlur = (field) => {
-        const newErrors = {...errors};
+        const newErrors = { ...errors };
         if (field === 'phone') {
             if (!phone) {
                 newErrors.phone = errorService.error.phoneRequired;
@@ -54,8 +54,8 @@ export default function LoginForm() {
             }
         }
         // console.log(errors)
-        e = {...newErrors};
-        setErrors({...newErrors});
+        e = { ...newErrors };
+        setErrors({ ...newErrors });
     }
     useEffect(() => {
         // console.log(errors);
@@ -86,7 +86,7 @@ export default function LoginForm() {
     //=========================================================
     let service = new LoginService();
     const mutation = useMutation({
-        mutationFn: () => service.login({phone: phone, password: password}),
+        mutationFn: () => service.login({ phone: phone, password: password }),
         onSuccess: (data) => {
             console.log(data);
             Cookies.set('token', data.data.accessToken);
@@ -97,10 +97,10 @@ export default function LoginForm() {
             navigate('/app');
         },
         onError: (error) => {
-            if(error){
+            if (error) {
                 swal({
-                    title: "Username is not exist",
-                    text: "You have pressed the button!",
+                    title: "Tên đăng nhập hoặc mật khẩu không chính xác",
+                    // text: "You have pressed the button!",
                     icon: "error"
                 });
             }
@@ -117,11 +117,15 @@ export default function LoginForm() {
             mutation.mutate();
         } else {
             swal({
-                title: "Username existed",
-                text: "You have pressed the button!",
+                title: "Tên đăng nhập hoặc mật khẩu không chính xác",
+                // text: "You have pressed the button!",
                 icon: "error"
             });
         }
+    }
+    const [security,setSecurity] = useState(true);
+    const handleSecurity=()=>{
+        setSecurity(!security);
     }
     console.log("mutation ", mutation);
     return (
@@ -129,13 +133,13 @@ export default function LoginForm() {
             <div className="absolute inset-0">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 654" preserveAspectRatio="xMinYMin slice">
 
-                    <rect x="1" y="1" width="1280" height="654" fill="#e8f3ff"/>
-                    <path fill="#e8f3ff" d="M1181.68 655C1163.95 469.296 1031.95 86.8402 963 1H1279V655H1181.68Z"/>
-                    <path fill="#e8f3ff" d="M1.5 142.5C52.5 267 131.5 487 172 653H1.5V142.5Z"/>
+                    <rect x="1" y="1" width="1280" height="654" fill="#e8f3ff" />
+                    <path fill="#e8f3ff" d="M1181.68 655C1163.95 469.296 1031.95 86.8402 963 1H1279V655H1181.68Z" />
+                    <path fill="#e8f3ff" d="M1.5 142.5C52.5 267 131.5 487 172 653H1.5V142.5Z" />
                     <path fill="#aad6ff"
-                          d="M519.5 1.5H685H964.5C1046 135 1167 469 1180 655.5H767.5C704.5 505.5 604.5 304.5 464 148.5L519.5 1.5Z"/>
+                        d="M519.5 1.5H685H964.5C1046 135 1167 469 1180 655.5H767.5C704.5 505.5 604.5 304.5 464 148.5L519.5 1.5Z" />
                     <path fill="#d0e4fc"
-                          d="M1 144V1.5H519.5C456 189 322.5 475.5 220 652.5H171.5C138.5 509 51.5 262.5 1 144Z"/>
+                        d="M1 144V1.5H519.5C456 189 322.5 475.5 220 652.5H171.5C138.5 509 51.5 262.5 1 144Z" />
 
                 </svg>
 
@@ -143,9 +147,9 @@ export default function LoginForm() {
             <div className="relative flex flex-col overflow-hidden">
 
                 <div className=''>
-                    <h1 className='text-center text-6xl text-blue-600 font-semibold p-3 mt-10'>Zalo</h1>
-                    <h2 className='text-center font-normal'>Đăng nhập tài khoản Zalo</h2>
-                    <h2 className='text-center font-normal'>để kết nối với ứng dụng Zalo Web</h2>
+                    <h1 className='text-center text-6xl text-blue-600 font-semibold p-3 mt-10'>Viet Chat</h1>
+                    <h2 className='text-center font-normal'>Đăng nhập tài khoản Viet chat</h2>
+                    <h2 className='text-center font-normal'>để kết nối với ứng dụng Viet Chat Web</h2>
                 </div>
 
                 <div className="w-full pb-6 mx-auto my-5 bg-white shadow-md lg:max-w-[400px]">
@@ -161,7 +165,7 @@ export default function LoginForm() {
                             </ul>
                             <div className="mt-2  px-6">
                                 <div className="mb-2 mx-2 py-4 border-b-2">
-                                    <FontAwesomeIcon icon={faMobileScreen} className='mx-3'/>
+                                    <FontAwesomeIcon icon={faMobileScreen} className='mx-3' />
                                     <select id="contryOption" className='text-center mx-3'>
                                         <option value="">+84</option>
                                         <option value="option1">+1</option>
@@ -170,19 +174,23 @@ export default function LoginForm() {
                                     </select>
 
                                     <input id="input-phone" onBlur={() => handleBlur('phone')}
-                                           onChange={(e) => setPhone(e.target.value)} placeholder="Số điện thoại"
-                                           className='px-3'></input>
-                                    {<p style={{color: 'red'}}>{errors.phone}</p>}
+                                        onChange={(e) => setPhone(e.target.value)} placeholder="Số điện thoại"
+                                        className='px-3'></input>
+                                    {<p style={{ color: 'red' }}>{errors.phone}</p>}
                                 </div>
 
                                 <div className="mb-2 mx-2 py-4 border-b-2">
-                                    <FontAwesomeIcon icon={faLock} className='mx-3'/>
-                                    <input id="input-password" type='password' onBlur={() => handleBlur('password')}
-                                           onChange={(e) => setPassword(e.target.value)} placeholder="Mật khẩu"
-                                           className='mx-3 px-3'></input>
-                                    {<p style={{color: 'red'}}>{errors.password}</p>}
+                                    <FontAwesomeIcon icon={faLock} className='mx-3' />
+                                    <input id="input-password" type={security ? 'password' : 'text'} onBlur={() => handleBlur('password')}
+                                        onChange={(e) => setPassword(e.target.value)} placeholder="Mật khẩu"
+                                        className='mx-3 px-3'></input>
+                                    {<p style={{ color: 'red' }}>{errors.password}</p>}
                                 </div>
-
+                                <div className='mt-3'>
+                                   <a className='text-blue-700 text-sm' onClick={handleSecurity} >
+                                        {security ? 'Hiện mật khẩu' : 'Ẩn mật khẩu'}
+                                   </a>
+                                </div>
                                 <div className="mt-6">
                                     <button
                                         className="w-full py-2 tracking-wide text-white transition-colors duration-200 transform bg-blue-400 rounded-md"
@@ -207,8 +215,9 @@ export default function LoginForm() {
                             <p className="mt-8 text-xs font-light text-center text-gray-700">
 
                                 <a
-                                    href="#"
+                                    href={`/auth/forgot-password/${phone ? phone : null}`}
                                     className="font-medium text-black-100 hover:underline"
+                                // onClick={handleForgotPassword} 
                                 >
                                     Quên mật khẩu?
                                 </a>
@@ -227,7 +236,7 @@ export default function LoginForm() {
                             <div className='flex flex-col items-center m-6 mx-16 border-2 rounded-lg'>
                                 {/* <img src={qrCodeUrl} alt='QR' style={{width:230, height:230, borderRadius: 5, margin:10}} /> */}
                                 <img src={QR_Test} alt='QR'
-                                     style={{width: 230, height: 230, borderRadius: 5, margin: 10}}/>
+                                    style={{ width: 230, height: 230, borderRadius: 5, margin: 10 }} />
 
                                 {/* <p className="text-base text-center font-normal text-blue-600 w-60">
                   Chỉ dùng để đăng nhập
@@ -240,7 +249,7 @@ export default function LoginForm() {
 
 
                             <p className="mb-6 text-xs text-center font-medium text-gray-600">
-                                Sử dụng ứng dụng Zalo để quét mã QR
+                                Sử dụng ứng dụng Viet Chat để quét mã QR
                             </p>
                         </>
                     )}

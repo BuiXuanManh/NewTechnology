@@ -41,6 +41,11 @@ function Navbar() {
     setAnchorEl(null);
 
   };
+  const changePass = () => {
+    setAnchorEl(null);
+    navigate(`/auth/change-password/${phone}`);
+
+  }
   const logout = () => {
     setAnchorEl(null);
     Cookies.remove("token");
@@ -55,6 +60,9 @@ function Navbar() {
 
   }
   // const query = queryClient.getQueryData("getUser");
+
+  const queryClient = useQueryClient();
+  const getUser = queryClient.getQueryData(["getUser"]);
   useEffect(() => {
     const tokenFromCookie = Cookies.get("token");
     const phoneFromCookie = Cookies.get("phone");
@@ -71,9 +79,7 @@ function Navbar() {
     if (profileFromCookie && profileFromCookie !== JSON.stringify(profile)) {
       setProfile(JSON.parse(profileFromCookie));
     }
-  }, [token, profile, phone, Cookies.get("token")]);
-  const queryClient = useQueryClient();
-  const getUser = queryClient.getQueryData(["getUser"]);
+  }, [token, profile, phone, Cookies.get("token"), Cookies.get("phone"), Cookies.get("profile"), getUser?.data]);
   return (
     <div className="fixed h-full w-16 bg-[#0091ff]  pt-8">
       <nav className="w-full">
@@ -125,6 +131,17 @@ function Navbar() {
                       onClick={handleClose}
                     >
                       Hồ sơ của bạn
+                    </MenuItem>
+                    <MenuItem
+                      sx={{
+                        fontSize: 14,
+                        paddingLeft: 0,
+                        height: 36,
+                        color: "#081c36",
+                      }}
+                      onClick={changePass}
+                    >
+                      Đổi mật khẩu
                     </MenuItem>
                     <MenuItem
                       sx={{

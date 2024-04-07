@@ -24,6 +24,8 @@ import Cookies from "js-cookie";
 import FriendList from "../components/FriendList";
 import LoginService from "../services/LoginService";
 import { useQuery } from "@tanstack/react-query";
+import PasswordForm from "../pages/Login/PasswordForm";
+import ChangePasswordForm from "../pages/Login/ChangePasswordForm ";
 const Loadable = (Component) => (props) => {
   return (
     <Suspense fallback={<LoadingScreen />}>
@@ -35,9 +37,9 @@ const Loadable = (Component) => (props) => {
 
 
 export default function Router() {
-  
+
   const [comp, setComp] = useState(<Conversation />)
-  
+
 
   function handleComp() {
     setComp(<DetailContact />)
@@ -54,12 +56,16 @@ export default function Router() {
       setComp(<FriendList />);
     }
   }, [location.pathname]);
-  
+
   return useRoutes([
     {
       path: "/auth",
       element: <AuthLayout />,
-      children: [{ path: "login", element: <LoginForm /> }],
+      children: [
+        { path: "login", element: <LoginForm /> },
+        { path: "forgot-password/:phoneP", element: <PasswordForm /> }, // Thêm PasswordForm vào routing
+        { path: "change-password/:phoneP", element: <ChangePasswordForm /> }
+      ],
     },
     {
       path: "/",

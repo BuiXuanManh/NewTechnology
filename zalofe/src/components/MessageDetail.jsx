@@ -1,6 +1,8 @@
 // MessageDetail.js
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Avatar from "@mui/material/Avatar";
+import Cookies from "js-cookie";
+import { useQueryClient } from "@tanstack/react-query";
 
 const MessageDetail = ({ message }) => {
   const { sender, content, timestamp, avatar, hasEmotion } = message;
@@ -22,13 +24,34 @@ const MessageDetail = ({ message }) => {
     setIsMyMessage(!isMyMessage);
     setIsHovered(true);
   };
+  const [token, setToken] = useState("");
+  const [phone, setPhone] = useState("");
+  const [profile, setProfile] = useState("");
+  useEffect(() => {
+    const tokenFromCookie = Cookies.get("token");
+    const phoneFromCookie = Cookies.get("phone");
+    const profileFromCookie = Cookies.get("profile");
+
+    if (tokenFromCookie && tokenFromCookie !== token) {
+      setToken(tokenFromCookie);
+    }
+
+    if (phoneFromCookie && phoneFromCookie !== phone) {
+      setPhone(phoneFromCookie);
+    }
+
+    if (profileFromCookie && profileFromCookie !== JSON.stringify(profile)) {
+      setProfile(JSON.parse(profileFromCookie));
+    }
+  }, [token, profile, phone, Cookies.get("token"), Cookies.get("phone"), Cookies.get("profile")]);
+  const queryClient = useQueryClient();
+  const getUser = queryClient.getQueryData(["getUser"]);
 
   return (
     <div
       ref={messageRef}
-      className={`relative mb-3 flex ${isHovered ? "group" : ""} ${
-        sender === "me" ? "justify-end" : "justify-start"
-      }`}
+      className={`relative mb-3 flex ${isHovered ? "group" : ""} ${sender === "me" ? "justify-end" : "justify-start"
+        }`}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       onContextMenu={handleContextMenu}
@@ -76,16 +99,11 @@ const MessageDetail = ({ message }) => {
         </div>
       )}
       {sender === "other" && (
-        <Avatar
-          src={"avatar.jpg"}
-          alt="Avatar"
-          className="mr-3"
-        />
+        <Avatar sx={{ width: 40, height: 40 }} alt="" src={getUser?.data?.thumbnailAvatar ? getUser?.data?.thumbnailAvatar : profile?.thumbnailAvatar} className='mr-5' />
       )}
       <div
-        className={`${
-          sender === "me" ? "bg-[#E5EFFF]" : "bg-[#FFFFFF]"
-        } relative flex flex-col items-start rounded-md p-3 transition-all duration-300`}
+        className={`${sender === "me" ? "bg-[#E5EFFF]" : "bg-[#FFFFFF]"
+          } relative flex flex-col items-start rounded-md p-3 transition-all duration-300`}
       >
         <div className="flex items-center">
           <p className={`text-[#081c36] ${sender === "other" ? "" : ""}`}>

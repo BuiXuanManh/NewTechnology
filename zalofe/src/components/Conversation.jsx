@@ -161,13 +161,12 @@ const Conversation = () => {
       return res.data;
     }),
     onSuccess: () => {
-      // query.refetch();
+      getUser.refetch();
     },
     onSettled: () => {
       console.log("done");
-      // query.refetch();
+      getUser.refetch();
     },
-    // cacheTime: 3600000,
   });
   console.log(getUser);
 
