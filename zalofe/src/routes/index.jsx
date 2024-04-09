@@ -14,7 +14,6 @@ import AuthLayout from "../layouts/auth";
 // config
 import { DEFAULT_PATH } from "../config";
 import LoadingScreen from "../components/LoadingScreen";
-import MessageFilterBar from "../pages/Message/MessageFilterBar";
 import SearchBox from "../components/SearchBox";
 import Conversation from "../components/Conversation";
 import DetailContact from "../components/DetailContact";
@@ -60,7 +59,7 @@ export default function Router() {
         { element: <Navigate to={DEFAULT_PATH} replace />, index: true },
         {
           path: "/app",
-          element: <MessageFilterBar />,
+          element: <SearchBox />,
           children: [
             { path: "", element: <Message /> },
             { path: "other-message", element: <OtherMessage /> },

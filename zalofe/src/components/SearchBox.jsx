@@ -1,13 +1,13 @@
-import React, { useState } from "react";
+import React, { Fragment, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 import { NavLink, Outlet } from "react-router-dom";
-import TabList from "@mui/lab/TabList";
+import AddFriendDialog from "./models/AddFriend";
 
 
 function SearchBox() {
   const [searchTerm, setSearchTerm] = useState("");
-//   const [item, setItem] = useState("UuTien");
+  //   const [item, setItem] = useState("UuTien");
 
   //   const handleItemSelected = (value) => {
   //     onItemSelected(value);
@@ -34,51 +34,18 @@ function SearchBox() {
             onChange={handleSearchChange}
             className="h-8 w-full rounded-md border bg-[#EAEDF0] p-2 pl-[30px] text-sm focus:outline-none"
           />
-          <img
-            src="/src/assets/user-plus.png"
-            alt=""
-            className="cursor-pointer items-center justify-center"
-          />
-          <img
-            src="/src/assets/group-user-plus.png"
-            alt=""
-            className="cursor-pointer items-center justify-center"
-          />
+          <AddFriendDialog />
+          <Fragment>
+            <button className="w-11 z-50 cursor-pointer hover:bg-gray-200 mr-1 justify-center items-center">
+              <img
+                src="/src/assets/group-user-plus.png"
+                alt=""
+                className="cursor-pointer items-center justify-center"
+                style={{ width: "100%", height: "100%" }}
+              />
+            </button>
+          </Fragment>
         </div>
-        {/* <div className="mt-[-10px] flex flex-row gap-x-2 pb-2">
-          <NavLink
-            to=""
-            onClick={() => {
-              {
-                //   handleItemSelected("UuTien");
-                setItem("UuTien");
-              }
-            }}
-            className={`font-sans text-sm font-semibold  ${
-              item == "UuTien"
-                ? "mb-[-9px] border-b-2 border-[#005AE0] text-[#005AE0] transition duration-300 ease-in-out"
-                : "text-[#7589A3]"
-            }`}
-          >
-            Ưu tiên
-          </NavLink>
-          <NavLink
-            to="other-message"
-            onClick={() => {
-              {
-                //   handleItemSelected("Khac");
-                setItem("Khac");
-              }
-            }}
-            className={`font-sans text-sm font-semibold  ${
-              item == "Khac"
-                ? "mb-[-9px] border-b-2 border-[#005AE0] text-[#005AE0] transition duration-300 ease-in-out"
-                : "text-[#7589A3]"
-            }`}
-          >
-            Khác
-          </NavLink>
-        </div> */}
       </div>
       <div className="flex-1 pl-4 ">
         <Outlet />

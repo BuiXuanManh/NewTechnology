@@ -4,26 +4,38 @@ import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
 import LoginService from "../../services/LoginService";
+import useLoginData from "../../hook/useLoginData";
+import ChatService from "../../services/ChatService";
+import { set } from "date-fns";
 
 function Message() {
-  // const [phone, setPhone] = useState("");
-  // const [token, setToken] = useState("");
-  // useEffect(() => {
-  //   const tokenFromCookie = Cookies.get("token");
-  //   const phoneFromCookie = Cookies.get("phone");
-  //   // const profileFromCookie = Cookies.get("profile");
-
-  //   if (tokenFromCookie && tokenFromCookie !== token) {
-  //     setToken(tokenFromCookie);
-  //   }
-
-  //   if (phoneFromCookie && phoneFromCookie !== phone) {
-  //     setPhone(phoneFromCookie);
-  //   }
-  // }, [token, phone]);
-  
-
-
+  const [phone, setPhone] = useState("");
+  const [token, setToken] = useState("");
+  const [profile, setProfile] = useState({});
+  useLoginData({ token, setToken, setProfile, setPhone });
+  const service = new ChatService();
+  const [chats, setChats] = useState([]);
+  const [noSenderchats, setNoSenderChats] = useState([]);
+  const querychat = useQuery({
+    queryKey: ["chats"],
+    queryFn: () => {
+      service.getChats(token).then((res) => {
+        if (res.data) {
+          console.log(res.data);
+          setChats(res.data);
+          setNoSenderChats(res.data.filter((chat) => !chat?.lastMessage?.sender));
+          return res.data;
+        }
+      }).catch((err) => {
+        console.log(err);
+      });
+    },
+    onSuccess: (data) => {
+      console.log(data);
+    }
+  });
+  console.log("nosender ", noSenderchats);
+  console.log("chat ", chats);
   return (
     <div className="h-[calc(100vh-95px)] w-full overflow-auto">
       {/* <div className="flex h-[74px] w-full items-center border border-black ">
@@ -54,12 +66,14 @@ function Message() {
           </div>
         </div>
       </div> */}
-      {conversations.map((conversation) => (
+      {chats?.map((chat) => (
         <ChatElement
-          key={conversation.userID}
-          id={conversation.userID}
-          name={conversation.userName}
-          {...conversation}
+          key={chat.id}
+          id={chat.id}
+          name={chat.name}
+          lastMessage={chat.lastMessage}
+          avatar={chat.avatar}
+          // {...chat}
         />
       ))}
       <div className="h-[60px]">

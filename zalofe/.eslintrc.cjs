@@ -22,5 +22,6 @@ module.exports = {
     'react-hooks/exhaustive-deps': 'off',
     'jsx-ally/anchor-is-valid': 'off',
     'react/jsx-key': 'off',
+    'react/prop-types': 'off',
   },
 }

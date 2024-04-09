@@ -66,57 +66,54 @@ export default function AddFriendDialog() {
   const mutation = useMutation({
     mutationKey: ['findFriend'],
     mutationFn: () => {
-      try {
-        if (phoneNumber) {
-          console.log(phoneNumber)
-          const data = service.findByPhone(phoneNumber);
-          if (data) {
-            console.log("find friend data ", data.data);
-            // setFindProfile(data.data);
-            addFriend.mutate(data?.data?.id)
-            // queryClient.refetchQueries(['findFriend']);
-            // queryClient.invalidateQueries(['findFriend']);
-            return data;
-          }
+      service.findByPhone(phoneNumber).then((res) => {
+        console.log(res.data);
+        if (res.error) {
+          swal({
+            title: "Error",
+            icon: "error"
+          });
         }
-      } catch (error) {
-        console.error(error);
-      }
+        if (res.data) {
+          console.log("find friend data ", res.data);
+          Cookies.set("idFind", res?.data?.id);
+          addFriend.mutate()
+        }
+      }).catch(error => {
+        swal({
+          title: `${error?.response?.data?.detail}`,
+          icon: "error"
+        });
+      })
 
-    },
-    onError(err) {
-      console.error(err);
-    },
-    onSettled(data) {
-      console.log(data)
-    },
-
+    }
   });
-  const addFriend = useMutation(
-    (id) => {
-      try {
-        console.log(id);
-        if (id) {
-
-          console.log(token);
-          const data = service.addFriend(token, id);
-          if (data) {
-            console.log("add friend data ", data.data);
+  const addFriend = useMutation({
+    mutationKey: ['addFriend'],
+    mutationFn: () => {
+      if (Cookies.get("idFind") && token) {
+        console.log(Cookies.get("idFind"));
+        console.log(token);
+        const data = service.addFriend(token, Cookies.get("idFind")).then((res) => {
+          console.log(res);
+          if (res.data) {
+            console.log("add friend data ", res.data);
             swal({
               title: "Success",
               text: "You have pressed the button!",
               icon: "success"
             });
-            return data;
           }
-        }
-      } catch (error) {
-        console.error(error);
+        }).catch(error => {
+          console.log(error);
+          swal({
+            title: `${error?.response?.data?.detail}`,
+            icon: "error"
+          });
+        });
       }
-
-    },
-
-  );
+    }
+  });
   // console.log(mutation)
   const handleAddFriend = () => {
     console.log(
@@ -129,8 +126,6 @@ export default function AddFriendDialog() {
 
   const handleAddSuggestedFriend = (friend) => {
     console.log(`Add suggested friend: ${friend.name}`);
-
-    // Thực hiện xử lý thêm bạn bè từ danh sách người có thể quen biết ở đây
   };
 
   const handleSelectCountry = (e) => {
@@ -145,18 +140,17 @@ export default function AddFriendDialog() {
   useLoginData({ token, setToken, setProfile, setPhone });
   return (
     <Fragment>
-      <div
+      <button
         onClick={handleClickOpen}
-        className="w-10 ml-3 mr-1 hover:bg-gray-200"
+        className="w-9 z-50 cursor-pointer hover:bg-gray-200 mx-1 justify-center items-center"
       >
         <img
           src="/src/assets/user-plus.png"
           alt=""
-          className="cursor-pointer items-center justify-center"
+          className=""
           style={{ width: "100%", height: "100%" }}
         />
-      </div>
-
+      </button>
       <Dialog open={open} onClose={handleClose}>
         <div className="flex items-center justify-between border p-2">
           <DialogTitle sx={{ padding: 0 }}>
