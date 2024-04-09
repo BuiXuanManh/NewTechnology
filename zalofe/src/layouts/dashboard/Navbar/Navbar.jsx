@@ -7,12 +7,14 @@ import Fade from "@mui/material/Fade";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Avatar, Skeleton } from "@mui/material";
 import Cookies from "js-cookie";
+import useLoginData from "../../../hook/useLoginData";
 
 function Navbar() {
   const location = useLocation();
   const [token, setToken] = useState("");
   const [phone, setPhone] = useState("");
   const [profile, setProfile] = useState("");
+  useLoginData({ token, setToken, setProfile, setPhone });
   let messageImage = "/message-outline.png";
   let contactImage = "/contact-book-outline.png";
   let todoImage = "/todo-outline.png";
@@ -51,7 +53,7 @@ function Navbar() {
     Cookies.remove("token");
     Cookies.remove("phone");
     Cookies.remove("profile");
-    queryClient.removeQueries({ queryKey: ["getUser"] });
+    // queryClient.removeQueries({ queryKey: ["getUser"] });
     // queryClient.removeQueries({ queryKey: ["getUser"] });
     // queryClient.removeQueries({ queryKey: ["getUser"] });
     // queryClient.removeQueries({ queryKey: ["getUser"] });
@@ -61,25 +63,25 @@ function Navbar() {
   }
   // const query = queryClient.getQueryData("getUser");
 
-  const queryClient = useQueryClient();
-  const getUser = queryClient.getQueryData(["getUser"]);
-  useEffect(() => {
-    const tokenFromCookie = Cookies.get("token");
-    const phoneFromCookie = Cookies.get("phone");
-    const profileFromCookie = Cookies.get("profile");
+  // const queryClient = useQueryClient();
+  // const getUser = queryClient.getQueryData(["getUser"]);
+  // useEffect(() => {
+  //   const tokenFromCookie = Cookies.get("token");
+  //   const phoneFromCookie = Cookies.get("phone");
+  //   const profileFromCookie = Cookies.get("profile");
 
-    if (tokenFromCookie && tokenFromCookie !== token) {
-      setToken(tokenFromCookie);
-    }
+  //   if (tokenFromCookie && tokenFromCookie !== token) {
+  //     setToken(tokenFromCookie);
+  //   }
 
-    if (phoneFromCookie && phoneFromCookie !== phone) {
-      setPhone(phoneFromCookie);
-    }
+  //   if (phoneFromCookie && phoneFromCookie !== phone) {
+  //     setPhone(phoneFromCookie);
+  //   }
 
-    if (profileFromCookie && profileFromCookie !== JSON.stringify(profile)) {
-      setProfile(JSON.parse(profileFromCookie));
-    }
-  }, [token, profile, phone, Cookies.get("token"), Cookies.get("phone"), Cookies.get("profile"), getUser?.data]);
+  //   if (profileFromCookie && profileFromCookie !== JSON.stringify(profile)) {
+  //     setProfile(JSON.parse(profileFromCookie));
+  //   }
+  // }, [token, profile, phone, Cookies.get("token"), Cookies.get("phone"), Cookies.get("profile"), getUser?.data]);
   return (
     <div className="fixed h-full w-16 bg-[#0091ff]  pt-8">
       <nav className="w-full">
@@ -95,7 +97,7 @@ function Navbar() {
                 disableTouchRipple
               >
                 <div>
-                  <Avatar sx={{ width: 40, height: 40 }} alt="" src={getUser?.data?.thumbnailAvatar ? getUser?.data?.thumbnailAvatar : profile?.thumbnailAvatar} className='' />
+                  <Avatar sx={{ width: 40, height: 40 }} alt="" src={profile?.thumbnailAvatar} className='' />
                 </div>
               </Button>
               <Menu
@@ -113,8 +115,8 @@ function Navbar() {
                 <div className="px-4 text-sm ">
                   <div className="py-2">
                     <span className="text-lg font-medium text-[#081c36]">
-                      {profile?.firstName || getUser?.data ? (
-                        `${getUser?.data?.firstName ? getUser?.data?.firstName : profile?.firstName} ${getUser?.data?.lastName ? getUser?.data?.lastName : profile?.lastName}`
+                      {profile?.firstName ? (
+                        `${profile?.firstName} ${profile?.lastName}`
                       ) : (
                         <Skeleton variant="text" width={150} /> // Display placeholder while loading
                       )}

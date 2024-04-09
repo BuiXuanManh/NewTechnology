@@ -8,4 +8,7 @@ export default class LoginService {
     getUser(token) {
         return api.get("/api/v1/users/profile", AuthService(token));
     }
+    register(data, token) {
+        return api.post("/api/v1/auth/register", data, AuthService(token));
+    }
 }

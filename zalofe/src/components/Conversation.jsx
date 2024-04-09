@@ -10,6 +10,7 @@ import { Skeleton } from '@mui/material';
 import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
 import LoginService from "../services/LoginService";
+import useLoginData from "../hook/useLoginData";
 
 const StyledBadge = styled(Badge)(({ theme }) => ({
   "& .MuiBadge-badge": {
@@ -136,40 +137,7 @@ const Conversation = () => {
   const [token, setToken] = useState("");
   const [phone, setPhone] = useState("");
   const [profile, setProfile] = useState("");
-  useEffect(() => {
-    const tokenFromCookie = Cookies.get("token");
-    const phoneFromCookie = Cookies.get("phone");
-    const profileFromCookie = Cookies.get("profile");
-
-    if (tokenFromCookie && tokenFromCookie !== token) {
-      setToken(tokenFromCookie);
-    }
-
-    if (phoneFromCookie && phoneFromCookie !== phone) {
-      setPhone(phoneFromCookie);
-    }
-
-    if (profileFromCookie && profileFromCookie !== JSON.stringify(profile)) {
-      setProfile(JSON.parse(profileFromCookie));
-    }
-  }, [token, profile, phone, Cookies.get("token")]);
-  let service = new LoginService();
-  const getUser = useQuery({
-    queryKey: ['getUser'], queryFn: () => service.getUser(token).then(res => {
-      // console.log(res.data);
-      Cookies.set("profile", JSON.stringify(res.data));
-      return res.data;
-    }),
-    onSuccess: () => {
-      getUser.refetch();
-    },
-    onSettled: () => {
-      console.log("done");
-      getUser.refetch();
-    },
-  });
-  console.log(getUser);
-
+  useLoginData({ token, setToken, setProfile, setPhone });
   return (
     <div className="h-screen w-full">
       <div className="h-[68px] w-full px-4">
@@ -181,14 +149,14 @@ const Conversation = () => {
                 anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
                 variant="dot"
               >
-                <Avatar sx={{ width: 40, height: 40 }} alt="" src={getUser?.data?.thumbnailAvatar} className='m-4' />
+                <Avatar sx={{ width: 40, height: 40 }} alt="" src={profile?.thumbnailAvatar} className='m-4' />
               </StyledBadge>
             </div>
             <div className="flex flex-col">
               <div className=" text-lg font-medium text-[#081c36]">
                 <span>
-                  {profile?.firstName || getUser?.data ? (
-                    `${getUser?.data?.firstName ? getUser?.data?.firstName : profile?.firstName} ${getUser?.data?.lastName ? getUser?.data?.lastName : profile?.lastName}`
+                  {profile?.firstName ? (
+                    `${profile?.firstName} ${profile?.lastName}`
                   ) : (
                     <Skeleton variant="text" width={150} /> // Display placeholder while loading
                   )}

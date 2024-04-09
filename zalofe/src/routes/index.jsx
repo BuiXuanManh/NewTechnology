@@ -26,28 +26,14 @@ import LoginService from "../services/LoginService";
 import { useQuery } from "@tanstack/react-query";
 import PasswordForm from "../pages/Login/PasswordForm";
 import ChangePasswordForm from "../pages/Login/ChangePasswordForm ";
-const Loadable = (Component) => (props) => {
-  return (
-    <Suspense fallback={<LoadingScreen />}>
-      <Component {...props} />
-    </Suspense>
-  );
-};
-
-
+import RegisterForm from "../pages/Login/RegisterForm";
 
 export default function Router() {
-
   const [comp, setComp] = useState(<Conversation />)
-
-
   function handleComp() {
     setComp(<DetailContact />)
   }
-
-
   const location = useLocation();
-
   useEffect(() => {
     if (location.pathname === "/app") {
       setComp(<Conversation />);
@@ -56,13 +42,13 @@ export default function Router() {
       setComp(<FriendList />);
     }
   }, [location.pathname]);
-
   return useRoutes([
     {
       path: "/auth",
       element: <AuthLayout />,
       children: [
         { path: "login", element: <LoginForm /> },
+        { path: "register/:phoneP", element: <RegisterForm /> },
         { path: "forgot-password/:phoneP", element: <PasswordForm /> }, // Thêm PasswordForm vào routing
         { path: "change-password/:phoneP", element: <ChangePasswordForm /> }
       ],
@@ -84,39 +70,8 @@ export default function Router() {
         { path: "todo", element: <Todo /> },
 
       ],
-
-
     },
     { path: "/connect", element: <Connection /> },
-
-    // { path: "*", element: <Navigate to="/404" replace /> },
   ]);
 }
 
-// const GeneralApp = Loadable(
-//   lazy(() => import("../pages/dashboard/GeneralApp"))
-// );
-// const Conversation = Loadable(
-//   lazy(() => import("../pages/dashboard/Conversation"))
-// );
-// const Chats = Loadable(lazy(() => import("../pages/dashboard/Chats")));
-// const Group = Loadable(lazy(() => import("../pages/dashboard/Group")));
-// const CallPage = Loadable(lazy(() => import("../pages/dashboard/Call")));
-// const Contact = Loadable(lazy(() => import("../sections/dashboard/Contact")));
-// const Page404 = Loadable(lazy(() => import("../pages/Page404")));
-
-// const LoginPage = Loadable(lazy(() => import("../pages/auth/Login")));
-// const VerifyPage = Loadable(lazy(() => import("../pages/auth/Verify")));
-// const RegisterPage = Loadable(lazy(() => import("../pages/auth/Register")));
-// const ResetPasswordPage = Loadable(
-//   lazy(() => import("../pages/auth/ResetPassword"))
-// );
-// const NewPasswordPage = Loadable(
-//   lazy(() => import("../pages/auth/NewPassword"))
-// );
-
-// // Settings
-// const Settings = Loadable(lazy(() => import("../pages/dashboard/Settings")));
-// const Profile = Loadable(
-//   lazy(() => import("../pages/dashboard/Settings/Profile"))
-// );

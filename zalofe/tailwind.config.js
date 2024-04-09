@@ -8,6 +8,7 @@ export default {
     extend: {
       colors: {
         tblack: '#081C36',
+        tblue: "#3b82f6",
       },
     },
   },

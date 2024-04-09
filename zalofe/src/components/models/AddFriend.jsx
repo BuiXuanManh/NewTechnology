@@ -20,6 +20,7 @@ import Cookies from "js-cookie";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import UserService from "../../services/UserService";
 import swal from "sweetalert";
+import useLoginData from "../../hook/useLoginData";
 
 const recentSearchesData = [
   { id: 1, name: "John Doe", avatar: "/avatars/john.jpg" },
@@ -38,8 +39,9 @@ export default function AddFriendDialog() {
   const [open, setOpen] = useState(false);
   const [prefix, setPrefix] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
-  const [findProfile, setFindProfile] = useState();
-  const [userInfo, setUserInfo] = useState();
+  // const [findProfile, setFindProfile] = useState();
+  const [profile, setProfile] = useState();
+  const [phone, setPhone] = useState();
   const [friendsList, setFriendsList] = useState([]);
   const [selectedCountry, setSelectedCountry] = useState({
     name: "Vietnam",
@@ -48,7 +50,6 @@ export default function AddFriendDialog() {
     dial_code: "+84",
   });
   const [token, setToken] = useState("");
-  const [phone, setPhone] = useState("");
   const [recentSearches, setRecentSearches] = useState(recentSearchesData);
   const [suggestedFriends, setSuggestedFriends] = useState(suggestedFriendsData);
 
@@ -71,6 +72,10 @@ export default function AddFriendDialog() {
           const data = service.findByPhone(phoneNumber);
           if (data) {
             console.log("find friend data ", data.data);
+            // setFindProfile(data.data);
+            addFriend.mutate(data?.data?.id)
+            // queryClient.refetchQueries(['findFriend']);
+            // queryClient.invalidateQueries(['findFriend']);
             return data;
           }
         }
@@ -84,26 +89,24 @@ export default function AddFriendDialog() {
     },
     onSettled(data) {
       console.log(data)
-      setFindProfile(data.data);
-      if (data) {
-        addFriend.mutate()
-
-      }
-      queryClient.refetchQueries(['findFriend']);
-      queryClient.invalidateQueries(['findFriend']);
     },
 
   });
-  const addFriend = useMutation({
-    mutationKey: ['addFriend'],
-    mutationFn: () => {
+  const addFriend = useMutation(
+    (id) => {
       try {
-        if (findProfile) {
-          console.log(findProfile.id);
+        console.log(id);
+        if (id) {
+
           console.log(token);
-          const data = service.addFriend(token, findProfile.id);
+          const data = service.addFriend(token, id);
           if (data) {
             console.log("add friend data ", data.data);
+            swal({
+              title: "Success",
+              text: "You have pressed the button!",
+              icon: "success"
+            });
             return data;
           }
         }
@@ -112,29 +115,8 @@ export default function AddFriendDialog() {
       }
 
     },
-    onError(err) {
-      console.error(err);
-    },
-    onSettled(data) {
-      console.log(data)
-      if (data?.data) {
-        setUserInfo(data.data);
-        swal({
-          title: "Success",
-          text: "You have pressed the button!",
-          icon: "success"
-        });
-        queryClient.refetchQueries(['addFriend']);
-        queryClient.invalidateQueries(['addFriend']);
-      }
-      else swal({
-        title: "Error",
-        text: "You have pressed the button!",
-        icon: "error"
-      });
-    },
 
-  });
+  );
   // console.log(mutation)
   const handleAddFriend = () => {
     console.log(
@@ -160,20 +142,7 @@ export default function AddFriendDialog() {
     console.log(selectedCountry);
   };
 
-  useEffect(() => {
-    if (Cookies.get("token") || Cookies.get("phone")) {
-      setToken(Cookies.get("token"));
-      setPhone(Cookies.get("phone"));
-      console.log(findProfile)
-      if (findProfile) {
-
-        console.log(findProfile);
-      }
-      if (userInfo) {
-        console.log(userInfo);
-      }
-    }
-  }, [Cookies.get("token"), token, findProfile, userInfo])
+  useLoginData({ token, setToken, setProfile, setPhone });
   return (
     <Fragment>
       <div

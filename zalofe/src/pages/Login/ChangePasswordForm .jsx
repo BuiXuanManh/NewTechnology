@@ -286,7 +286,7 @@ export default function ChangePasswordForm() {
                                 <button type="button" className="text-white bg-gradient-to-r from-blue-500 
                         via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none 
                         focus:ring-blue-300 dark:focus:ring-blue-800 
-                        font-medium rounded-lg text-sm px-5 py-2.5 text-center mx-1 px-20 mt-15 " onClick={handleContinue}>
+                        font-medium rounded-lg text-sm py-2.5 text-center mx-1 px-20 mt-15 " onClick={handleContinue}>
                                     Tiếp tục
                                 </button>
 
@@ -295,7 +295,7 @@ export default function ChangePasswordForm() {
                                 <a className='text-sm p-2 ml-4 from-blue-500 
                         via-blue-600 to-blue-700 hover:bg-gradient-to-br
                        hover:text-white
-                        font-medium rounded-lg text-sm text-center mx-1' href='#' onClick={handleLoginForm}>&lt;&lt; Quay lại</a>
+                        font-medium rounded-lg text-center mx-1' href='#' onClick={handleLoginForm}>&lt;&lt; Quay lại</a>
                             </div>
                         </>
                     ) : (
@@ -317,7 +317,7 @@ export default function ChangePasswordForm() {
                                             <button type="button" className="text-white bg-gradient-to-r from-blue-500 
                         via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none 
                         focus:ring-blue-300 dark:focus:ring-blue-800 
-                        font-medium rounded-lg text-sm px-5 py-2.5 text-center mx-1 px-20 mt-15 " onClick={handleVerify}>
+                        font-medium rounded-lg text-sm py-2.5 text-center mx-1 px-20 mt-15 " onClick={handleVerify}>
                                                 Tiếp tục
                                             </button>
 
@@ -328,7 +328,7 @@ export default function ChangePasswordForm() {
                                             <a className='text-sm p-2 ml-4 from-blue-500 
                         via-blue-600 to-blue-700 hover:bg-gradient-to-br
                        hover:text-white
-                        font-medium rounded-lg text-sm text-center mx-1' href='#' onClick={handleShowContinue}>&lt;&lt; Quay lại</a>
+                        font-medium rounded-lg text-center mx-1' href='#' onClick={handleShowContinue}>&lt;&lt; Quay lại</a>
                                         </div>
                                     </div> : null
                             }
@@ -359,7 +359,7 @@ export default function ChangePasswordForm() {
                                         <div className='flex justify-center'>
                                             <button onClick={handelChangPass} type="button" className="text-white bg-gradient-to-r from-blue-500 
                               via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 
-                              font-medium rounded-lg text-sm px-5 py-2.5 text-center mx-1 px-20 mt-7">
+                              font-medium rounded-lg text-sm py-2.5 text-center mx-1 px-20 mt-7">
                                                 Xác nhận
                                             </button>
 
@@ -369,7 +369,7 @@ export default function ChangePasswordForm() {
                                         <a className='text-sm p-2 ml-4 from-blue-500 
                         via-blue-600 to-blue-700 hover:bg-gradient-to-br
                        hover:text-white
-                        font-medium rounded-lg text-sm text-center mx-1' href='#' onClick={handleShowPass}>&lt;&lt; Quay lại</a>
+                        font-medium rounded-lg text-center mx-1' href='#' onClick={handleShowPass}>&lt;&lt; Quay lại</a>
                                     </div>
                                 </div> : null
                             }

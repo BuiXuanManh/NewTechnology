@@ -2,99 +2,42 @@ import { faLock, faMobileScreen } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import QR_Test from './../../assets/QR_Test.png';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import LoginService from '../../services/LoginService';
 import Cookies from 'js-cookie';
-import ErrorMessage from '../../services/ErrorMessage';
-import RegexService from '../../services/RegexService';
 import swal from 'sweetalert';
+import OtpService from '../../services/OtpService';
+import useHandleBlur from '../../hook/useHandleBlur';
 
-var e = {
-    phone: '*',
-    password: '*',
-};
 export default function LoginForm() {
-    const [isSelectQR, setIsSelectQR] = useState(true)
+    const [isSelectLoginIn, setIsSelectLogin] = useState(true)
     const navigate = useNavigate();
     const [phone, setPhone] = useState("");
     const [password, setPassword] = useState("");
-    //=========================================================
-    const [qrCodeUrl, setQrCodeUrl] = useState('');
     const [token, setToken] = useState('');
-    const [errors, setErrors] = useState({
-        phone: '*',
-        password: '*'
-    });
+    const { errors, handleBlur } = useHandleBlur();
     const validateForm = () => {
-        handleBlur('phone');
-        handleBlur('password');
-        return errors.phone == "*" && errors.password == "*";
+        handleBlur({ field: 'phone', phone: phone });
+        handleBlur({ field: 'password', password: password });
+        return errors.phone === "*" && errors.password === "*";
     }
-    let errorService = new ErrorMessage();
-    let regexService = new RegexService();
-    const handleBlur = (field) => {
-        const newErrors = { ...errors };
-        if (field === 'phone') {
-            if (!phone) {
-                newErrors.phone = errorService.error.phoneRequired;
-            } else if (!regexService.regex.phone.test(phone)) {
-                newErrors.phone = errorService.error.phone;
-            } else {
-                newErrors.phone = "*";
-            }
-        }
-        if (field === 'password') {
-            if (!password) {
-                newErrors.password = errorService.error.passwordRequired;
-            } else if (!regexService.regex.password.test(password)) {
-                newErrors.password = errorService.error.password;
-            } else {
-                newErrors.password = "*";
-            }
-        }
-        // console.log(errors)
-        e = { ...newErrors };
-        setErrors({ ...newErrors });
-    }
-    useEffect(() => {
-        // console.log(errors);
-    }, [errors])
-    useEffect(() => {
-        // Gọi API ở đây
-        const fetchQrCode = async () => {
-            try {
-                const response = await fetch('http://localhost:8081/api/v1/auth/authenticate/qr-code');
-                // Nếu sử dụng axios:
-                // const response = await axios.post('your_api_url_here', { key: 'value' });
-
-                if (!response.ok) {
-                    throw new Error('Failed to fetch QR code');
-                }
-
-                const data = await response.json();
-                console.log(data);
-                setQrCodeUrl('data:image/png;base64,' + data.field); // Thay "qrCodeUrl" bằng trường dữ liệu thực tế từ API
-                console.log(qrCodeUrl);
-            } catch (error) {
-                console.error('Error fetching QR code:', error.message);
-            }
-        };
-
-        fetchQrCode();
-    }, []); // useEffect sẽ chạy một lần khi component được render
-    //=========================================================
     let service = new LoginService();
     const mutation = useMutation({
-        mutationFn: () => service.login({ phone: phone, password: password }),
+        mutationKey: ["login"],
+        mutationFn: () =>
+            service.login({ phone: phone, password: password }).then(res => {
+                if (res.data) {
+                    Cookies.set('token', res.data.accessToken);
+                    Cookies.set('phone', phone);
+                    setToken(res.data.accessToken);
+                    setPhone(phone);
+                    profile.mutate();
+                    console.log('token', token);
+                }
+                console.log("" + phone + password);
+            }),
         onSuccess: (data) => {
             console.log(data);
-            Cookies.set('token', data.data.accessToken);
-            Cookies.set('phone', phone);
-            setToken(data.data.accessToken);
-            setPhone(phone);
-            console.log('token', token);
-            navigate('/app');
         },
         onError: (error) => {
             if (error) {
@@ -109,25 +52,181 @@ export default function LoginForm() {
             console.log('done');
         }
     });
+    const profile = useMutation({
+        mutationKey: ["profilep"],
+        mutationFn: () => {
+            const token = Cookies.get("token");
+            console.log("data token", token);
+            service.getUser(token).then(res => {
+                console.log(res.data);
+                if (res.data) {
+                    Cookies.set("profile", JSON.stringify(res.data));
+                    navigate('/app');
+                }
+            })
+        },
+        onSuccess: (data) => {
+            if (data) {
+                console.log(data);
+                navigate('/app');
+            }
+        },
+        onSettled: (data, error) => {
+            if (data) {
+                console.log("data:", data);
+            }
+            if (error) {
+                console.error("error:", error);
+            }
+            // queryClient.invalidateQueries("profile");
+        }, onError: (error) => {
+            console.error("Error:", error);
+        },
+        // cacheTime: 600000,
+        // , refetchInterval: 1000
+    });
+    const otpService = new OtpService();
+    const sendOtp = useMutation({
+        mutationKey: ["sendOtpRegister"],
+        mutationFn: () => {
+            otpService.senOtpRegister(phone).then(res => {
+                if (res.data) {
+                    console.log("data", res.data);
+                    if (res.data.token) {
+                        Cookies.set("token", res.data.token);
+                    }
+                }
+                if (res.status === 200) {
+                    swal({
+                        title: "Thành công",
+                        text: "You have pressed the button!",
+                        icon: "success"
+                    });
+                    setShowUI(!showUI);
+                } else swal({
+                    title: "Error",
+                    text: "You have pressed the button!",
+                    icon: "error"
+                });
+            })
+        },
+        onSuccess: (data) => {
+            console.log("data", data);
+            // list.refetch();
+        },
+        onSettled: (data, error) => {
+            if (data) {
+                console.log("done", data);
+            }
+            else swal({
+                title: "Số điện thoại đã được đăng ký",
+                text: "You have pressed the button!",
+                icon: "error"
+            });
+            console.log("error", error);
+            // list.refetch();
+        },
+        onError: (err) => {
+            console.error("err", err);
+            swal({
+                title: "Error",
+                text: "You have pressed the button!",
+                icon: "error"
+            });
+        }
+        // cacheTime: 3600000,
+    });
 
-    const login = () => {
-        console.log("form ", validateForm());
-
+    const verifyOtp = useMutation({
+        mutationKey: ["verifyOtpRegister"],
+        mutationFn: () => {
+            otpService.verifyOtpRegister(phone, otp).then(res => {
+                if (res.data) {
+                    console.log("data", res.data);
+                    if (res.data.accessToken) {
+                        Cookies.set("token", res.data.accessToken)
+                    }
+                }
+                if (res.status === 200) {
+                    swal({
+                        title: "Thành công",
+                        text: "You have pressed the button!",
+                        icon: "success"
+                    });
+                    navigate('/auth/register/' + phone);
+                } else swal({
+                    title: "Error",
+                    text: "You have pressed the button!",
+                    icon: "error"
+                });
+                if (res.error) {
+                    swal({
+                        title: "Error",
+                        text: "You have pressed the button!",
+                        icon: "error"
+                    });
+                }
+            })
+        },
+        onSuccess: (data) => {
+            console.log("data", data);
+            if (data.token) {
+                // Cookies.set("token", data.token)
+            }
+            // list.refetch();
+        },
+        onSettled: (data, err) => {
+            console.log("done", data);
+            if (err) {
+                swal({
+                    title: "Error",
+                    text: "You have pressed the button!",
+                    icon: "error"
+                });
+            }
+            // list.refetch();
+        },
+        onError: (err) => {
+            console.error("err", err);
+            swal({
+                title: "Error",
+                text: "You have pressed the button!",
+                icon: "error"
+            });
+        }
+        // cacheTime: 3600000,
+    });
+    const login = (e) => {
+        e.preventDefault();
         if (validateForm()) {
-            mutation.mutate();
+            if (validateForm() === true) {
+                if (validateForm())
+                    mutation.mutate();
+            }
         } else {
             swal({
-                title: "Tên đăng nhập hoặc mật khẩu không chính xác",
+                title: "Nhập đúng và đủ thông tin",
                 // text: "You have pressed the button!",
                 icon: "error"
             });
         }
     }
-    const [security,setSecurity] = useState(true);
-    const handleSecurity=()=>{
+    const [security, setSecurity] = useState(true);
+    const handleSecurity = () => {
         setSecurity(!security);
     }
-    console.log("mutation ", mutation);
+    const [showUI, setShowUI] = useState(true);
+    const [otp, setOtp] = useState('');
+    const [showRegoister, setShowRegister] = useState(false);
+    const handleShowUI = () => {
+        sendOtp.mutate();
+    }
+    const handleShowContinue = () => {
+        setShowUI(!showUI);
+    }
+    const handleVerify = () => {
+        verifyOtp.mutate();
+    }
     return (
         <div className='w-full'>
             <div className="absolute inset-0">
@@ -144,7 +243,7 @@ export default function LoginForm() {
                 </svg>
 
             </div>
-            <div className="relative flex flex-col overflow-hidden">
+            {showUI ? (<div className="relative flex flex-col overflow-hidden">
 
                 <div className=''>
                     <h1 className='text-center text-6xl text-blue-600 font-semibold p-3 mt-10'>Viet Chat</h1>
@@ -154,26 +253,61 @@ export default function LoginForm() {
 
                 <div className="w-full pb-6 mx-auto my-5 bg-white shadow-md lg:max-w-[400px]">
 
-                    {!isSelectQR ? (
+                    {!isSelectLoginIn ? (
                         <>
                             <ul className='flex border-b-2 py-3'>
-                                <li className='text-center flex-1 font-thin' onClick={() => setIsSelectQR(true)}>VỚI MÃ
-                                    QR
+                                <li className='text-center flex-1 font-thin' onClick={() => setIsSelectLogin(true)}>ĐĂNG NHẬP
                                 </li>
                                 <span className='font-thin text-slate-300'>|</span>
-                                <li className='text-center flex-1 font-medium'>VỚI SỐ ĐIỆN THOẠI</li>
+                                <li className='text-center flex-1 font-medium'>ĐĂNG KÝ</li>
                             </ul>
                             <div className="mt-2  px-6">
                                 <div className="mb-2 mx-2 py-4 border-b-2">
                                     <FontAwesomeIcon icon={faMobileScreen} className='mx-3' />
-                                    <select id="contryOption" className='text-center mx-3'>
+                                    <select className='text-center mx-3'>
                                         <option value="">+84</option>
                                         <option value="option1">+1</option>
                                         <option value="option2">+2</option>
                                         <option value="option3">+3</option>
                                     </select>
 
-                                    <input id="input-phone" onBlur={() => handleBlur('phone')}
+                                    <input onBlur={() => handleBlur('phone')}
+                                        value={phone}
+                                        onChange={(e) => setPhone(e.target.value)} placeholder="Số điện thoại"
+                                        className='px-3'></input>
+                                    {<p style={{ color: 'red' }}>{errors.phone}</p>}
+                                </div>
+                                <div className="mt-6">
+                                    <button
+                                        className="w-full py-2 tracking-wide text-white transition-colors duration-200 transform bg-tblue rounded-md"
+                                        onClick={() => handleShowUI()}
+                                    >
+                                        Xác nhận số điện thoại
+                                    </button>
+                                </div>
+                                <div className="mt-4">
+                                </div>
+                            </div>
+                        </>
+                    ) : (
+                        <>
+                            <ul className='flex border-b-2 py-3'>
+                                <li className='text-center flex-1 font-medium'>ĐĂNG NHẬP</li>
+                                <span className='font-thin text-slate-300'>|</span>
+                                <li className='text-center flex-1 font-thin' onClick={() => setIsSelectLogin(false)}>ĐĂNG KÝ
+                                </li>
+                            </ul>
+                            <div className="mt-2  px-6">
+                                <div className="mb-2 mx-2 py-4 border-b-2">
+                                    <FontAwesomeIcon icon={faMobileScreen} className='mx-3' />
+                                    <select className='text-center mx-3'>
+                                        <option value="">+84</option>
+                                        <option value="option1">+1</option>
+                                        <option value="option2">+2</option>
+                                        <option value="option3">+3</option>
+                                    </select>
+
+                                    <input value={phone} onBlur={() => handleBlur({ field: 'phone', phone: phone })}
                                         onChange={(e) => setPhone(e.target.value)} placeholder="Số điện thoại"
                                         className='px-3'></input>
                                     {<p style={{ color: 'red' }}>{errors.phone}</p>}
@@ -181,33 +315,25 @@ export default function LoginForm() {
 
                                 <div className="mb-2 mx-2 py-4 border-b-2">
                                     <FontAwesomeIcon icon={faLock} className='mx-3' />
-                                    <input id="input-password" type={security ? 'password' : 'text'} onBlur={() => handleBlur('password')}
+                                    <input value={password} type={security ? 'password' : 'text'} onBlur={() => handleBlur({ field: 'password', password: password })}
                                         onChange={(e) => setPassword(e.target.value)} placeholder="Mật khẩu"
                                         className='mx-3 px-3'></input>
                                     {<p style={{ color: 'red' }}>{errors.password}</p>}
                                 </div>
                                 <div className='mt-3'>
-                                   <a className='text-blue-700 text-sm' onClick={handleSecurity} >
+                                    <a className='text-blue-700 text-sm' onClick={handleSecurity} >
                                         {security ? 'Hiện mật khẩu' : 'Ẩn mật khẩu'}
-                                   </a>
+                                    </a>
                                 </div>
                                 <div className="mt-6">
                                     <button
-                                        className="w-full py-2 tracking-wide text-white transition-colors duration-200 transform bg-blue-400 rounded-md"
-                                        type='submit'
-                                        onClick={() => login()}
+                                        className="w-full py-2 tracking-wide text-white transition-colors duration-200 transform bg-tblue rounded-md"
+                                        onClick={(e) => login(e)}
                                     >
                                         Đăng nhập với mật khẩu
                                     </button>
                                 </div>
-
-
                                 <div className="mt-4">
-                                    {/* <button className="w-full py-2 tracking-wide text-blue-400 transition-colors duration-200 transform bg-white-700 border-2 rounded-md"
-                    onClick={() => navigate('/')}
-                  >
-                    Đăng nhập với bằng thiết bị di động
-                  </button> */}
                                 </div>
                             </div>
 
@@ -217,54 +343,49 @@ export default function LoginForm() {
                                 <a
                                     href={`/auth/forgot-password/${phone ? phone : null}`}
                                     className="font-medium text-black-100 hover:underline"
-                                // onClick={handleForgotPassword} 
                                 >
                                     Quên mật khẩu?
                                 </a>
                             </p>
                         </>
-                    ) : (
-                        <>
-                            <ul className='flex border-b-2 py-3'>
-                                <li className='text-center flex-1 font-medium'>VỚI MÃ QR</li>
-                                <span className='font-thin text-slate-300'>|</span>
-                                <li className='text-center flex-1 font-thin' onClick={() => setIsSelectQR(false)}>VỚI SỐ
-                                    ĐIỆN THOẠI
-                                </li>
-                            </ul>
-
-                            <div className='flex flex-col items-center m-6 mx-16 border-2 rounded-lg'>
-                                {/* <img src={qrCodeUrl} alt='QR' style={{width:230, height:230, borderRadius: 5, margin:10}} /> */}
-                                <img src={QR_Test} alt='QR'
-                                    style={{ width: 230, height: 230, borderRadius: 5, margin: 10 }} />
-
-                                {/* <p className="text-base text-center font-normal text-blue-600 w-60">
-                  Chỉ dùng để đăng nhập
-                </p>
-
-                <p className="text-base text-center font-normal text-black-600 w-60"> 
-                  Zalo trên máy tính
-                </p> */}
-                            </div>
-
-
-                            <p className="mb-6 text-xs text-center font-medium text-gray-600">
-                                Sử dụng ứng dụng Viet Chat để quét mã QR
-                            </p>
-                        </>
                     )}
 
                 </div>
+            </div>) : (
+                <div className="relative flex flex-col overflow-hidden">
+                    <div className="w-full pb-6 mx-auto my-5 mt-40 py-5 bg-white shadow-md lg:max-w-[400px]">
+                        <p className='text-center my-1 text-sm'>Mã kích hoạt đã được gửi đến số điện thoại:</p>
+                        <p className='text-center text-2xl text-blue-600 font-semibold'>{phone}</p>
+                        <div className="mx-auto my-5 bg-white shadow-md lg:max-w-[180px]">
+                            <input type="number" min="0" max="999999" maxLength="6" onChange={e => setOtp(e.target.value)} className="text-center appearance-none bg-gray-50 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
+                        </div>
+                        <div className='flex justify-center'>
+                            <a className='text-center text-blue-500 underline'>Nhận lại mã kích hoạt</a>
+                        </div>
+                        <div className="flex justify-center mt-5">
+                            <button type="button" className="text-white  transition-colors duration-200 transform bg-tblue
+                        font-medium rounded-lg text-sm py-2.5 text-center mx-1 px-20 mt-15 " onClick={handleVerify}>
+                                Tiếp tục
+                            </button>
 
-                <div className='m-3'>
-                    <p className='text-center text-blue-600 text-xs m-12'>
-                        <a className='font-semibold' href="#">Tiếng Việt</a> <span> </span>
-                        <a className='font-thin' href="#">English </a>
-                    </p>
-                </div>
+                        </div>
 
 
+                        <div className='mt-5 '>
+                            <a className='text-sm p-2 ml-4 from-blue-500 
+                        via-blue-600 to-blue-700 hover:bg-gradient-to-br
+                       hover:text-white
+                        font-medium rounded-lg text-center mx-1' href='#' onClick={handleShowContinue}>&lt;&lt; Quay lại</a>
+                        </div>
+                    </div>
+                </div>)
+            }
+            <div className='fixed bottom-10 w-full'>
+                <p className='text-center text-blue-600 text-xs m-12'>
+                    <a className='font-semibold' href="#">Tiếng Việt</a> <span> </span>
+                    <a className='font-thin' href="#">English </a>
+                </p>
             </div>
-        </div>
+        </div >
     );
 }
