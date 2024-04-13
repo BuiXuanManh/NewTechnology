@@ -5,13 +5,18 @@ import Badge from "@mui/material/Badge";
 import Avatar from "@mui/material/Avatar";
 import MessageDetail from "./MessageDetail";
 import MessageInput from "./MessageInput";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { Skeleton } from '@mui/material';
 import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
 import LoginService from "../services/LoginService";
 import useLoginData from "../hook/useLoginData";
-
+import ChatService from "../services/ChatService";
+import useTabs from "../hook/useTabs";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faXmark } from "@fortawesome/free-solid-svg-icons";
+import api from "../api/api";
+import swal from 'sweetalert';
 const StyledBadge = styled(Badge)(({ theme }) => ({
   "& .MuiBadge-badge": {
     backgroundColor: "#44b700",
@@ -53,91 +58,156 @@ const StyledBadge = styled(Badge)(({ theme }) => ({
 //     </div>
 //   </div>
 // );
-
 const Conversation = () => {
+  const queryClient = useQueryClient();
   // const queryClient = useQueryClient();
   const handleSendMessage = (newMessage) => {
     // Xử lý logic gửi tin nhắn, có thể thêm tin nhắn mới vào danh sách messages
     // hoặc sử dụng một hàm callback để truyền tin nhắn lên component cha.
     console.log("Gửi tin nhắn:", newMessage);
   };
-
-  const messages = [
-    {
-      sender: "other",
-      content: "Hello!",
-      timestamp: "15:30",
-      avatar: "avatar_url",
-    },
-    {
-      sender: "me",
-      content: "Hi there!",
-      timestamp: "15:32",
-      avatar: "my_avatar_url",
-    },
-    {
-      sender: "other",
-      content: "How are you doing today?",
-      timestamp: "15:35",
-      avatar: "avatar_url",
-    },
-    {
-      sender: "me",
-      content: "I'm doing well, thank you. How about you?",
-      timestamp: "15:37",
-      avatar: "my_avatar_url",
-    },
-    {
-      sender: "other",
-      content: "I'm great! What have you been up to lately?",
-      timestamp: "15:40",
-      avatar: "avatar_url",
-    },
-    {
-      sender: "me",
-      content: "Not much, just working on some projects. How about you?",
-      timestamp: "15:42",
-      avatar: "my_avatar_url",
-    },
-    {
-      sender: "other",
-      content:
-        "I've been busy with work too. Do you have any plans for the weekend?",
-      timestamp: "15:45",
-      avatar: "avatar_url",
-    },
-    {
-      sender: "me",
-      content:
-        "I'm thinking of relaxing and maybe catching up on some movies. How about you?",
-      timestamp: "15:47",
-      avatar: "my_avatar_url",
-    },
-    {
-      sender: "other",
-      content:
-        "That sounds nice! I might go hiking with friends. Would you like to join?",
-      timestamp: "15:50",
-      avatar: "avatar_url",
-    },
-    {
-      sender: "me",
-      content: "Thanks for the invitation! I'll let you know if I can make it.",
-      timestamp: "15:52",
-      avatar: "my_avatar_url",
-    },
-    {
-      sender: "me",
-      content: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Libero adipisci itaque, quis fugiat dolore recusandae cum esse et ducimus blanditiis magni explicabo. Illo, architecto sed! Ad quod tempore sed quo. Lorem ipsum dolor sit amet consectetur adipisicing elit. Maiores velit, ex voluptas sint modi iste unde ipsam explicabo ducimus, animi doloremque nostrum, delectus ab suscipit aliquid cupiditate reiciendis sed architecto? Lorem ipsum dolor sit amet consectetur adipisicing elit. Labore laudantium doloribus ullam quidem ipsa sed commodi sit quod ipsam, pariatur voluptatum minus fugit esse autem quibusdam tempore? Vel, autem inventore!",
-      timestamp: "15:52",
-      avatar: "my_avatar_url",
-    },
-    // Thêm tin nhắn khác nếu cần
-  ];
+  const [id, setID] = useState("")
   const [token, setToken] = useState("");
   const [phone, setPhone] = useState("");
   const [profile, setProfile] = useState("");
   useLoginData({ token, setToken, setProfile, setPhone });
+  const [chat, setChatSelectId] = useState();
+  const [chats, setChats] = useState([])
+  useTabs({ chat, setChatSelectId });
+  let service = new ChatService();
+  const querychat = useQuery({
+    queryKey: ["chat", chat?.id],
+    queryFn: async () => {
+      return service.getMessages(token, chat?.id).then((res) => {
+        if (res.data) {
+          setChats(res.data);
+          return res.data;
+        }
+      }).catch((err) => {
+        console.log(err);
+      });
+    },
+    // staleTime: 30000,
+    // gcTime: 3000000,
+    // retry: 3,
+    enabled: chat?.id !== "" && chat?.id !== undefined && token !== "" && token !== undefined && chat?.id !== null && chat?.id !== "null"
+  });
+  useEffect(() => {
+    const c = Cookies.get("chat");
+    if (c && c !== undefined && c !== "undefined" && c !== "[object Object]") {
+      const chat = JSON.parse(c);
+      setChatSelectId(chat);
+    }
+    // const id = Cookies.get("chatId");
+  }, [Cookies.get("chat")]);
+  const [newUrl, setNewUrl] = useState("")
+  // Khi chat thay đổi, làm mới truy vấn cuộc trò chuyện
+  // useEffect(() => {
+  //   queryClient.invalidateQueries(["chat", chat?.id]);
+  // }, [chat]);
+  useEffect(() => {
+    const id = Cookies.get("chatId");
+    if (id) {
+      setID(id);
+    }
+  }, [id, Cookies.get("chatId")]);
+  console.log(chat);
+  const [bodyMsg, setBodyMsg] = useState({})
+  const uploadToS3 = async (select, message) => {
+    console.log("file", select)
+    // const formData = new FormData(select);
+    // const file = formData.get('file');
+    if (!select) {
+      return null;
+    }
+
+    await api.post("/api/v1/files", {
+      filename: select.name,
+      type: "MESSAGE"
+    }, { headers: { Authorization: `Bearer ${token}` } })
+      .then(async (res) => {
+        console.log(res);
+        // setData({...data, url: res.data});
+        const resUpload = await api.put(res.data, select).catch(e => console.log(e));
+        if (resUpload.status === 200) {
+          // setData({ ...data, success: true, url: res.data })
+          const newUrl = res.data.substring(0, res.data.indexOf('?'));
+          console.log(newUrl)
+          setNewUrl(newUrl);
+          const body = {
+            // sender: id,
+            content: message,
+            attachments: [
+              {
+                type: 'IMAGE',
+                url: newUrl,
+                filename: newUrl.split('/')[newUrl.split('/').length - 1]
+              }
+            ]
+          }
+          setBodyMsg(body);
+          mutation.mutate(body)
+          // service.chat(token, id, body).then((res) => {
+          //   if (res.data) {
+          //     console.log(res.data);
+          //   }
+          //   else {
+          //     console.log(res)
+          //   }
+          // }).catch((err) => {
+          //   console.log(err)
+          // })
+        } else {
+          // setData({ ...data, success: false })
+        }
+      })
+      .catch(err => {
+        console.log(err);
+        swal({
+          title: "Eror",
+          // text: "You have pressed the button!",
+          icon: "error"
+        });
+      })
+  }
+  async function onSendMessage(message, file) {
+    console.log("file", file)
+    if (profile.id && id && !file && message)
+      mutation.mutate({ content: message })
+    else if (file) {
+      await uploadToS3(file, message);
+    }
+  }
+  const mutation = useMutation({
+    mutationKey: ["saveChat"],
+    mutationFn: async (mes) => {
+      return await service.chat(token, id, mes).then((res) => {
+        if (res.data) {
+          console.log(res.data)
+          chats.push(res.data)
+          querychat.refetch();
+          queryClient.invalidateQueries(["chat"])
+          queryClient.invalidateQueries(["chats"])
+          Cookies.remove("chats")
+          Cookies.set("chats", JSON.stringify(chats))
+          return res.data;
+        }
+      }).catch((err) => {
+        console.error(err)
+      })
+    }
+  })
+  useEffect(() => {
+    if (Cookies.get("chat") === undefined) {
+      setTimeout(() => {
+        window.location.reload();
+      }, 2000); // Đặt thời gian đợi là 2000 miligiây (tức là 2 giây)
+    }
+  }, []);
+  const [showSearch, setShowSearch] = useState(false);
+  const handleShowSearch = () => {
+    setShowSearch(!showSearch);
+  }
   return (
     <div className="h-screen w-full">
       <div className="h-[68px] w-full px-4">
@@ -149,14 +219,14 @@ const Conversation = () => {
                 anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
                 variant="dot"
               >
-                <Avatar sx={{ width: 40, height: 40 }} alt="" src={profile?.thumbnailAvatar} className='m-4' />
+                <Avatar sx={{ width: 40, height: 40 }} alt="" src={chat?.avatar} className='m-4' />
               </StyledBadge>
             </div>
             <div className="flex flex-col">
               <div className=" text-lg font-medium text-[#081c36]">
                 <span>
-                  {profile?.firstName ? (
-                    `${profile?.firstName} ${profile?.lastName}`
+                  {chat ? (
+                    `${chat.name}`
                   ) : (
                     <Skeleton variant="text" width={150} /> // Display placeholder while loading
                   )}
@@ -179,13 +249,24 @@ const Conversation = () => {
             <a href="" className="p-1">
               <img src="/src/assets/group-user-plus.png" alt="" />
             </a>
-            <a href="" className="p-2">
+            <a onClick={() => handleShowSearch()} className="p-2 cursor-pointer">
               <img
                 src="/src/assets/mini-search.png"
                 alt=""
                 className="m-1 h-4 w-4"
               />
+
             </a>
+            {showSearch && <div className="bg-white absolute z-50 right-20 mt-40 w-64 py-2 border border-gray-200 shadow-2xl" style={{ display: "none;" }}>
+              <div className="py-2 border-b w-full">
+                <div className='flex w-full'>
+                  {/* <div className="text-gray-700 text-xs px-6 uppercase mb-1">Sao chép</div> */}
+                  <div className='text-gray-700 text-xs px-6 uppercase mb-1 w-full'>
+                    <input type="text" className="w-full h-full bg-gray-200 focus:outline-none px-4 py-2 border-none rounded-full" placeholder="Tìm ..." />
+                  </div>
+                </div>
+              </div>
+            </div>}
             <a href="" className="p-2">
               <img src="/src/assets/video.png" alt="" className="m-1 h-5 w-5" />
             </a>
@@ -204,16 +285,15 @@ const Conversation = () => {
         {/* <Message sender="other" content="Xin chào!" timestamp="15:30" />
         <Message sender="me" content="Chào bạn!" timestamp="15:32" />
         Thêm tin nhắn khác ở đây */}
-        {messages.map((message, index) => (
-          <MessageDetail key={index} message={message} />
+        {querychat?.data?.map((message) => (
+          <MessageDetail key={message.id} message={message} chatId={id} />
         ))}
       </div>
-      <div className="h-[47px] bg-white">
-
+      <div className=" bg-white">
       </div>
-      <div className="h-[58.5px]">
+      <div className="h-16">
         {/* Thêm phần nhập tin nhắn ở đây */}
-        <MessageInput onSendMessage={handleSendMessage} />
+        <MessageInput onSendMessage={onSendMessage} />
       </div>
     </div>
   );

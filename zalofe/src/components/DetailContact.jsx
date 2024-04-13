@@ -9,11 +9,6 @@ import { faAddressBook } from '@fortawesome/free-regular-svg-icons';
 import { grey } from '@mui/material/colors';
 import { Avatar } from '@mui/material';
 
-
-
-
-
-
 export default function DetailContact() {
 
   const data = [

@@ -113,7 +113,7 @@ export default function FriendList() {
             </div>
           )
           : <div>
-            Bạn ko có lời mời nào
+            Bạn ko bạn bè nào
           </div>
         }
         </div>

@@ -66,7 +66,7 @@ export default function AddFriendDialog() {
   const mutation = useMutation({
     mutationKey: ['findFriend'],
     mutationFn: () => {
-      service.findByPhone(phoneNumber).then((res) => {
+      service.findByPhone(phoneNumber, token).then((res) => {
         console.log(res.data);
         if (res.error) {
           swal({
@@ -81,7 +81,7 @@ export default function AddFriendDialog() {
         }
       }).catch(error => {
         swal({
-          title: `${error?.response?.data?.detail}`,
+          title: `${error?.response?.data?.detail ? error?.response?.data?.detail : "Error"}`,
           icon: "error"
         });
       })
@@ -218,7 +218,7 @@ export default function AddFriendDialog() {
             <AvatarNameItem />
             <ul>
               {recentSearches.map((search, index) => (
-                <li key={index} className="flex items-center space-x-2">
+                <li key={index} className="flex items-center space-x-2 mt-2">
                   <Avatar src={search.avatar} alt={search.name} />
                   <span>{search.name}</span>
                 </li>
@@ -229,9 +229,12 @@ export default function AddFriendDialog() {
             <DialogContentText>Suggested Friends:</DialogContentText>
             <ul>
               {suggestedFriends.map((friend, index) => (
-                <li key={index} className="flex items-center space-x-2">
-                  <Avatar src={friend.avatar} alt={friend.name} />
-                  <span>{friend.name}</span>
+                <li key={index} className="flex justify-between items-center space-x-2 mt-2">
+                  <div className="flex space-x-2">
+                    <Avatar src={friend.avatar} alt={friend.name} />
+                    <span>{friend.name}</span>
+                  </div>
+
                   <Button
                     onClick={() => handleAddSuggestedFriend(friend)}
                     variant="outlined"

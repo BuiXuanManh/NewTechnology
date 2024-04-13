@@ -17,21 +17,27 @@ import LoadingScreen from "../components/LoadingScreen";
 import SearchBox from "../components/SearchBox";
 import Conversation from "../components/Conversation";
 import DetailContact from "../components/DetailContact";
-import Connection from '../pages/connect/Connection';
 import FriendRequest from "../components/FriendRequest";
 import Cookies from "js-cookie";
 import FriendList from "../components/FriendList";
 import LoginService from "../services/LoginService";
-import { useQuery } from "@tanstack/react-query";
+
 import PasswordForm from "../pages/Login/PasswordForm";
 import ChangePasswordForm from "../pages/Login/ChangePasswordForm ";
 import RegisterForm from "../pages/Login/RegisterForm";
+import useLoginData from "../hook/useLoginData";
+import ChatService from "../services/ChatService";
+import useTabs from "../hook/useTabs";
 
 export default function Router() {
-  const [comp, setComp] = useState(<Conversation />)
   function handleComp() {
     setComp(<DetailContact />)
   }
+  const [phone, setPhone] = useState("");
+  const [token, setToken] = useState("");
+  const [profile, setProfile] = useState({});
+  useLoginData({ token, setToken, setProfile, setPhone });
+  const [comp, setComp] = useState(<Conversation />)
   const location = useLocation();
   useEffect(() => {
     if (location.pathname === "/app") {
@@ -69,8 +75,7 @@ export default function Router() {
         { path: "todo", element: <Todo /> },
 
       ],
-    },
-    { path: "/connect", element: <Connection /> },
+    }
   ]);
 }
 

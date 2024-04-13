@@ -1,13 +1,27 @@
 import { formatDistanceToNow } from "date-fns";
 import { differenceInMinutes, differenceInHours, differenceInDays, differenceInMonths, differenceInYears } from 'date-fns';
 import { Avatar, Skeleton } from "@mui/material";
+import moment from "moment/moment";
+import { useQuery } from "@tanstack/react-query";
+import DateService from "../services/DateService";
+import { useEffect, useState } from "react";
+
 function ChatElement({
   avatar,
   name,
   lastMessage,
+  id,
+  selectedId,
+  handleOnClick,
+  isLoading,
+  pId
 }) {
+
   const messageContent = lastMessage?.content;
-  let sender = lastMessage?.sender ? lastMessage?.sender?.lastName + ": " : "Bạn: ";
+  let sender = !lastMessage?.sender ? " " : (lastMessage?.sender?.id === pId ? "Bạn: " : (lastMessage?.sender?.lastName + ": "));
+  useEffect(() => {
+
+  }, [lastMessage])
   //Tính số lượng tin nhắn chưa đọc
   // function countUnreadMessages(data) {
   //   let unreadCount = 0;
@@ -27,15 +41,19 @@ function ChatElement({
   // console.log("Số tin nhắn chưa đọc:", unreadCount);
   // const statusRead = topChatActivity[a].chatActivity[b].status.read.length;
   // console.log(">>>>>>>>>>>>>>", statusRead);
+  // const [selectedId, setSelectedId] = useState(null);
+
+  // const handleOnClick = (id) => {
+  //   setSelectedId(id);
+  // };
 
   function formatTimeDifference(timestamp) {
-    const currentDate = new Date();
-    const parsedTimestamp = new Date(timestamp);
-
+    const currentDate = new Date().toLocaleString("en-US", { timeZone: "Asia/Ho_Chi_Minh" })
+    const parsedTimestamp = new Date(timestamp).toLocaleString("en-US", { timeZone: "Asia/Ho_Chi_Minh" });
     const minutesDifference = differenceInMinutes(currentDate, parsedTimestamp);
 
     if (minutesDifference < 1) {
-      return `${Math.floor(minutesDifference * 60)} giây`;
+      return `${Math.floor(minutesDifference)} giây`;
     }
 
     const hoursDifference = differenceInHours(currentDate, parsedTimestamp);
@@ -63,14 +81,13 @@ function ChatElement({
   }
 
   const timestamp = lastMessage?.createdAt;
-  const originalDate = new Date(timestamp);
+  // const originalDate = new Date(timestamp);
   // Trừ 7 giờ
-  const adjustedDate = new Date(originalDate.getTime());
+  // const adjustedDate = new Date(originalDate.getTime());
 
   // console.log(timeDifference);
   //   const timestamp = "2024-01-17T02:43:00Z";
-  // console.log(timeDifference);
-  const currentDate = new Date();
+  // console.log(originalDate);
   // const t = currentDate.getTime() - timestamp;
   // if (t < 7 * 60 * 60 * 1000) {
   //   console.log("Ít hơn 7 giờ trước");
@@ -78,20 +95,25 @@ function ChatElement({
   //   const adjustedDate = new Date(timestamp);
   //   console.log(formatTimeDifference(adjustedDate));
   // }
-  const timeDifference = formatTimeDifference(adjustedDate);
+
+  const t = DateService(timestamp);
+  const timeDifference = formatTimeDifference(t);
   return (
-    <div
-      className={`flex h-[74px] w-full items-center pr-2`}
+    <a key={id} id={id} onClick={() => handleOnClick(id)}
+      className={`${selectedId === id ? 'bg-blue-100 ' : ' '}flex cursor-pointer hover:bg-gray-200 h-[4.5rem] min-w-80 items-center`}
     >
-      <Avatar
-        src={avatar}
-        alt="avatar"
-        sx={{ width: 48, height: 48 }}
-      // className="aspect-w-1 aspect-h-1 h-12 w-12 rounded-full object-cover"
-      />
-      <div className="flex grow justify-between pl-3 md:w-[342px]" id="content">
-        <div className="">
-          {/* {unreadCount != 0 ? (
+      {isLoading ?
+        <Skeleton>
+          <Avatar
+            src={avatar}
+            alt="avatar"
+            sx={{ width: 48, height: 48 }}
+            className="win-w-12"
+          // className="aspect-w-1 aspect-h-1 h-12 w-12 rounded-full object-cover"
+          />
+          <div className="flex p-2 grow justify-between pl-3 md:w-80" id="content">
+            <div className="">
+              {/* {unreadCount != 0 ? (
             <>
               <div className="grid gap-y-1">
                 <div>
@@ -108,29 +130,29 @@ function ChatElement({
             </>
           ) : */}
 
-          <>
-            <div className="grid gap-y-1">
-              <div>
-                <span className="text-base font-semibold text-[#081C36]">
-                  {name}
-                </span>
-              </div>
-              <div className="transition-min-width flex min-w-[calc(100vw-200px)] items-center text-sm font-medium text-[#7589A3] duration-200 md:w-[175px] md:min-w-full">
-                <span>{sender}</span>
-                <span className="truncate md:w-[175px] ml-1">
-                  {messageContent}
-                </span>
-              </div>
-            </div>
-          </>
+              <>
+                <div className="grid gap-y-1">
+                  <div>
+                    <span className="text-base font-semibold text-[#081C36]">
+                      {name}
+                    </span>
+                  </div>
+                  <div className="transition-min-width flex min-w-[calc(100vw-200px)] items-center text-sm font-medium text-[#7589A3] duration-200 md:w-[175px] md:min-w-full">
+                    <span>{sender}</span>
+                    <span className="truncate md:w-44 ml-1">
+                      {messageContent}
+                    </span>
+                  </div>
+                </div>
+              </>
 
-          {/* } */}
-        </div>
-        <div className="mt-[-4px] grid gap-y-1 ">
-          <div>
-            <span className="truncate text-xs">{timeDifference}</span>
-          </div>
-          {/* {unreadCount != 0 ? (
+              {/* } */}
+            </div>
+            <div className="mt-[-4px] grid gap-y-1 ">
+              <div>
+                <span className="truncate text-xs">{timeDifference === "NaN năm" ? "NaN" : timeDifference}</span>
+              </div>
+              {/* {unreadCount != 0 ? (
             <>
               <div className="flex h-4 w-4 flex-grow items-center justify-center place-self-end rounded-full bg-[#C81A1F] text-white">
                 <span className="text-xs">{unreadCount}</span>
@@ -139,9 +161,72 @@ function ChatElement({
           ) : (
             <></>
           )} */}
-        </div>
-      </div>
-    </div>
+            </div>
+          </div>
+        </Skeleton>
+        :
+        <>
+          <div className={`flex grow justify-between p-2 md:w-[23rem]`} id="content">
+            <Avatar
+              src={avatar}
+              alt="avatar"
+              sx={{ width: 48, height: 48 }}
+            // className="aspect-w-1 aspect-h-1 h-12 w-12 rounded-full object-cover"
+            />
+            <div className="">
+              {/* {unreadCount != 0 ? (
+            <>
+              <div className="grid gap-y-1">
+                <div>
+                  <span className="text-base font-semibold text-[#081C36]">
+                    {userName}
+                  </span>
+                </div>
+                <div className="transition-min-width flex min-w-[calc(100vw-200px)] items-center text-sm font-medium text-[#081C36] duration-200  md:min-w-full">
+                  <span className="overflow-hidden truncate overflow-ellipsis whitespace-nowrap md:w-[175px]">
+                    {messageContent}
+                  </span>
+                </div>
+              </div>
+            </>
+          ) : */}
+
+              <>
+                <div className="grid gap-y-1">
+                  <div>
+                    <span className="text-base font-semibold text-[#081C36]">
+                      {name}
+                    </span>
+                  </div>
+                  <div className="transition-min-width flex min-w-[calc(100vw-200px)] items-center text-sm font-medium text-[#7589A3] duration-200 md:w-[175px] md:min-w-full">
+                    <span>{sender}</span>
+                    <span className="truncate md:w-44 ml-1">
+                      {messageContent}
+                    </span>
+                  </div>
+                </div>
+              </>
+
+              {/* } */}
+            </div>
+            <div className="mt-[-4px] grid gap-y-1 ">
+              <div>
+                <span className="truncate text-xs">{timeDifference}</span>
+              </div>
+              {/* {unreadCount != 0 ? (
+            <>
+              <div className="flex h-4 w-4 flex-grow items-center justify-center place-self-end rounded-full bg-[#C81A1F] text-white">
+                <span className="text-xs">{unreadCount}</span>
+              </div>
+            </>
+          ) : (
+            <></>
+          )} */}
+            </div>
+
+          </div>
+        </>}
+    </a>
   );
 }
 

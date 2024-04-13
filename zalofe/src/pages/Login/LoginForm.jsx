@@ -36,9 +36,6 @@ export default function LoginForm() {
                 }
                 console.log("" + phone + password);
             }),
-        onSuccess: (data) => {
-            console.log(data);
-        },
         onError: (error) => {
             if (error) {
                 swal({
@@ -47,9 +44,6 @@ export default function LoginForm() {
                     icon: "error"
                 });
             }
-        },
-        onSetttled: () => {
-            console.log('done');
         }
     });
     const profile = useMutation({
@@ -58,7 +52,7 @@ export default function LoginForm() {
             const token = Cookies.get("token");
             console.log("data token", token);
             service.getUser(token).then(res => {
-                console.log(res.data);
+                // console.log(res.data);
                 if (res.data) {
                     Cookies.set("profile", JSON.stringify(res.data));
                     navigate('/app');

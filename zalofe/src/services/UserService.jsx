@@ -5,17 +5,17 @@ export default class UserService {
     addFriend(token, id) {
         return api.put(`/api/v1/users/profile/friends/${id}`, {}, AuthService(token));
     }
-    findByPhone(phone) {
-        return api.get(`/api/v1/users/profile/${phone}`);
+    findByPhone(phone, token) {
+        return api.get(`/api/v1/users/profile/${phone}`, AuthService(token));
     }
     getFriends(token, type) {
         return api.get(`/api/v1/users/profile/friends?type=${type}`, AuthService(token));
     }
     acceptFriend(token, id) {
-        return api.put(`/api/v1/users/profile/friends/${id}/accept`,{} ,AuthService(token));
+        return api.put(`/api/v1/users/profile/friends/${id}/accept`, {}, AuthService(token));
     }
     declineFriend(token, id) {
-        return api.put(`/api/v1/users/profile/friends/${id}/decline`,{} ,AuthService(token));
+        return api.put(`/api/v1/users/profile/friends/${id}/decline`, {}, AuthService(token));
     }
 
 }

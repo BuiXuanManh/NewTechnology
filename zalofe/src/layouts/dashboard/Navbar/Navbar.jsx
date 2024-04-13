@@ -8,7 +8,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Avatar, Skeleton } from "@mui/material";
 import Cookies from "js-cookie";
 import useLoginData from "../../../hook/useLoginData";
-
+import ProfileModal from "../../../pages/Modal/ProfileModal";
 function Navbar() {
   const location = useLocation();
   const [token, setToken] = useState("");
@@ -53,6 +53,9 @@ function Navbar() {
     Cookies.remove("token");
     Cookies.remove("phone");
     Cookies.remove("profile");
+    Cookies.remove("chatId");
+    Cookies.remove("chat");
+    Cookies.remove("chats");
     // queryClient.removeQueries({ queryKey: ["getUser"] });
     // queryClient.removeQueries({ queryKey: ["getUser"] });
     // queryClient.removeQueries({ queryKey: ["getUser"] });
@@ -60,6 +63,14 @@ function Navbar() {
     // queryClient.removeQueries({ queryKey: ["getUser"] });
     navigate("/auth/login");
 
+  }
+  const [showModalProfile, setShowModalProfile] = useState(false);
+  const handleButtonClick = () => {
+    setShowModalProfile(false);
+  }
+  const showModal = () => {
+    setAnchorEl(null);
+    setShowModalProfile(true);
   }
   // const query = queryClient.getQueryData("getUser");
 
@@ -130,7 +141,7 @@ function Navbar() {
                         height: 36,
                         color: "#081c36",
                       }}
-                      onClick={handleClose}
+                      onClick={showModal}
                     >
                       Hồ sơ của bạn
                     </MenuItem>
@@ -213,6 +224,16 @@ function Navbar() {
           </li>
         </ul>
       </nav>
+      {
+        showModalProfile && (
+          <ProfileModal
+            profile={profile}
+            phone={phone}
+            onClose={handleButtonClick}
+            token={token}
+          />
+        )
+      }
     </div>
   );
 }
