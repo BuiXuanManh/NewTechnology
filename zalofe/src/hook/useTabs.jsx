@@ -14,7 +14,6 @@ const useTabs = ({ chat, setChatSelectId }) => {
                 setChats(JSON.parse(storedChats));
             }
         };
-
         fetchChatsFromCookies();
     }, [Cookies.get("chats")]);
     useEffect(() => {

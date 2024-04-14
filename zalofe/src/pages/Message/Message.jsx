@@ -56,6 +56,7 @@ const Message = () => {
                 selectedId={selectedId}
                 handleOnClick={handleOnClick}
                 pId={profile?.id}
+                setChatSelectId={setChatSelectId}
               />
             ))}
           </>
