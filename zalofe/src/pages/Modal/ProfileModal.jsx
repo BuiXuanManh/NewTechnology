@@ -164,7 +164,7 @@ export default function ProfileModal({ profile, phone, onClose, token }) {
                     token={token}
                 />
             ) : (
-                <div className="fixed inset-0 z-100 flex justify-center items-center bg-black bg-opacity-30 backdrop-blue-sm">
+                <div className="fixed inset-0 z-50 flex justify-center items-center bg-black bg-opacity-30 backdrop-blue-sm">
                     <div className="relative modal-container rounded pb-3 pt-1 mx-auto my-4 bg-white lg:max-w-[400px] w-full max-w-screen-lg">
                         <div className="modal-header ">
                             <span className="ml-4 mr-40 text-base font-medium" style={{ marginRight: '200px' }}>Thông tin tài khoản</span>

@@ -198,7 +198,8 @@ const Conversation = () => {
     }
   })
   useEffect(() => {
-    if (Cookies.get("chat") === undefined) {
+    if (Cookies.get("chat") === undefined && (chat?.length <= 0 || !chat)) {
+      console.log("chat " + Cookies.get("chats")?.length)
       setTimeout(() => {
         window.location.reload();
       }, 2000); // Đặt thời gian đợi là 2000 miligiây (tức là 2 giây)

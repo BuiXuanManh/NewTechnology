@@ -14,7 +14,10 @@ export default class ChatService {
     unsend(chatId, messageID, token) {
         return api.put(`/api/v1/chats/${chatId}/messages/${messageID}`, {}, AuthService(token));
     }
-    delete(chatId, messageID, token){
+    delete(chatId, messageID, token) {
         return api.delete(`/api/v1/chats/${chatId}/messages/${messageID}`, AuthService(token));
+    }
+    reaction(chatId, messageID, reaction, token) {
+        return api.put(`/api/v1/chats/${chatId}/messages/${messageID}/reaction`, reaction, AuthService(token));
     }
 }

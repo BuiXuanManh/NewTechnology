@@ -132,6 +132,7 @@ const MessageInput = ({ onSendMessage }) => {
       </IconButton> */}
       </div>
     </>
+
   );
 };
 

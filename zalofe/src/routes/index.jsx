@@ -47,6 +47,7 @@ export default function Router() {
       setComp(<FriendList />);
     }
   }, [location.pathname]);
+  
   return useRoutes([
     {
       path: "/auth",
