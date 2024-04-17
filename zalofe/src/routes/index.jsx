@@ -17,6 +17,7 @@ import LoadingScreen from "../components/LoadingScreen";
 import SearchBox from "../components/SearchBox";
 import Conversation from "../components/Conversation";
 import DetailContact from "../components/DetailContact";
+<<<<<<< HEAD
 import FriendRequest from "../components/FriendRequest";
 import Cookies from "js-cookie";
 import FriendList from "../components/FriendList";
@@ -28,6 +29,18 @@ import RegisterForm from "../pages/Login/RegisterForm";
 import useLoginData from "../hook/useLoginData";
 import ChatService from "../services/ChatService";
 import useTabs from "../hook/useTabs";
+=======
+import PasswordForm from "../pages/Login/PasswordForm";
+const Loadable = (Component) => (props) => {
+  return (
+    <Suspense fallback={<LoadingScreen />}>
+      <Component {...props} />
+    </Suspense>
+  );
+};
+
+
+>>>>>>> 5a67067dd7065df99ba946bb860f23a807820286
 
 export default function Router() {
   function handleComp() {
@@ -54,9 +67,13 @@ export default function Router() {
       element: <AuthLayout />,
       children: [
         { path: "login", element: <LoginForm /> },
+<<<<<<< HEAD
         { path: "register/:phoneP", element: <RegisterForm /> },
         { path: "forgot-password/:phoneP", element: <PasswordForm /> }, // Thêm PasswordForm vào routing
         { path: "change-password/:phoneP", element: <ChangePasswordForm /> }
+=======
+        { path: "forgot-password", element: <PasswordForm /> } // Thêm PasswordForm vào routing
+>>>>>>> 5a67067dd7065df99ba946bb860f23a807820286
       ],
     },
     {
