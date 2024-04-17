@@ -97,7 +97,8 @@ const MessageDetail = ({ message, chatId }) => {
         if (res.data) {
           console.log(res.data);
           setReaction(res.data.reactions)
-          // queryClient.invalidateQueries(["chat"]);
+          queryClient.invalidateQueries(["chat"]);
+          queryClient.invalidateQueries(["chats"]);
           return res.data;
         }
       }).catch((err) => {

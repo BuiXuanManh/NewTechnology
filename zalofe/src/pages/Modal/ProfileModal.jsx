@@ -5,22 +5,62 @@ import { faLock, faMobileScreen, faPenToSquare, faCameraRetro } from '@fortaweso
 import { Avatar, Skeleton } from "@mui/material";
 import UserService from "../../services/UserService";
 import UpdateUserModal from "./UpdateUserModal";
+import Cookies from "js-cookie";
 import axios from "axios";
-export default function ProfileModal({ profile, phone, onClose, token }) {
-    const [showUploadConfirmationModal, setShowUploadConfirmationModal] = useState(false);
-    const [selectedImage, setSelectedImage] = useState(null);
-    const [imagePreviewUrl, setImagePreviewUrl] = useState(profile?.thumbnailAvatar);
+import { useNavigate, useParams } from "react-router-dom";
+import useLoginData from "../../hook/useLoginData";
+import { useQueryClient } from "@tanstack/react-query";
+export default function ProfileModal({ onClose, userData }) {
+    const [token, setToken] = useState("");
+    const [phone, setPhone] = useState("");
+    const [profile, setProfile] = useState("");
     const [showUpdateModal, setShowUpdateModal] = useState(false);
+    const [profileData, setProfileData] = useState(null);
+    const [phoneNumber, setPhoneNumber] = useState('0929635572');
+    const [firstName, setFirstName] = useState('');
+    const [lastName, setLastName] = useState('');
+    const [birthday, setBirthday] = useState('');
+    const [gender, setGender] = useState();
+    const queryClient = useQueryClient();
+    const [showModalProfile, setShowModalProfile] = useState(false);
+    const [selectedImage, setSelectedImage] = useState(null);
+    const [imageUrl, setImageUrl] = useState('');
+    useLoginData({ token, setToken, setProfile, setPhone });
+    const navigation = useNavigate();
+    const { updatedData } = useParams();
+ 
+    const handleImageChange = (e) => {
+        const file = e.target.files[0];
+        setSelectedImage(file);
+
+        // Đọc file và chuyển đổi thành URL để hiển thị
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            setImageUrl(reader.result);
+        };
+        reader.readAsDataURL(file);
+    };
+
+    const handleSubmity = (e) => {
+        e.preventDefault();
+        
+    };
+
+    const handleCancel = () => {
+        setSelectedImage(null);
+        setImageUrl('');
+    };
+
+    useEffect(() => {
+
+        if (updatedData) {
+            console.log(JSON.parse(updatedData))
+            setProfileData(JSON.parse(updatedData));
+        }
+    }, [updatedData]);
 
     const handleUpdateClick = () => {
-        setShowUpdateModal(true); // Show the update modal
-    };
-    const handleImageChange = (event) => {
-        const imageFile = event.target.files[0];
-        setSelectedImage(imageFile);
-        setImagePreviewUrl(URL.createObjectURL(imageFile)); // Preview selected image
-        setShowUploadConfirmationModal(true);
-        console.log('token:' + token);
+        setShowUpdateModal(true); 
     };
 
 
@@ -33,17 +73,15 @@ export default function ProfileModal({ profile, phone, onClose, token }) {
 
     const submitEdit = async (url) => {
         const myToken = token;
-        console.log("url" + url);
+        console.log("url:" + url);
         const requestBody = {
             thumbnailAvatar: url,
         };
 
-
-
         await axios.put('http://localhost:8080/api/v1/users/profile', requestBody, {
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${myToken}`
+                'Authorization': `Bearer ${token}`
             },
 
         })
@@ -56,7 +94,10 @@ export default function ProfileModal({ profile, phone, onClose, token }) {
             })
             .then(data => {
                 console.log('Cập nhật thành công thành công:', data);
-                //  navigation.navigate('/app', { updatedData: data });
+                Cookies.set("profile", JSON.stringify(data));
+                queryClient.invalidateQueries(["profilep"]);
+                window.location.reload();
+             
             })
             .catch(error => {
                 console.error(error.message);
@@ -75,16 +116,17 @@ export default function ProfileModal({ profile, phone, onClose, token }) {
         await axios.post("http://localhost:8080/api/v1/files", {
             filename: file.name,
             type: "MESSAGE"
-        }, { headers: { Authorization: `Bearer ${data.token}` } })
+        }, { headers: { Authorization: `Bearer ${token}` } })
             .then(async (res) => {
                 console.log(res);
                 console.log(data);
-                // setData({...data, url: res.data});
+              
                 const resUpload = await axios.put(res.data, file).catch(e => console.log(e));
                 if (resUpload.status === 200) {
                     setData({ ...data, success: true, url: res.data })
                     const newUrl = res.data.substring(0, res.data.indexOf('?'));
-                    console.log(newUrl)
+                    console.log(newUrl);
+                    submitEdit(newUrl);
                     // setBodyMsg({
                     //     sender: 'id của người gửi',
                     //     replyMessageId: 'id',
@@ -97,7 +139,7 @@ export default function ProfileModal({ profile, phone, onClose, token }) {
                     //         }
                     //     ]
                     // })
-                    submitEdit(newUrl);
+                   
                 } else {
                     setData({ ...data, success: false })
                 }
@@ -107,47 +149,10 @@ export default function ProfileModal({ profile, phone, onClose, token }) {
 
 
 
-
-
-
     const handleSubmit = async (e) => {
         e.preventDefault();
         await uploadToS3(e);
     }
-
-    // const handleUpload = async () => {
-    //     if (!selectedImage) {
-    //         return;
-    //     }
-
-    //     const formData = new FormData();
-    //     formData.append("avatar", selectedImage);
-
-    //     try {
-    //         const response = await fetch('http://localhost:8080/api/v1/users/profile/upload-avatar', {
-    //             method: "POST",
-    //             body: formData,
-    //             headers: {
-    //                 Authorization: `Bearer ${myToken}`,
-    //               },
-    //         });
-
-    //         if (!response.ok) {
-    //             throw new Error("Upload failed");
-    //         }
-
-    //         const data = await response.json();
-    //         if (data.success) {
-    //             setImagePreviewUrl(data.linkAvatar);
-    //                setCurrentAvatarUrl(data.linkAvatar);
-    //         }
-    //     } catch (error) {
-    //         console.error("Upload error:", error);
-    //     } finally {
-    //         setSelectedImage(null);
-    //         setShowUploadConfirmationModal(false);
-    //     }
-    // };
 
     const gen = (gt) => {
         if (gt === true)
@@ -156,33 +161,33 @@ export default function ProfileModal({ profile, phone, onClose, token }) {
     }
     return (
         <>
-            {showUpdateModal ? ( // Render UpdateUserModal if showUpdateModal is true
+            {showUpdateModal ? ( 
                 <UpdateUserModal
                     profile={profile}
                     phone={phone}
-                    onClose={() => setShowUpdateModal(false)} // Close the update modal
+                    onClose={() => setShowUpdateModal(false)}
                     token={token}
                 />
             ) : (
-                <div className="fixed inset-0 z-50 flex justify-center items-center bg-black bg-opacity-30 backdrop-blue-sm">
+                <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-30 backdrop-blue-sm">
                     <div className="relative modal-container rounded pb-3 pt-1 mx-auto my-4 bg-white lg:max-w-[400px] w-full max-w-screen-lg">
                         <div className="modal-header ">
                             <span className="ml-4 mr-40 text-base font-medium" style={{ marginRight: '200px' }}>Thông tin tài khoản</span>
-                            <span className="text-right text-3xl cursor-pointer z-50" onClick={() => onClose()}>&times;</span>
+                            <span className="text-right text-3xl cursor-pointer" onClick={() => onClose()}>&times;</span>
                         </div>
 
-                        <div className="modal-content pt-5 pb-10 z-50">
-                            <div className="">
-                                <div className=" z-1 bg-white overflow-hidden">
-                                    <img src={"bg.png"} alt="" className="w-400 h-300 transition-all blur-sm hover:blur-none" />
+                        <div className="modal-content pt-5 pb-10 ">
+                            <div className="relative">
+                                <div className="relative z-1 bg-white overflow-hidden">
+                                    <img src="/src/assets/messi.png" alt="" className="w-400 h-300 transition-all blur-sm hover:blur-none" />
                                 </div>
-                                <div className="relative z-50">
+                                <div className="relative">
                                     <div className="grid grid-cols-3 bg-white z-50 pb-10" style={{ position: "absolute", bottom: '-30px', width: '400px' }}>
                                         <Avatar sx={{ width: 75, height: 75 }}
                                             src={profile?.thumbnailAvatar} alt="" className="w-20 h-20 rounded-full border-2 border-white"
                                             style={{ position: 'absolute', top: '-20px', left: '15px' }} />
                                         <br />
-                                        {/* <form onSubmit={handleSubmit}>
+                                        <form onSubmit={handleSubmit}>
                                             <div className="absolute cursor-pointer" style={{
                                                 width: '35px', height: '35px',
                                                 background: '#F5F5F5', display: 'inline-flex', alignItems: 'center',
@@ -190,25 +195,39 @@ export default function ProfileModal({ profile, phone, onClose, token }) {
                                             }}>
                                                 <label htmlFor="avatar-upload">
                                                     <FontAwesomeIcon icon={faCameraRetro} />
-                                                    <input type="file" name="file" accept="image/jpeg image/png"
+                                                    <input type="file" name="file" accept="image/*"
+                                                        onChange={handleImageChange}
                                                         className="form-control"
-
-                                                        style={{ display: '' }} />
+                                                        style={{ 
+                                                            opacity: 0,
+                                                            position: 'absolute',
+                                                            left: '-10px',
+                                                            zIndex: 1,
+                                                            width: '100%',
+                                                            height: '100%',
+                                                            cursor: 'pointer'
+                                                        }} />
                                                 </label>
 
                                             </div>
 
-                                            <div>
+                                            {(selectedImage && imageUrl) && (
+                                                <div style={{position: 'relative',top: '50px', left: '-20px'}} className="grid grid-cols-2">                                       
+                                                    <button type="submit">Upload</button>
+                                                    <button type="button" onClick={handleCancel}>Hủy</button>
+                                                    <div style={{position: 'relative',top: '-40px', left: '140px'}}>   
+                                                        <img src={imageUrl} alt="Selected" style={{ width: '75px', height: '75px' }} />
+                                                    </div>
+                                                   
+                                                </div>
+                                             )}
 
-                                                <button type="submit">Upload</button>
-                                            </div>
 
+                                        </form>
 
-                                        </form> */}
+                                        <p className="mt-4 font-bold" style={{ marginLeft: '-150px', width: '100px' }}>{profile?.firstName} {profile?.lastName}</p>
 
-                                        <p className="mt-4 font-bold" style={{ marginLeft: '-25px', width: '150px' }}>{profile.firstName} {profile.lastName}</p>
-
-                                        <FontAwesomeIcon icon={faPenToSquare} className="mt-5 cursor-pointer relative" style={{ marginLeft: '-10px' }} />
+                                      
                                     </div>
 
                                 </div>
@@ -233,7 +252,7 @@ export default function ProfileModal({ profile, phone, onClose, token }) {
                                     <div className="border-b-2 " style={{ width: '350px' }}></div>
                                 </div>
                                 <div className="absolute pt-1" style={{ left: '137px' }}>
-                                    <button className="hover:bg-slate-200 font-bold py-2 px-4 rounded" onClick={handleUpdateClick}>
+                                    <button className="hover:bg-slate-200 font-bold py-2 px-4 rounded" onClick={() => handleUpdateClick()}>
                                         Cập nhật
                                     </button>
                                 </div>

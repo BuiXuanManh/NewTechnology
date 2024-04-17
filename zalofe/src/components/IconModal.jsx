@@ -29,7 +29,17 @@ const IconModal = ({ reactions, icons, showEmoDetails, setShowEmoDetails }) => {
     const filteredReactions = selectedReactionType
         ? reactions.filter((reaction) => reaction.type === selectedReactionType)
         : reactions;
-
+    const reactionTotals = {};
+    reactions?.forEach((reaction) => {
+        // Kiểm tra xem loại phản ứng đã được tính tổng trước đó chưa
+        if (reaction.type in reactionTotals) {
+            // Nếu loại phản ứng đã có tổng, cộng thêm vào tổng đã tính
+            reactionTotals[reaction.type] += reaction.quantity;
+        } else {
+            // Nếu loại phản ứng chưa có tổng, tạo một entry mới
+            reactionTotals[reaction.type] = reaction.quantity;
+        }
+    });
     return (
         <>{showEmoDetails &&
             <div className="fixed z-50 bg-black bg-opacity-30 justify-center items-center w-full inset-0 ">
@@ -46,7 +56,7 @@ const IconModal = ({ reactions, icons, showEmoDetails, setShowEmoDetails }) => {
                                 <span className="sr-only">Close modal</span>
                             </button>
                         </div>
-                        <div className='p-4 grid grid-cols-10 w-full'>
+                        <div className='p-4 grid grid-cols-10 gap-2 w-full'>
                             <div className='col-span-3'>
                                 {reactions && reactions.length > 0 &&
                                     <div className="cursor-pointer bg-gray-100 p-1 flex">
@@ -58,19 +68,28 @@ const IconModal = ({ reactions, icons, showEmoDetails, setShowEmoDetails }) => {
                                                 </div>
                                             </div>
                                             {reactions?.map((reaction, index) => {
-                                                // Kiểm tra xem loại phản ứng đã được in ra chưa
                                                 if (!renderedTypes.includes(reaction.type)) {
-                                                    // Nếu chưa, in ra hình ảnh tương ứng và thêm loại phản ứng vào mảng renderedTypes
+                                                    // Nếu chưa, thêm loại phản ứng vào mảng renderedTypes
                                                     renderedTypes.push(reaction.type);
+                                                    let totalQuantity = 0;
+                                                    reactions.forEach((r) => {
+                                                        if (r.type === reaction.type) {
+                                                            totalQuantity += r.quantity;
+                                                        }
+                                                    });
+                                                    if (!renderedTypes.includes(reaction.type)) {
+                                                        // Nếu chưa, in ra hình ảnh tương ứng và thêm loại phản ứng vào mảng renderedTypes
+                                                        renderedTypes.push(reaction.type);
+                                                    }
                                                     return (
-                                                        <div onClick={() => handleReactionClick(reaction)} className="flex justify-between min-w-5 p-1  hover:bg-blue-200 " key={index}>
+                                                        <div onClick={() => handleReactionClick(reaction)} className="flex justify-between min-w-5 p-1 hover:bg-blue-200" key={index}>
                                                             <img
                                                                 src={reaction.type === "LIKE" ? icons[0] : reaction.type === "LOVE" ? icons[1] : reaction.type === "CRY" ? icons[2] : reaction.type === "ANGER" ? icons[3] : icons[4]}
                                                                 alt=""
                                                                 className="h-7 w-7"
                                                             />
                                                             <div>
-                                                                {reaction?.quantity}
+                                                                {totalQuantity}
                                                             </div>
                                                         </div>
                                                     );
