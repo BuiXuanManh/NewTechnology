@@ -103,6 +103,7 @@ export default function AddFriendDialog() {
               text: "You have pressed the button!",
               icon: "success"
             });
+            queryClient.invalidateQueries(["friendRequest"])
           }
         }).catch(error => {
           console.log(error);

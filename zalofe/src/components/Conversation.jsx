@@ -188,7 +188,6 @@ const Conversation = () => {
           querychat.refetch();
           queryClient.invalidateQueries(["chat"])
           queryClient.invalidateQueries(["chats"])
-          Cookies.remove("chats")
           Cookies.set("chats", JSON.stringify(chats))
           return res.data;
         }
@@ -198,8 +197,10 @@ const Conversation = () => {
     }
   })
   useEffect(() => {
-    if (Cookies.get("chat") === undefined && (chat?.length <= 0 || !chat)) {
-      console.log("chat " + Cookies.get("chats")?.length)
+    const c = Cookies?.get("chats")
+    console.log(Cookies?.get("chats"))
+    if (Cookies.get("chat") === undefined && (chat?.length <= 0 || !chat) && Cookies.get("chatId")) {
+      console.log("chat ", c.length)
       setTimeout(() => {
         window.location.reload();
       }, 2000); // Đặt thời gian đợi là 2000 miligiây (tức là 2 giây)

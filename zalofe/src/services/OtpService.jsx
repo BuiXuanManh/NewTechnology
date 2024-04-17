@@ -17,4 +17,7 @@ export default class OtpService {
     changPass(token, password) {
         return api.post("/api/v1/auth/password/reset", { token: token, password: password });
     }
+    change(pass) {
+        return api.post("/api/v1/auth/password/change", pass);
+    }
 }

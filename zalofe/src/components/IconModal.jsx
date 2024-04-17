@@ -6,6 +6,7 @@ const IconModal = ({ reactions, icons, showEmoDetails, setShowEmoDetails }) => {
         setShowEmoDetails(false);
     }
     const renderedTypes = [];
+    const renderedType = [];
     const [quans, setQuans] = useState(0);
     useEffect(() => {
         let totalQuans = 0;
@@ -14,12 +15,26 @@ const IconModal = ({ reactions, icons, showEmoDetails, setShowEmoDetails }) => {
         });
         setQuans(totalQuans);
     }, [reactions]);
-    console.log(reactions)
+    console.log(reactions);
+    const [selectedReactionType, setSelectedReactionType] = useState(null);
+
+    const handleReactionClick = (reaction) => {
+        if (reaction === null) {
+            setSelectedReactionType(null);
+            return;
+        }
+        setSelectedReactionType(reaction.type);
+        // Handle other actions based on clicked reaction (optional)
+    };
+    const filteredReactions = selectedReactionType
+        ? reactions.filter((reaction) => reaction.type === selectedReactionType)
+        : reactions;
+
     return (
         <>{showEmoDetails &&
-            <div className="fixed z-50 justify-center items-center w-full inset-0 ">
-                <div className="p-4 max-h-full relative rounded pb-3 pt-1 mx-auto my-20 bg-white lg:max-w-[400px] w-full max-w-screen-lg">
-                    <div className="relative bg-white rounded-lg shadow dark:bg-gray-700">
+            <div className="fixed z-50 bg-black bg-opacity-30 justify-center items-center w-full inset-0 ">
+                <div className="z-50 p-4 max-h-full relative rounded pb-3 pt-1 mx-auto my-20 bg-white lg:max-w-[400px] w-full max-w-screen-lg">
+                    <div className="relative bg-white rounded-lg min-h-80 shadow dark:bg-gray-700">
                         <div className="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
                             <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                                 Biểu cảm
@@ -31,13 +46,13 @@ const IconModal = ({ reactions, icons, showEmoDetails, setShowEmoDetails }) => {
                                 <span className="sr-only">Close modal</span>
                             </button>
                         </div>
-                        <div className='p-4 grid grid-cols-10'>
+                        <div className='p-4 grid grid-cols-10 w-full'>
                             <div className='col-span-3'>
                                 {reactions && reactions.length > 0 &&
-                                    <div className="cursor-pointer bg-white p-1 flex">
-                                        <div onClick={() => handleClose()} className="w-full">
-                                            <div className="flex justify-between min-w-5 p-1">
-                                                <div className='ml-1'>Tất cả</div>
+                                    <div className="cursor-pointer bg-gray-100 p-1 flex">
+                                        <div className="w-full">
+                                            <div className="flex justify-between min-w-5 p-1  hover:bg-blue-200 ">
+                                                <div onClick={() => handleReactionClick(null)} className='ml-1'>Tất cả</div>
                                                 <div className=''>
                                                     {quans}
                                                 </div>
@@ -48,7 +63,7 @@ const IconModal = ({ reactions, icons, showEmoDetails, setShowEmoDetails }) => {
                                                     // Nếu chưa, in ra hình ảnh tương ứng và thêm loại phản ứng vào mảng renderedTypes
                                                     renderedTypes.push(reaction.type);
                                                     return (
-                                                        <div className="flex justify-between min-w-5 p-1" key={index}>
+                                                        <div onClick={() => handleReactionClick(reaction)} className="flex justify-between min-w-5 p-1  hover:bg-blue-200 " key={index}>
                                                             <img
                                                                 src={reaction.type === "LIKE" ? icons[0] : reaction.type === "LOVE" ? icons[1] : reaction.type === "CRY" ? icons[2] : reaction.type === "ANGER" ? icons[3] : icons[4]}
                                                                 alt=""
@@ -58,41 +73,33 @@ const IconModal = ({ reactions, icons, showEmoDetails, setShowEmoDetails }) => {
                                                                 {reaction?.quantity}
                                                             </div>
                                                         </div>
-
                                                     );
                                                 }
                                             })}
-
-
                                         </div>
                                     </div>
                                 }
                             </div>
                             <div className='col-span-7'>
-                                {reactions?.map((reaction, index) => {
-                                    // Kiểm tra xem loại phản ứng đã được in ra chưa
-                                    if (!renderedTypes.includes(reaction.type)) {
-                                        // Nếu chưa, in ra hình ảnh tương ứng và thêm loại phản ứng vào mảng renderedTypes
-                                        renderedTypes.push(reaction.type);
-                                        return (
-                                            <div className='justify-between'>
-                                                <div className='flex'>
-                                                    <Avatar src={reaction.user.thumbnailAvatar} />
-                                                    <div>{reaction.user.firstName} {reaction.user.lastName}</div>
-                                                </div>
-                                                <div className="flex min-w-5 p-1" key={index}>
-                                                    <img
-                                                        src={reaction.type === "LIKE" ? icons[0] : reaction.type === "LOVE" ? icons[1] : reaction.type === "CRY" ? icons[2] : reaction.type === "ANGER" ? icons[3] : icons[4]}
-                                                        alt=""
-                                                        className="h-7 w-7"
-                                                    />
-                                                    <div>
-                                                        {reaction?.quantity}
-                                                    </div>
+                                {filteredReactions?.map((reaction, index) => {
+                                    return (
+                                        <div className='justify-between flex w-full mt-1'>
+                                            <div className='flex w-full'>
+                                                <Avatar src={reaction.user.thumbnailAvatar} />
+                                                <div>{reaction.user.firstName} {reaction.user.lastName}</div>
+                                            </div>
+                                            <div className="flex min-w-5 p-1" key={index}>
+                                                <img
+                                                    src={reaction.type === "LIKE" ? icons[0] : reaction.type === "LOVE" ? icons[1] : reaction.type === "CRY" ? icons[2] : reaction.type === "ANGER" ? icons[3] : icons[4]}
+                                                    alt=""
+                                                    className="h-7 w-7"
+                                                />
+                                                <div>
+                                                    {reaction?.quantity}
                                                 </div>
                                             </div>
-                                        );
-                                    }
+                                        </div>
+                                    );
                                 })}
                             </div>
                         </div>

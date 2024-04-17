@@ -1,7 +1,7 @@
 import React from 'react';
 
 export default function DateService(timestamp) {
-    if (!timestamp || timestamp === null|| timestamp===undefined || timestamp==="") return undefined;
+    if (!timestamp || timestamp === null || timestamp === undefined || timestamp === "") return undefined;
     else {
         // 1. Split the timestamp into date and time parts
         const parts = timestamp?.split(' ');

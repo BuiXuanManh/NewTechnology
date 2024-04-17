@@ -69,6 +69,8 @@ const FriendRequest = () => {
                             icon: "success"
                         });
                         queryClient.invalidateQueries(["friendRequest"])
+                        queryClient.invalidateQueries(["chats"])
+                        queryClient.invalidateQueries(["chat"])
                     }
                 }
             })

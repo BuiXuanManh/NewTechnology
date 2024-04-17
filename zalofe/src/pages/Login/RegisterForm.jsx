@@ -7,6 +7,7 @@ import swal from 'sweetalert';
 import Cookies from 'js-cookie';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import LoginService from '../../services/LoginService';
+import DateFormat from '../../services/DateFormat';
 const RegisterForm = () => {
     const [security, setSecurity] = useState(true);
     const [password, setPassword] = useState('');
@@ -48,7 +49,7 @@ const RegisterForm = () => {
                 firstName: firstName,
                 lastName: lastName,
                 gender: gender === "true" && gender ? true : false,
-                birthday: birthday,
+                birthday: DateFormat(birthday),
                 password: password
             }
             if (token)
