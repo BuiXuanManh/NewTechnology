@@ -44,7 +44,7 @@ const Members = ({ showMember, setShowMember, member, idLead, groupId }) => {
     }
     return (
         <>{showMember &&
-            <div className="fixed z-50 bg-black bg-opacity-30 justify-center items-center w-full inset-0 ">
+            <div className="fixed z-50 bg-opacity-30 justify-center items-center w-full inset-0 ">
                 <div className="z-50 p-4 max-h-full relative rounded pb-3 pt-1 mx-auto my-20 bg-white lg:max-w-[400px] w-full max-w-screen-lg">
                     <div className="relative bg-white rounded-lg min-h-80 shadow dark:bg-gray-700">
                         <div className="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
