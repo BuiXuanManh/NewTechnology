@@ -19,6 +19,8 @@ import api from "../api/api";
 import swal from 'sweetalert';
 import FileService from "../services/FileService";
 import AddGroupModal from "./models/AddGroupModal";
+import Members from "./models/Members";
+import { set } from "date-fns";
 const StyledBadge = styled(Badge)(({ theme }) => ({
   "& .MuiBadge-badge": {
     backgroundColor: "#44b700",
@@ -187,6 +189,27 @@ const Conversation = () => {
   const handleShowAddGroup = () => {
     setShowAddGroup(true);
   }
+  const [showMembers, setShowMembers] = useState(false)
+  const handleShowMembers = () => {
+    setShowMembers(true);
+  }
+  const qr = useQuery({
+    queryKey: ["members"],
+  })
+  const [idLead, setIdLead] = useState("");
+  const member = qr?.data?.map((member) => {
+    return member.profile;
+  });
+  useEffect(() => {
+    if (member) {
+      const groupLeader = qr?.data?.find(member => member.role === "GROUP_LEADER");
+      console.log("groupLeader ", groupLeader)
+      if (groupLeader) {
+        setIdLead(groupLeader?.profile?.id);
+      }
+    }
+  }, [member]);
+  //console.log("member ", member)
   return (
     <div className="h-screen w-full">
       <div className="h-[68px] w-full px-4">
@@ -212,7 +235,8 @@ const Conversation = () => {
                 </span>
               </div>
               <div className="flex items-center text-sm text-[#7589a3]">
-                <span>Vừa truy cập</span>
+                {chat?.isGroup ? <button onClick={() => handleShowMembers()}>thành viên</button> : <span>Vừa truy cập</span>}
+                <Members showMember={showMembers} setShowMember={setShowMembers} member={member} idLead={idLead} groupId={chat?.groupId} />
                 <span className="text-[#D7DBE0]"> &nbsp;|&nbsp;</span>
                 <span className="flex items-center justify-center">
                   <img

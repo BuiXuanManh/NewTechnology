@@ -203,7 +203,7 @@ const MessageDetail = ({ message, chatId, isGroup, querychat }) => {
         )}
 
         <div>
-          {attachments ?
+          {attachments && attachments?.length > 0 ?
             < div className={`
                text-[#081c36] flex flex-col items-start p-3 transition-all duration-300`}>
               <img src={attachments[0]?.url} width={160} height={160} alt="img" />

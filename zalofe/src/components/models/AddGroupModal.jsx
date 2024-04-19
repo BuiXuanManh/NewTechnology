@@ -6,6 +6,7 @@ import useLoginData from '../../hook/useLoginData';
 import { Avatar } from '@mui/material';
 import AvatarGroupModal from './AvatarGroupModal';
 import GroupService from '../../services/GroupService';
+import swal from 'sweetalert';
 
 const AddGroupModal = ({ showAddGroup, setShowAddGroup, groupId, queryChat }) => {
     const handleClose = () => {
@@ -20,15 +21,16 @@ const AddGroupModal = ({ showAddGroup, setShowAddGroup, groupId, queryChat }) =>
     const [phone, setPhone] = useState("");
     const [profile, setProfile] = useState("");
     const list = useLoginData({ token, setToken, setProfile, setPhone });
-    // console.log("list ", list)
+    console.log("list ", list)
     // Hàm xử lý khi input được focus
     const handleInputFocus = () => {
         setIsInputFocused(!isInputFocused);
     };
     const queryClient = useQueryClient();
     // queryClient.invalidateQueries(["friends"])
+    useEffect(() => { }, [list])
     // const list = queryClient.getQueryData(["friends"]);
-    // console.log(list);
+    console.log(list);
     const divBorderClassName = isInputFocused ? "blue-500" : "gray-400";
     const [selectedItems, setSelectedItems] = useState([]);
     const handleRadioChange = (item) => {
@@ -60,18 +62,22 @@ const AddGroupModal = ({ showAddGroup, setShowAddGroup, groupId, queryChat }) =>
         }).catch((err) => {
             console.error(err);
         }),
-        enabled: token !== undefined && groupId !== undefined && members.length <= 0 && showAddGroup === true
+        enabled: token !== undefined && groupId !== undefined && members.length <= 0 && showAddGroup
     })
     console.log("members ", members)
     const mutaion = useMutation({
         mutationKey: ["addmemberGroup"],
         mutationFn: async (data) => service.addMembers(token, groupId, data).then((res) => {
             if (res.data) {
-                 console.log(res.data);
+                console.log(res.data);
                 setShowAddGroup(false);
-                members.push(res.data?.profile?.id);
                 queryChat?.refresh();
-                // queryClient.invalidateQueries(["chat"]);
+                queryClient.invalidateQueries(["chat"]);
+                swal({
+                    title: "Thêm thành công",
+                    // text: "You have pressed the button!",
+                    icon: "success"
+                });
                 return res.data;
             }
         }).catch((err) => {
@@ -149,7 +155,7 @@ const AddGroupModal = ({ showAddGroup, setShowAddGroup, groupId, queryChat }) =>
                         </div>
                         <div className='flex mt-3 justify-end gap-5'>
                             <button onClick={() => handleClose()} className=' p-2 rounded-md bg-gray-100'>Hủy</button>
-                            <button onClick={() => handleAddMember()} className={`${selectedItems.length < 1 ? ' bg-blue-300 ' : "bg-blue-700"} p-2 rounded-md text-white`} disabled={selectedItems.length < 1}>Thêm</button>
+                            <button onClick={() => handleAddMember()} className={`${selectedItems.length <= 1 ? ' bg-blue-300 ' : "bg-blue-700"} p-2 rounded-md text-white`} disabled={selectedItems.length <= 1}>Thêm</button>
                         </div>
                     </div>
                 </div>
