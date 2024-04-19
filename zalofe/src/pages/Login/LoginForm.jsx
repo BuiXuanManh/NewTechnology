@@ -35,6 +35,8 @@ export default function LoginForm() {
                     console.log('token', token);
                 }
                 console.log("" + phone + password);
+            }).catch(err => {
+                console.error(err);
             }),
         onError: (error) => {
             if (error) {

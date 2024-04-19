@@ -3,6 +3,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 import { NavLink, Outlet } from "react-router-dom";
 import AddFriendDialog from "./models/AddFriend";
+import GroupModal from "./models/GroupModal";
 
 
 function SearchBox() {
@@ -16,7 +17,11 @@ function SearchBox() {
   const handleSearchChange = (event) => {
     setSearchTerm(event.target.value);
   };
-
+  const [showCreateGroup, setShowCreateGroup] = useState(false);
+  const onHanldeOpen = () => {
+    setShowCreateGroup(true);
+  }
+  const [selectedItems, setSelectedItems] = useState([]);
   return (
     <div className="h-[68px] w-full flex-1 flex-col">
       <div className="w-full flex-1 flex-col border-b px-4">
@@ -36,7 +41,7 @@ function SearchBox() {
           />
           <AddFriendDialog />
           <Fragment>
-            <button className="w-11 z-50 cursor-pointer hover:bg-gray-200 mr-1 justify-center items-center">
+            <button onClick={() => onHanldeOpen()} className="w-11 z-50 cursor-pointer hover:bg-gray-200 mr-1 justify-center items-center">
               <img
                 src="/src/assets/group-user-plus.png"
                 alt=""
@@ -45,6 +50,7 @@ function SearchBox() {
               />
             </button>
           </Fragment>
+          {showCreateGroup && <GroupModal showCreateGroup={showCreateGroup} setShowCreateGroup={setShowCreateGroup} />}
         </div>
       </div>
       <div className="flex-1 pl-4 ">

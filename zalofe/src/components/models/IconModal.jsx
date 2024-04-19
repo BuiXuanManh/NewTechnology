@@ -6,7 +6,6 @@ const IconModal = ({ reactions, icons, showEmoDetails, setShowEmoDetails }) => {
         setShowEmoDetails(false);
     }
     const renderedTypes = [];
-    const renderedType = [];
     const [quans, setQuans] = useState(0);
     useEffect(() => {
         let totalQuans = 0;
@@ -15,31 +14,26 @@ const IconModal = ({ reactions, icons, showEmoDetails, setShowEmoDetails }) => {
         });
         setQuans(totalQuans);
     }, [reactions]);
-    console.log(reactions);
-    const [selectedReactionType, setSelectedReactionType] = useState(null);
-
+    const [selectedReactionType, setSelectedReactionType] = useState("null");
     const handleReactionClick = (reaction) => {
-        if (reaction === null) {
-            setSelectedReactionType(null);
-            return;
+        if (reaction === "null") {
+            setSelectedReactionType("null");
         }
-        setSelectedReactionType(reaction.type);
-        // Handle other actions based on clicked reaction (optional)
+        else
+            setSelectedReactionType(reaction.type);
     };
-    const filteredReactions = selectedReactionType
+    const filteredReactions = selectedReactionType !== "null"
         ? reactions.filter((reaction) => reaction.type === selectedReactionType)
         : reactions;
     const reactionTotals = {};
     reactions?.forEach((reaction) => {
-        // Kiểm tra xem loại phản ứng đã được tính tổng trước đó chưa
         if (reaction.type in reactionTotals) {
-            // Nếu loại phản ứng đã có tổng, cộng thêm vào tổng đã tính
             reactionTotals[reaction.type] += reaction.quantity;
         } else {
-            // Nếu loại phản ứng chưa có tổng, tạo một entry mới
             reactionTotals[reaction.type] = reaction.quantity;
         }
     });
+    useEffect(() => { }, [selectedReactionType])
     return (
         <>{showEmoDetails &&
             <div className="fixed z-50 bg-black bg-opacity-30 justify-center items-center w-full inset-0 ">
@@ -62,7 +56,7 @@ const IconModal = ({ reactions, icons, showEmoDetails, setShowEmoDetails }) => {
                                     <div className="cursor-pointer bg-gray-100 p-1 flex">
                                         <div className="w-full">
                                             <div className="flex justify-between min-w-5 p-1  hover:bg-blue-200 ">
-                                                <div onClick={() => handleReactionClick(null)} className='ml-1'>Tất cả</div>
+                                                <div onClick={() => handleReactionClick("null")} className='ml-1 transition-all'>Tất cả</div>
                                                 <div className=''>
                                                     {quans}
                                                 </div>

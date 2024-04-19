@@ -17,6 +17,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faXmark } from "@fortawesome/free-solid-svg-icons";
 import api from "../api/api";
 import swal from 'sweetalert';
+import FileService from "../services/FileService";
+import AddGroupModal from "./models/AddGroupModal";
 const StyledBadge = styled(Badge)(({ theme }) => ({
   "& .MuiBadge-badge": {
     backgroundColor: "#44b700",
@@ -46,26 +48,8 @@ const StyledBadge = styled(Badge)(({ theme }) => ({
   },
 }));
 
-// const Message = ({ sender, content, timestamp }) => (
-//   <div
-//     className={`flex ${sender === "me" ? "justify-end" : "justify-start"} mb-2`}
-//   >
-//     <div
-//       className={`bg-${sender === "me" ? "blue" : "green"}-300 rounded-md p-2`}
-//     >
-//       <p className="text-white">{content}</p>
-//       <span className="text-xs text-gray-500">{timestamp}</span>
-//     </div>
-//   </div>
-// );
 const Conversation = () => {
   const queryClient = useQueryClient();
-  // const queryClient = useQueryClient();
-  const handleSendMessage = (newMessage) => {
-    // Xử lý logic gửi tin nhắn, có thể thêm tin nhắn mới vào danh sách messages
-    // hoặc sử dụng một hàm callback để truyền tin nhắn lên component cha.
-    console.log("Gửi tin nhắn:", newMessage);
-  };
   const [id, setID] = useState("")
   const [token, setToken] = useState("");
   const [phone, setPhone] = useState("");
@@ -75,6 +59,7 @@ const Conversation = () => {
   const [chats, setChats] = useState([])
   useTabs({ chat, setChatSelectId });
   let service = new ChatService();
+  let fileService = new FileService();
   const querychat = useQuery({
     queryKey: ["chat", chat?.id],
     queryFn: async () => {
@@ -84,7 +69,7 @@ const Conversation = () => {
           return res.data;
         }
       }).catch((err) => {
-        console.log(err);
+        console.error(err);
       });
     },
     // staleTime: 30000,
@@ -98,35 +83,36 @@ const Conversation = () => {
       const chat = JSON.parse(c);
       setChatSelectId(chat);
     }
-    // const id = Cookies.get("chatId");
+    // console.log(chat)
   }, [Cookies.get("chat")]);
   const [newUrl, setNewUrl] = useState("")
   // Khi chat thay đổi, làm mới truy vấn cuộc trò chuyện
-  // useEffect(() => {
-  //   queryClient.invalidateQueries(["chat", chat?.id]);
-  // }, [chat]);
+  useEffect(() => {
+    queryClient.invalidateQueries(["chat", chat?.id]);
+  }, [chat]);
   useEffect(() => {
     const id = Cookies.get("chatId");
     if (id) {
       setID(id);
     }
-  }, [id, Cookies.get("chatId")]);
-  console.log(chat);
+  }, [id, Cookies.get("chatId"), chat]);
+  //console.log(chat);
   const [bodyMsg, setBodyMsg] = useState({})
   const uploadToS3 = async (select, message) => {
+    console.log("mes", message)
     console.log("file", select)
     // const formData = new FormData(select);
     // const file = formData.get('file');
     if (!select) {
       return null;
     }
-
-    await api.post("/api/v1/files", {
+    const d = {
       filename: select.name,
       type: "MESSAGE"
-    }, { headers: { Authorization: `Bearer ${token}` } })
+    }
+    await fileService.file(token, d)
       .then(async (res) => {
-        console.log(res);
+        // console.log(res);
         // setData({...data, url: res.data});
         const resUpload = await api.put(res.data, select).catch(e => console.log(e));
         if (resUpload.status === 200) {
@@ -147,32 +133,19 @@ const Conversation = () => {
           }
           setBodyMsg(body);
           mutation.mutate(body)
-          // service.chat(token, id, body).then((res) => {
-          //   if (res.data) {
-          //     console.log(res.data);
-          //   }
-          //   else {
-          //     console.log(res)
-          //   }
-          // }).catch((err) => {
-          //   console.log(err)
-          // })
-        } else {
-          // setData({ ...data, success: false })
         }
       })
       .catch(err => {
         console.log(err);
         swal({
           title: "Eror",
-          // text: "You have pressed the button!",
           icon: "error"
         });
       })
   }
   async function onSendMessage(message, file) {
     console.log("file", file)
-    if (profile.id && id && !file && message)
+    if (profile?.id && chat?.id && !file && message)
       mutation.mutate({ content: message })
     else if (file) {
       await uploadToS3(file, message);
@@ -181,14 +154,14 @@ const Conversation = () => {
   const mutation = useMutation({
     mutationKey: ["saveChat"],
     mutationFn: async (mes) => {
-      return await service.chat(token, id, mes).then((res) => {
+      console.log("mes ", mes)
+      return await service.chat(token, chat?.id, mes).then((res) => {
         if (res.data) {
           console.log(res.data)
           chats.push(res.data)
           querychat.refetch();
-          queryClient.invalidateQueries(["chat"])
-          queryClient.invalidateQueries(["chats"])
-          Cookies.set("chats", JSON.stringify(chats))
+          //queryClient.invalidateQueries(["chat", chat?.id]);
+          Cookies.set("chats", JSON.stringify(chats));
           return res.data;
         }
       }).catch((err) => {
@@ -199,16 +172,20 @@ const Conversation = () => {
   useEffect(() => {
     const c = Cookies?.get("chats")
     console.log(Cookies?.get("chats"))
-    if (Cookies.get("chat") === undefined && (chat?.length <= 0 || !chat) && Cookies.get("chatId")) {
-      console.log("chat ", c.length)
+    if (Cookies.get("chat") === undefined) {
+      console.log("chat ", c?.length)
       setTimeout(() => {
         window.location.reload();
-      }, 2000); // Đặt thời gian đợi là 2000 miligiây (tức là 2 giây)
+      }, 1000); // Đặt thời gian đợi là 2000 miligiây (tức là 2 giây)
     }
-  }, []);
+  }, [Cookies.get("chats"), chat?.id]);
   const [showSearch, setShowSearch] = useState(false);
   const handleShowSearch = () => {
     setShowSearch(!showSearch);
+  }
+  const [showAddGroup, setShowAddGroup] = useState(false)
+  const handleShowAddGroup = () => {
+    setShowAddGroup(true);
   }
   return (
     <div className="h-screen w-full">
@@ -228,7 +205,7 @@ const Conversation = () => {
               <div className=" text-lg font-medium text-[#081c36]">
                 <span>
                   {chat ? (
-                    `${chat.name}`
+                    `${chat?.name}`
                   ) : (
                     <Skeleton variant="text" width={150} /> // Display placeholder while loading
                   )}
@@ -248,16 +225,16 @@ const Conversation = () => {
             </div>
           </div>
           <div className="flex flex-row items-center">
-            <a href="" className="p-1">
+            {chat?.isGroup && <a onClick={() => handleShowAddGroup()} className=" cursor-pointer hover:bg-gray-200">
               <img src="/src/assets/group-user-plus.png" alt="" />
-            </a>
+            </a>}
+            {<AddGroupModal groupId={chat?.groupId} querychat={querychat} showAddGroup={showAddGroup} setShowAddGroup={setShowAddGroup} />}
             <a onClick={() => handleShowSearch()} className="p-2 cursor-pointer">
               <img
                 src="/src/assets/mini-search.png"
                 alt=""
                 className="m-1 h-4 w-4"
               />
-
             </a>
             {showSearch && <div className="bg-white absolute z-50 right-20 mt-40 w-64 py-2 border border-gray-200 shadow-2xl" style={{ display: "none;" }}>
               <div className="py-2 border-b w-full">
@@ -282,19 +259,14 @@ const Conversation = () => {
           </div>
         </div>
       </div>
-      {/* -68 */}
       <div className="h-[calc(100vh-174px)] w-full flex-1 overflow-auto bg-[#A4BEEB] p-4 pr-3">
-        {/* <Message sender="other" content="Xin chào!" timestamp="15:30" />
-        <Message sender="me" content="Chào bạn!" timestamp="15:32" />
-        Thêm tin nhắn khác ở đây */}
         {querychat?.data?.map((message) => (
-          <MessageDetail key={message.id} message={message} chatId={id} />
+          <MessageDetail key={message.id} message={message} chatId={chat?.id} querychat={querychat} isGroup={chat?.isGroup} />
         ))}
       </div>
       <div className=" bg-white">
       </div>
       <div className="h-16">
-        {/* Thêm phần nhập tin nhắn ở đây */}
         <MessageInput onSendMessage={onSendMessage} />
       </div>
     </div>

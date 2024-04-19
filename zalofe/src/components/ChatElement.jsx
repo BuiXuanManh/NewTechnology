@@ -100,18 +100,18 @@ function ChatElement({
   const timeDifference = formatTimeDifference(t);
   return (
     <a key={id} id={id} onClick={() => handleOnClick(id)}
-      className={`${selectedId === id ? 'bg-blue-100 ' : ' '}flex cursor-pointer hover:bg-gray-200 h-[4.5rem] min-w-80 items-center`}
+      className={`${selectedId === id ? 'bg-blue-100 ' : ' '}flex cursor-pointer hover:bg-gray-200 h-[5rem] min-w-80 items-center`}
     >
       {isLoading ?
         <Skeleton>
-          <Avatar
-            src={avatar}
-            alt="avatar"
-            sx={{ width: 48, height: 48 }}
-            className="win-w-12"
-          // className="aspect-w-1 aspect-h-1 h-12 w-12 rounded-full object-cover"
-          />
           <div className="flex p-2 grow justify-between pl-3 md:w-80" id="content">
+            <Avatar
+              src={avatar}
+              alt="avatar"
+              sx={{ width: 48, height: 48 }}
+              className="min-w-12"
+            // className="aspect-w-1 aspect-h-1 h-12 w-12 rounded-full object-cover"
+            />
             <div className="">
               {/* {unreadCount != 0 ? (
             <>
@@ -167,32 +167,15 @@ function ChatElement({
         :
         <>
           <div className={`flex grow justify-between p-2 md:w-[23rem]`} id="content">
-            <Avatar
-              src={avatar}
-              alt="avatar"
-              sx={{ width: 48, height: 48 }}
-            // className="aspect-w-1 aspect-h-1 h-12 w-12 rounded-full object-cover"
-            />
-            <div className="">
-              {/* {unreadCount != 0 ? (
-            <>
-              <div className="grid gap-y-1">
-                <div>
-                  <span className="text-base font-semibold text-[#081C36]">
-                    {userName}
-                  </span>
-                </div>
-                <div className="transition-min-width flex min-w-[calc(100vw-200px)] items-center text-sm font-medium text-[#081C36] duration-200  md:min-w-full">
-                  <span className="overflow-hidden truncate overflow-ellipsis whitespace-nowrap md:w-[175px]">
-                    {messageContent}
-                  </span>
-                </div>
-              </div>
-            </>
-          ) : */}
-
+            <div className="flex">
+              <Avatar
+                src={avatar}
+                alt="avatar"
+                sx={{ width: 48, height: 48 }}
+                className="min-w-12"
+              />
               <>
-                <div className="grid gap-y-1">
+                <div className="grid gap-y-1 ml-3">
                   <div>
                     <span className="text-base font-semibold text-[#081C36]">
                       {name}

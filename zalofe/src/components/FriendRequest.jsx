@@ -68,6 +68,7 @@ const FriendRequest = () => {
                             text: "You have pressed the button!",
                             icon: "success"
                         });
+                        queryClient.invalidateQueries(["friends"])
                         queryClient.invalidateQueries(["friendRequest"])
                         queryClient.invalidateQueries(["chats"])
                         queryClient.invalidateQueries(["chat"])

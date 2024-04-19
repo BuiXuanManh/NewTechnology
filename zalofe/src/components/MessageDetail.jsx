@@ -8,9 +8,8 @@ import { faXmark } from "@fortawesome/free-solid-svg-icons";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import ChatService from "../services/ChatService";
 import { faThumbsUp } from "@fortawesome/free-regular-svg-icons";
-import IconModal from "./IconModal";
-import { Spa } from "@mui/icons-material";
-const MessageDetail = ({ message, chatId }) => {
+import IconModal from "./models/IconModal";
+const MessageDetail = ({ message, chatId, isGroup, querychat }) => {
   const { sender, content, createdAt, avatar, reactions, attachments, messageId, status, type } = message;
   const messageRef = useRef(null);
   // console.log(message)
@@ -97,9 +96,8 @@ const MessageDetail = ({ message, chatId }) => {
         if (res.data) {
           console.log(res.data);
           setReaction(res.data.reactions)
+          querychat.refetch()
           queryClient.invalidateQueries(["chat"]);
-          queryClient.invalidateQueries(["chats"]);
-          return res.data;
         }
       }).catch((err) => {
         console.error(err)
@@ -123,6 +121,7 @@ const MessageDetail = ({ message, chatId }) => {
   useEffect(() => {
 
   }, [showEmoDetails])
+
   return (
     <>
       <div
@@ -193,8 +192,14 @@ const MessageDetail = ({ message, chatId }) => {
               )}
             </div>
           </div>)}
-        {sender?.id !== profile.id && sender && sender !== "null" && type !== "EVENT" && (
-          <Avatar sx={{ width: 40, height: 40 }} alt="" src={sender?.thumbnailAvatar} className='mr-5  z-0' />
+        {sender?.id !== profile.id && sender && sender !== "null" && type !== "EVENT" && (<>
+          <div className="flex">
+            <Avatar sx={{ width: 40, height: 40 }} alt="" src={sender?.thumbnailAvatar} className='mr-5  z-0' />
+          </div>
+
+
+        </>
+
         )}
 
         <div>
@@ -206,6 +211,7 @@ const MessageDetail = ({ message, chatId }) => {
                 className={`${sender?.id === profile?.id && status !== "UNSEND" ? "bg-blue-200 " : "bg-[#FFFFFF] "
                   } flex flex-col items-start rounded-md p-3 w-40 transition-all duration-300 border border-t-2`}
               >
+
                 <div className="items-center">
                   <div className={`text-[#081c36]  ${sender ? "" : ""}`}>
                     {content}
@@ -218,7 +224,12 @@ const MessageDetail = ({ message, chatId }) => {
               className={`${type === "EVENT" ? "mx-[20rem] text-center items-center bg-gray-300 " : "bg-[#FFFFFF] "
                 }  ${sender?.id === profile.id && status != "UNSEND" ? ' bg-blue-200 ' : status === "UNSEND" ? 'bg-gray-100 text-sm' : 'bg-[#FFFFFF] '} flex flex-col items-start relative z-0 rounded-md p-3 transition-all duration-300`}
             >
-              <div className="flex items-center">
+              <div className="text-gray-500">
+                {isGroup && sender?.id !== profile?.id && <div>
+                  {sender?.firstName} {sender?.lastName}
+                </div>}
+              </div>
+              <div className="flex items-center mt-1">
                 <p className={`${status === 'UNSEND' ? 'text-gray-500 text-sm ' : 'text-[#081c36] '} ${sender?.id === profile?.id ? "" : ""}`}>
                   {content}
                 </p>
@@ -261,7 +272,7 @@ const MessageDetail = ({ message, chatId }) => {
                     {reactions?.length <= 0 ? <FontAwesomeIcon icon={faThumbsUp} className="relative" /> :
                       <div>
                         <img
-                          src={reactionss[reactionss.length - 1]?.type === "LIKE" ? icons[0] : reactionss[0]?.type === "LOVE" ? icons[1] : reactionss[0]?.type === "CRY" ? icons[2] : reactionss[0]?.type === "ANGER" ? icons[3] : icons[4]}
+                          src={reactionss[0]?.type === "LIKE" ? icons[0] : reactionss[0]?.type === "LOVE" ? icons[1] : reactionss[0]?.type === "CRY" ? icons[2] : reactionss[0]?.type === "ANGER" ? icons[3] : icons[4]}
                           alt=""
                           className="h-5 w-5"
                         />

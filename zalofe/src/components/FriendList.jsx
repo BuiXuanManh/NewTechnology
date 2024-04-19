@@ -11,12 +11,7 @@ import { Avatar, Skeleton } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 import UserService from '../services/UserService';
 import Cookies from 'js-cookie';
-
-
-
-
-
-
+import useLoginData from '../hook/useLoginData';
 export default function FriendList() {
 
   const data = [
@@ -35,43 +30,14 @@ export default function FriendList() {
     // Thêm các phần tử section và data khác nếu cần
   ];
   let service = new UserService();
-  const [token, setToken] = useState(Cookies.get("token"));
-  useEffect(() => {
-    const tokenFromCookie = Cookies.get("token");
-    console.log(token)
-    if (tokenFromCookie && tokenFromCookie !== token) {
-      setToken(tokenFromCookie);
-    }
-  }, [token]);
-  const list = useQuery({
-    queryKey: ["friends"],
-    queryFn: () => service.getFriends(token, "friend").then(res => {
-      if (token) {
-        console.log(token);
-        console.log("data", res.data);
-        if (res?.data)
-          return res.data;
-      }
-    }),
-    onSuccess: (data) => {
-      console.log("data", data);
-      // list.refetch();
-    },
-    onSettled: (data) => {
-      console.log("done", data);
-      // list.refetch();
-    },
-    onError: (err) => {
-      console.error("err", err);
-    }
-    // cacheTime: 3600000,
-  });
-  console.log(list);
-
-
+  const [token, setToken] = useState("");
+  const [phone, setPhone] = useState("");
+  const [profile, setProfile] = useState("");
+  const list = useLoginData({ token, setToken, setProfile, setPhone });
+  console.log(list)
   const RenderItem = () => (
-    (list?.isLoading) ? (<Skeleton>{
-      list?.data?.map((item, index) => (
+    (!list) ? (<Skeleton>{
+      list?.map((item, index) => (
         <div key={index} className='py-4'>
           {/* <div>{item.title}</div> */}
           <div>
@@ -85,14 +51,13 @@ export default function FriendList() {
             </div>
           </div>
         </div>
-
       ))}
     </Skeleton>) :
       (
-        <div> {list?.data?.length > 0 ?
+        <div> {list?.length > 0 ?
           (
             <div>
-              {list?.data?.map((item, index) => (
+              {list?.map((item, index) => (
                 <div key={index} className='py-4'>
                   {/* <div>{item.title}</div> */}
                   <div>
@@ -108,7 +73,6 @@ export default function FriendList() {
                 </div>
               )
               )
-
               }
             </div>
           )
@@ -118,8 +82,6 @@ export default function FriendList() {
         }
         </div>
       ))
-
-
   return (
     <div className="h-screen w-full">
       <div className="h-[69px] w-full">
@@ -130,18 +92,14 @@ export default function FriendList() {
               <div className="text-lg font-medium text-[#081c36]">
                 <span>Danh sách bạn bè</span>
               </div>
-
             </div>
           </div>
         </div>
-
         <div className='bg-neutral-100 p-4 pr-2 h-[700px] w-full overflow-auto' >
           <div className='font-medium pb-4'>Bạn bè</div>
-
           <div className='bg-white rounded-l p-4 '>
             <RenderItem />
           </div>
-
         </div>
       </div>
     </div>

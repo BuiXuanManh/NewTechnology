@@ -22,19 +22,20 @@ const useTabs = ({ chat, setChatSelectId }) => {
                 const chat = chats.find((c) => c.id === selectedId);
                 if (chat) {
                     setChatSelectId(chat);
+                    // console.log(chat)
                     Cookies.set("chat", JSON.stringify(chat));
                     queryClient.invalidateQueries(["chat"]);
                 } else {
                     console.warn(`Chat with ID ${selectedId} not found in local data.`);
                     if (chats.length > 0) {
                         setSelectedId(chats[0].id);
+                        console.log("chats", chats[0])
                         Cookies.set("chatId", chats[0].id);
                         Cookies.set("chat", JSON.stringify(chats[0]));
                     }
                 }
             }
         };
-
         handleSelectedChat();
     }, [chats, selectedId, setChatSelectId, queryClient]);
 
@@ -43,6 +44,7 @@ const useTabs = ({ chat, setChatSelectId }) => {
             const chat = chats.find((chat) => chat.id === id);
             if (chat) {
                 setSelectedId(id);
+                console.log(id)
                 Cookies.set("chatId", id);
                 Cookies.set("chat", JSON.stringify(chat));
                 queryClient.invalidateQueries(["chat"]);

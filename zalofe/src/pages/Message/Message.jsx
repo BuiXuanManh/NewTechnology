@@ -34,7 +34,7 @@ const Message = () => {
     },
     enabled: (token !== "" && token !== undefined),
   });
-  console.log(qr)
+  // console.log(qr)
   const { selectedId, handleOnClick } = useTabs({ setChatSelectId });
   const queryClient = useQueryClient();
 
@@ -44,7 +44,7 @@ const Message = () => {
         {!qr?.isLoading && !qr?.data ? (
           <div>Không có tin nhắn nào</div>
         ) : (
-          <>
+          <div className="mt-2">
             {qr?.data?.map(chat => (
               <ChatElement
                 key={chat.id}
@@ -59,7 +59,7 @@ const Message = () => {
                 setChatSelectId={setChatSelectId}
               />
             ))}
-          </>
+          </div>
         )}
         <div className="h-[60px]">
           <p className="mt-5 text-center text-sm mx-2">
