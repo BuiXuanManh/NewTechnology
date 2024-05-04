@@ -14,7 +14,7 @@ const Members = ({ showMember, setShowMember, member, idLead, groupId }) => {
     const [token, setToken] = useState("");
     const [phone, setPhone] = useState("");
     const [profile, setProfile] = useState("");
-    const list = useLoginData({ token, setToken, setProfile, setPhone });
+    useLoginData({ token, setToken, setProfile, setPhone });
     console.log("mb", member);
     console.log("lead", idLead);
     let service = new GroupService();

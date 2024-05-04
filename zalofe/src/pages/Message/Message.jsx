@@ -1,21 +1,22 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { useQueryClient, useQuery } from "@tanstack/react-query";
 import useLoginData from "../../hook/useLoginData"; // Giả sử đây là đường dẫn đúng
 import ChatElement from "../../components/ChatElement"; // Giả sử đây là đường dẫn đúng
 import useTabs from "../../hook/useTabs";
 import ChatService from "../../services/ChatService";
 import Cookies from "js-cookie";
+import { AppContext } from "../../context/AppContext";
 const Message = () => {
   const [phone, setPhone] = useState("");
   const [token, setToken] = useState("");
   const [profile, setProfile] = useState({});
   useLoginData({ token, setToken, setProfile, setPhone });
   const [noSenderChats, setNoSenderChats] = useState([]);
-  const [chats, setChats] = useState([]);
+  // const [chats, setChats] = useState([]);
   const [chat, setChatSelectId] = useState({});
 
   const service = new ChatService();
-
+  const {chats,setChats}= useContext(AppContext);
   const qr = useQuery({
     queryKey: ["chats"],
     queryFn: async () => {
@@ -24,7 +25,7 @@ const Message = () => {
         const res = await service.getChats(token);
         if (res.data) {
           setChats(res.data);
-          Cookies.set("chats", JSON.stringify(res.data));
+          // Cookies.set("chats", JSON.stringify(res.data));
           // setNoSenderChats(res.data.filter(chat => !chat?.lastMessage?.sender));
           return res.data;
         }

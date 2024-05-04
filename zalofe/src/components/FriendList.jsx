@@ -33,7 +33,7 @@ export default function FriendList() {
   const [token, setToken] = useState("");
   const [phone, setPhone] = useState("");
   const [profile, setProfile] = useState("");
-  const list = useLoginData({ token, setToken, setProfile, setPhone });
+  const { l: list } = useLoginData({ token, setToken, setProfile, setPhone });
   console.log(list)
   const RenderItem = () => (
     (!list) ? (<Skeleton>{

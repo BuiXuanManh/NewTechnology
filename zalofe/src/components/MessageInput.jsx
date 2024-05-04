@@ -1,14 +1,17 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import TextField from "@mui/material/TextField";
 import IconButton from "@mui/material/IconButton";
 import SendIcon from "@mui/icons-material/Send";
 import api from "../api/api";
 import useLoginData from "../hook/useLoginData";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPaperclip } from "@fortawesome/free-solid-svg-icons";
 
 const MessageInput = ({ onSendMessage }) => {
   const [message, setMessage] = useState("");
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [closee, setClosee] = useState(false);
+  const imageRef = useRef(null);
   const [previews, setPreviews] = useState([]);
   const handleSendMessage = () => {
     if (message.trim() !== "" && selectedFiles.length === 0) {
@@ -73,10 +76,13 @@ const MessageInput = ({ onSendMessage }) => {
 
   return (
     <>
-      <div className="flex bg-white h-10">
-        <input type="file" onChange={onSelectFiles} />
+      <div className="flex gap-2 bg-white h-10">
+        <input type="file" className="hidden" ref={imageRef} onChange={onSelectFiles} />
+        <div onClick={() => imageRef.current.onClick} className="flex ml-5 hover:bg-gray-200 px-2 items-center cursor-pointer">
+          <FontAwesomeIcon icon={faPaperclip} onClick={() => imageRef.current.click()} />
+        </div>
         {previews?.length > 0 && (
-          <div className="flex">
+          <div className="flex ">
             {previews?.map((preview, index) => (
               <img
                 key={index}

@@ -28,7 +28,7 @@ export default function ProfileModal({ onClose, userData }) {
     useLoginData({ token, setToken, setProfile, setPhone });
     const navigation = useNavigate();
     const { updatedData } = useParams();
- 
+
     const handleImageChange = (e) => {
         const file = e.target.files[0];
         setSelectedImage(file);
@@ -43,7 +43,7 @@ export default function ProfileModal({ onClose, userData }) {
 
     const handleSubmity = (e) => {
         e.preventDefault();
-        
+
     };
 
     const handleCancel = () => {
@@ -60,7 +60,7 @@ export default function ProfileModal({ onClose, userData }) {
     }, [updatedData]);
 
     const handleUpdateClick = () => {
-        setShowUpdateModal(true); 
+        setShowUpdateModal(true);
     };
 
 
@@ -97,7 +97,7 @@ export default function ProfileModal({ onClose, userData }) {
                 Cookies.set("profile", JSON.stringify(data));
                 queryClient.invalidateQueries(["profilep"]);
                 window.location.reload();
-             
+
             })
             .catch(error => {
                 console.error(error.message);
@@ -120,7 +120,7 @@ export default function ProfileModal({ onClose, userData }) {
             .then(async (res) => {
                 console.log(res);
                 console.log(data);
-              
+
                 const resUpload = await axios.put(res.data, file).catch(e => console.log(e));
                 if (resUpload.status === 200) {
                     setData({ ...data, success: true, url: res.data })
@@ -139,7 +139,7 @@ export default function ProfileModal({ onClose, userData }) {
                     //         }
                     //     ]
                     // })
-                   
+
                 } else {
                     setData({ ...data, success: false })
                 }
@@ -161,7 +161,7 @@ export default function ProfileModal({ onClose, userData }) {
     }
     return (
         <>
-            {showUpdateModal ? ( 
+            {showUpdateModal ? (
                 <UpdateUserModal
                     profile={profile}
                     phone={phone}
@@ -198,7 +198,7 @@ export default function ProfileModal({ onClose, userData }) {
                                                     <input type="file" name="file" accept="image/*"
                                                         onChange={handleImageChange}
                                                         className="form-control"
-                                                        style={{ 
+                                                        style={{
                                                             opacity: 0,
                                                             position: 'absolute',
                                                             left: '-10px',
@@ -212,22 +212,22 @@ export default function ProfileModal({ onClose, userData }) {
                                             </div>
 
                                             {(selectedImage && imageUrl) && (
-                                                <div style={{position: 'relative',top: '50px', left: '-20px'}} className="grid grid-cols-2">                                       
+                                                <div style={{ position: 'relative', top: '50px', left: '-20px' }} className="grid grid-cols-2">
                                                     <button type="submit">Upload</button>
                                                     <button type="button" onClick={handleCancel}>Hủy</button>
-                                                    <div style={{position: 'relative',top: '-40px', left: '140px'}}>   
+                                                    <div style={{ position: 'relative', top: '-40px', left: '140px' }}>
                                                         <img src={imageUrl} alt="Selected" style={{ width: '75px', height: '75px' }} />
                                                     </div>
-                                                   
+
                                                 </div>
-                                             )}
+                                            )}
 
 
                                         </form>
 
                                         <p className="mt-4 font-bold" style={{ marginLeft: '-150px', width: '100px' }}>{profile?.firstName} {profile?.lastName}</p>
 
-                                      
+
                                     </div>
 
                                 </div>

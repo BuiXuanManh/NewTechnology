@@ -7,7 +7,7 @@ import MessageDetail from "./MessageDetail";
 import MessageInput from "./MessageInput";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { Skeleton } from '@mui/material';
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import Cookies from "js-cookie";
 import LoginService from "../services/LoginService";
 import useLoginData from "../hook/useLoginData";
@@ -21,6 +21,7 @@ import FileService from "../services/FileService";
 import AddGroupModal from "./models/AddGroupModal";
 import Members from "./models/Members";
 import { set } from "date-fns";
+import { AppContext } from "../context/AppContext";
 const StyledBadge = styled(Badge)(({ theme }) => ({
   "& .MuiBadge-badge": {
     backgroundColor: "#44b700",
@@ -57,54 +58,35 @@ const Conversation = () => {
   const [phone, setPhone] = useState("");
   const [profile, setProfile] = useState("");
   useLoginData({ token, setToken, setProfile, setPhone });
-  const [chat, setChatSelectId] = useState();
+  // const [chat, setChatSelectId] = useState();
   const [chats, setChats] = useState([])
-  useTabs({ chat, setChatSelectId });
+  // useTabs({ chat, setChatSelectId });
   let service = new ChatService();
   let fileService = new FileService();
+  const { chatId, chat } = useContext(AppContext);
   const querychat = useQuery({
     queryKey: ["chat", chat?.id],
     queryFn: async () => {
-      return service.getMessages(token, chat?.id).then((res) => {
+      return service.getMessages(token, chatId).then((res) => {
         if (res.data) {
-          setChats(res.data);
+          setChats(res.data.content);
+<<<<<<< Updated upstream
           return res.data;
+=======
+          return res.data.content;
+>>>>>>> Stashed changes
         }
       }).catch((err) => {
         console.error(err);
       });
     },
-    // staleTime: 30000,
-    // gcTime: 3000000,
-    // retry: 3,
     enabled: chat?.id !== "" && chat?.id !== undefined && token !== "" && token !== undefined && chat?.id !== null && chat?.id !== "null"
   });
-  useEffect(() => {
-    const c = Cookies.get("chat");
-    if (c && c !== undefined && c !== "undefined" && c !== "[object Object]") {
-      const chat = JSON.parse(c);
-      setChatSelectId(chat);
-    }
-    // console.log(chat)
-  }, [Cookies.get("chat")]);
   const [newUrl, setNewUrl] = useState("")
-  // Khi chat thay đổi, làm mới truy vấn cuộc trò chuyện
-  useEffect(() => {
-    queryClient.invalidateQueries(["chat", chat?.id]);
-  }, [chat]);
-  useEffect(() => {
-    const id = Cookies.get("chatId");
-    if (id) {
-      setID(id);
-    }
-  }, [id, Cookies.get("chatId"), chat]);
-  //console.log(chat);
   const [bodyMsg, setBodyMsg] = useState({})
   const uploadToS3 = async (select, message) => {
     console.log("mes", message)
     console.log("file", select)
-    // const formData = new FormData(select);
-    // const file = formData.get('file');
     if (!select) {
       return null;
     }
@@ -114,16 +96,12 @@ const Conversation = () => {
     }
     await fileService.file(token, d)
       .then(async (res) => {
-        // console.log(res);
-        // setData({...data, url: res.data});
         const resUpload = await api.put(res.data, select).catch(e => console.log(e));
         if (resUpload.status === 200) {
-          // setData({ ...data, success: true, url: res.data })
           const newUrl = res.data.substring(0, res.data.indexOf('?'));
           console.log(newUrl)
           setNewUrl(newUrl);
           const body = {
-            // sender: id,
             content: message,
             attachments: [
               {
@@ -171,16 +149,19 @@ const Conversation = () => {
       })
     }
   })
-  useEffect(() => {
-    const c = Cookies?.get("chats")
-    console.log(Cookies?.get("chats"))
-    if (Cookies.get("chat") === undefined) {
-      console.log("chat ", c?.length)
-      setTimeout(() => {
-        window.location.reload();
-      }, 1000); // Đặt thời gian đợi là 2000 miligiây (tức là 2 giây)
-    }
-  }, [Cookies.get("chats"), chat?.id]);
+<<<<<<< Updated upstream
+  // useEffect(() => {
+  //   const c = Cookies?.get("chats")
+  //   console.log(Cookies?.get("chats"))
+  //   if (Cookies.get("chat") === undefined) {
+  //     console.log("chat ", c?.length)
+  //     setTimeout(() => {
+  //       window.location.reload();
+  //     }, 1000); // Đặt thời gian đợi là 2000 miligiây (tức là 2 giây)
+  //   }
+  // }, [Cookies.get("chats")]);
+=======
+>>>>>>> Stashed changes
   const [showSearch, setShowSearch] = useState(false);
   const handleShowSearch = () => {
     setShowSearch(!showSearch);
@@ -252,7 +233,7 @@ const Conversation = () => {
             {chat?.isGroup && <a onClick={() => handleShowAddGroup()} className=" cursor-pointer hover:bg-gray-200">
               <img src="/src/assets/group-user-plus.png" alt="" />
             </a>}
-            {<AddGroupModal groupId={chat?.groupId} querychat={querychat} showAddGroup={showAddGroup} setShowAddGroup={setShowAddGroup} />}
+            {chat?.groupId && <AddGroupModal groupId={chat?.groupId} querychat={querychat} showAddGroup={showAddGroup} setShowAddGroup={setShowAddGroup} />}
             <a onClick={() => handleShowSearch()} className="p-2 cursor-pointer">
               <img
                 src="/src/assets/mini-search.png"
@@ -284,7 +265,7 @@ const Conversation = () => {
         </div>
       </div>
       <div className="h-[calc(100vh-174px)] w-full flex-1 overflow-auto bg-[#A4BEEB] p-4 pr-3">
-        {querychat?.data?.map((message) => (
+        {chats?.map((message) => (
           <MessageDetail key={message.id} message={message} chatId={chat?.id} querychat={querychat} isGroup={chat?.isGroup} />
         ))}
       </div>

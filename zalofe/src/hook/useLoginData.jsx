@@ -1,8 +1,7 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Cookies from 'js-cookie';
 import { useQuery } from '@tanstack/react-query';
 import UserService from '../services/UserService';
-let l = [];
 const useLoginData = ({ token, setToken, setProfile, setPhone }) => {
     useEffect(() => {
         const loginData = () => {
@@ -18,27 +17,39 @@ const useLoginData = ({ token, setToken, setProfile, setPhone }) => {
         loginData();
     }, [token, Cookies.get("token")]);
     let service = new UserService();
+    const [l, setL] = useState([]);
+    const [re, setRe] = useState([]);
     const list = useQuery({
         queryKey: ["friends"],
-        queryFn: () => service.getFriends(token, "friend").then(res => {
-            if (token) {
-                console.log(token);
-                // console.log("data", res.data);
-                if (res?.data)
+        queryFn: () => {
+            if (token !== "" && token !== undefined) service.getFriends(token).then(res => {
+                if (res?.data) {
+                    setL(res.data);
                     return res.data;
-            }
-        }),
-        onError: (err) => {
-            console.error("err", err);
+                }
+
+            })
         },
         enabled: token !== "" && token !== undefined && l.length === 0,
         // cacheTime: 3600000,
     })
-    if (list?.data) {
-        l = list?.data;
-    }
-    // console.log(l);
-    return l;
+    const requests = useQuery({
+        queryKey: ["sendRequest"],
+        queryFn: () => {
+            if (token !== "" && token !== undefined)
+                service.getFriendSent(token).then(res => {
+                    if (token) {
+                        if (res?.data) {
+                            setRe(res.data);
+                            return res.data;
+                        }
+                    }
+                })
+        }, enabled: token !== "" && token !== undefined
+        // cacheTime: 3600000,
+    })
+    return { l, re };
 }
+
 
 export default useLoginData;

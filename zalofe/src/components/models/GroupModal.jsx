@@ -26,9 +26,6 @@ const GroupModal = ({ showCreateGroup, setShowCreateGroup }) => {
     };
     const queryClient = useQueryClient();
     queryClient.invalidateQueries(["friends"])
-    useEffect(() => { }, [list])
-    // const list = queryClient.getQueryData(["friends"]);
-    console.log(list);
     const divBorderClassName = isInputFocused ? "blue-500" : "gray-400";
     const [selectedItems, setSelectedItems] = useState([]);
     const handleRadioChange = (item) => {
@@ -61,11 +58,11 @@ const GroupModal = ({ showCreateGroup, setShowCreateGroup }) => {
     let service = new GroupService()
     const mutaion = useMutation({
         mutationKey: ["createGroup"],
-        mutationFn: async (data) => service.createGroup(token, data).then((res) => {
+        mutationFn: (data) => service.createGroup(token, data).then((res) => {
             if (res.data) {
                 console.log(res.data);
                 setShowCreateGroup(false);
-                queryClient.invalidateQueries(["chat"]);
+                // queryClient.invalidateQueries(["chat"]);
                 return res.data;
             }
         }).catch((err) => {
@@ -119,7 +116,7 @@ const GroupModal = ({ showCreateGroup, setShowCreateGroup }) => {
                         <div className='text-black grid grid-cols-3 w-full my-2'>
                             <div className='col-span-2 w-full'>
                                 <div><h3>Chọn thành viên</h3></div>
-                                {list?.map((item, index) => {
+                                {list?.length > 0 && list?.map((item, index) => {
                                     return (
                                         <div key={index} className='flex gap-2 w-full mt-3' onClick={() => handleRadioChange(item)}>
                                             <input type="radio" checked={selectedItems.includes(item)} onChange={() => handleRadioChange(item)} onClick={() => handleRadioChange(item)} />

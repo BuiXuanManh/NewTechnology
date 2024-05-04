@@ -42,17 +42,18 @@ export default function AddFriendDialog() {
   // const [findProfile, setFindProfile] = useState();
   const [profile, setProfile] = useState();
   const [phone, setPhone] = useState();
-  const [friendsList, setFriendsList] = useState([]);
+  const [token, setToken] = useState("");
   const [selectedCountry, setSelectedCountry] = useState({
     name: "Vietnam",
     flag: "🇻🇳",
     code: "VN",
     dial_code: "+84",
   });
-  const [token, setToken] = useState("");
+  const { l, re } = useLoginData({ token, setToken, setPhone, setProfile });
   const [recentSearches, setRecentSearches] = useState(recentSearchesData);
   const [suggestedFriends, setSuggestedFriends] = useState(suggestedFriendsData);
-
+  console.log("l", l)
+  console.log("re", re)
   const [selectedCountryValue, setSelectedCountryValue] = useState(selectedCountry);
 
   const handleClickOpen = () => {
@@ -62,12 +63,12 @@ export default function AddFriendDialog() {
   const handleClose = () => {
     setOpen(false);
   };
+
   let service = new UserService();
   const mutation = useMutation({
     mutationKey: ['findFriend'],
     mutationFn: () => {
       service.findByPhone(phoneNumber, token).then((res) => {
-        console.log(res.data);
         if (res.error) {
           swal({
             title: "Error",
@@ -75,9 +76,9 @@ export default function AddFriendDialog() {
           });
         }
         if (res.data) {
-          console.log("find friend data ", res.data);
-          Cookies.set("idFind", res?.data?.id);
-          addFriend.mutate()
+          // console.log("find friend data ", res.data);
+          // Cookies.set("idFind", res?.data?.id);
+          addFriend.mutate(res.data.id)
         }
       }).catch(error => {
         swal({
@@ -88,14 +89,15 @@ export default function AddFriendDialog() {
 
     }
   });
+  const [findUser, setFindUser] = useState();
+  const [showFind, setShowFind] = useState(false);
   const addFriend = useMutation({
     mutationKey: ['addFriend'],
-    mutationFn: () => {
-      if (Cookies.get("idFind") && token) {
-        console.log(Cookies.get("idFind"));
+    mutationFn: (id) => {
+      if (id && token) {
+        // console.log(Cookies.get("idFind"));
         console.log(token);
-        const data = service.addFriend(token, Cookies.get("idFind")).then((res) => {
-          console.log(res);
+        const data = service.addFriend(token, id).then((res) => {
           if (res.data) {
             console.log("add friend data ", res.data);
             swal({
@@ -103,6 +105,7 @@ export default function AddFriendDialog() {
               text: "You have pressed the button!",
               icon: "success"
             });
+            // setFriendList((prevList) => [...prevList, { prefix, phoneNumber }]);
             queryClient.invalidateQueries(["friendRequest"])
           }
         }).catch(error => {
@@ -115,18 +118,54 @@ export default function AddFriendDialog() {
       }
     }
   });
+  const findFriendByPhone = () => {
+    service.findByPhone(phoneNumber.trim(), token).then((res) => {
+      if (res.data) {
+        setFindUser(res.data)
+        setShowFind(true)
+        if (res?.data?.id) {
+          console.log("findUser", findUser)
+          console.log("l", l)
+          l?.map((friend) => {
+            if (friend?.profile?.id === res?.data?.id)
+              setIsfriend(true);
+          })
+          re?.map((request) => {
+            if (request?.profile?.id === res?.data?.id) {
+              setIsRequest(true);
+            }
+          })
+        }
+        // return res.data;
+      }
+    }).catch(error => {
+      setFindUser(null)
+    })
+
+  }
+  const handleChange = (e) => {
+    setPhoneNumber(e.target.value)
+  }
+  const [isFriend, setIsfriend] = useState(false);
+  const [isRequest, setIsRequest] = useState(false);
+  useEffect(() => {
+    setIsfriend(false);
+    setIsRequest(false);
+    findFriendByPhone();
+  }, [phoneNumber])
+
   // console.log(mutation)
   const handleAddFriend = () => {
     console.log(
       `Add friend with prefix: ${prefix}, phone number: ${phoneNumber}`,
     );
     mutation.mutate();
-    setFriendsList((prevList) => [...prevList, { prefix, phoneNumber }]);
+
     handleClose();
   };
 
   const handleAddSuggestedFriend = (friend) => {
-    console.log(`Add suggested friend: ${friend.name}`);
+    // console.log(`Add suggested friend: ${friend.name}`);
   };
 
   const handleSelectCountry = (e) => {
@@ -135,10 +174,13 @@ export default function AddFriendDialog() {
       (country) => country.code === selectedCountryCode,
     );
     setSelectedCountry(selectedCountry);
-    console.log(selectedCountry);
+    // console.log(selectedCountry);
   };
-
-  useLoginData({ token, setToken, setProfile, setPhone });
+  const handleCloseFind = () => {
+    setShowFind(false);
+    // setPhoneNumber("")
+  }
+  // useLoginData({ token, setToken, setProfile, setPhone });
   return (
     <Fragment>
       <button
@@ -201,7 +243,7 @@ export default function AddFriendDialog() {
                 ))}
               </Select>
             </div>
-            <div className="w-2/3">
+            <div className="relative w-2/3">
               <TextField
                 required
                 margin="dense"
@@ -210,9 +252,39 @@ export default function AddFriendDialog() {
                 type="tel"
                 fullWidth
                 value={phoneNumber}
-                onChange={(e) => setPhoneNumber(e.target.value)}
+                onChange={(e) => handleChange(e)}
               />
             </div>
+            {findUser && showFind && <div onBlur={handleCloseFind} className="absolute flex justify-center items-center mt-40 top-0 bg-blue-200 p-4 hover:bg-gray-300">
+              <div className={`flex grow justify-between p-2 md:w-[23rem]`} id="content">
+                <div className="flex">
+                  <Avatar
+                    src={findUser?.thumbnailAvatar}
+                    alt="avatar"
+                    sx={{ width: 48, height: 48 }}
+                    className="min-w-12"
+                  />
+                  <>
+                    <div className="grid gap-y-1 ml-3">
+                      <div>
+                        <span className="text-base font-semibold text-[#081C36]">
+                          {findUser?.firstName} {findUser?.lastName}
+                        </span>
+                      </div>
+                    </div>
+                  </>
+                </div>
+                {isRequest && <div className="items-center flex">
+                  <p className="text-sm">chờ phản hồi</p>
+                </div>}
+                {!isRequest && !isFriend && <div className="">
+                  <Button onClick={handleAddFriend} variant="contained" color="primary">
+                    Add Friend
+                  </Button>
+                </div>}
+              </div>
+            </div>}
+
           </div>
           <div className="mt-3">
             <DialogContentText>Recent Searches:</DialogContentText>
@@ -249,9 +321,7 @@ export default function AddFriendDialog() {
         </DialogContent>
         <DialogActions className="p-4">
           <Button onClick={handleClose}>Cancel</Button>
-          <Button onClick={handleAddFriend} variant="contained" color="primary">
-            Add Friend
-          </Button>
+
         </DialogActions>
       </Dialog>
     </Fragment>
