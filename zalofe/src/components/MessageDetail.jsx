@@ -96,7 +96,7 @@ const MessageDetail = ({ message, chatId, isGroup, querychat }) => {
         if (res.data) {
           console.log(res.data);
           setReaction(res.data.reactions)
-          querychat.refetch()
+          // querychat.refetch()
           queryClient.invalidateQueries(["chat"]);
         }
       }).catch((err) => {

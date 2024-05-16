@@ -7,7 +7,7 @@ import MessageDetail from "./MessageDetail";
 import MessageInput from "./MessageInput";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { Skeleton } from '@mui/material';
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import Cookies from "js-cookie";
 import LoginService from "../services/LoginService";
 import useLoginData from "../hook/useLoginData";
@@ -22,6 +22,7 @@ import AddGroupModal from "./models/AddGroupModal";
 import Members from "./models/Members";
 import { set } from "date-fns";
 import { AppContext } from "../context/AppContext";
+import CallVideo from "./callVideo/CallVideo";
 const StyledBadge = styled(Badge)(({ theme }) => ({
   "& .MuiBadge-badge": {
     backgroundColor: "#44b700",
@@ -70,11 +71,7 @@ const Conversation = () => {
       return service.getMessages(token, chatId).then((res) => {
         if (res.data) {
           setChats(res.data.content);
-<<<<<<< Updated upstream
-          return res.data;
-=======
           return res.data.content;
->>>>>>> Stashed changes
         }
       }).catch((err) => {
         console.error(err);
@@ -134,7 +131,6 @@ const Conversation = () => {
   const mutation = useMutation({
     mutationKey: ["saveChat"],
     mutationFn: async (mes) => {
-      console.log("mes ", mes)
       return await service.chat(token, chat?.id, mes).then((res) => {
         if (res.data) {
           console.log(res.data)
@@ -149,19 +145,6 @@ const Conversation = () => {
       })
     }
   })
-<<<<<<< Updated upstream
-  // useEffect(() => {
-  //   const c = Cookies?.get("chats")
-  //   console.log(Cookies?.get("chats"))
-  //   if (Cookies.get("chat") === undefined) {
-  //     console.log("chat ", c?.length)
-  //     setTimeout(() => {
-  //       window.location.reload();
-  //     }, 1000); // Đặt thời gian đợi là 2000 miligiây (tức là 2 giây)
-  //   }
-  // }, [Cookies.get("chats")]);
-=======
->>>>>>> Stashed changes
   const [showSearch, setShowSearch] = useState(false);
   const handleShowSearch = () => {
     setShowSearch(!showSearch);
@@ -190,7 +173,15 @@ const Conversation = () => {
       }
     }
   }, [member]);
-  //console.log("member ", member)
+  const [showVideo, setShowVideo] = useState("")
+  const videoRef = useRef(null);
+  const handleShowVideo = () => {
+    const name = profile?.firstName + " " + profile?.lastName
+    videoRef.current.onClick();
+    setShowVideo(name);
+
+  }
+
   return (
     <div className="h-screen w-full">
       <div className="h-[68px] w-full px-4">
@@ -251,9 +242,10 @@ const Conversation = () => {
                 </div>
               </div>
             </div>}
-            <a href="" className="p-2">
+            <a onClick={() => handleShowVideo()} className="p-2">
               <img src="/src/assets/video.png" alt="" className="m-1 h-5 w-5" />
             </a>
+            {showVideo !== "" && showVideo !== null && <CallVideo videoRef={videoRef} name={showVideo} handleClose={() => setShowVideo("")} />}
             <a href="" className="p-2">
               <img
                 src="/src/assets/right-bar.png"
@@ -261,6 +253,7 @@ const Conversation = () => {
                 className="m-1 h-4 w-4"
               />
             </a>
+
           </div>
         </div>
       </div>

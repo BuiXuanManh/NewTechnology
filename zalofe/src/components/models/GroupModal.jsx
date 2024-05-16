@@ -19,13 +19,12 @@ const GroupModal = ({ showCreateGroup, setShowCreateGroup }) => {
     const [token, setToken] = useState("");
     const [phone, setPhone] = useState("");
     const [profile, setProfile] = useState("");
-    const list = useLoginData({ token, setToken, setProfile, setPhone });
+    const { l: list } = useLoginData({ token, setToken, setProfile, setPhone });
     // Hàm xử lý khi input được focus
     const handleInputFocus = () => {
         setIsInputFocused(!isInputFocused);
     };
     const queryClient = useQueryClient();
-    queryClient.invalidateQueries(["friends"])
     const divBorderClassName = isInputFocused ? "blue-500" : "gray-400";
     const [selectedItems, setSelectedItems] = useState([]);
     const handleRadioChange = (item) => {
@@ -62,7 +61,7 @@ const GroupModal = ({ showCreateGroup, setShowCreateGroup }) => {
             if (res.data) {
                 console.log(res.data);
                 setShowCreateGroup(false);
-                // queryClient.invalidateQueries(["chat"]);
+                queryClient.invalidateQueries(["chat"]);
                 return res.data;
             }
         }).catch((err) => {

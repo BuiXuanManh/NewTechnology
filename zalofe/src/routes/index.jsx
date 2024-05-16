@@ -28,6 +28,7 @@ import RegisterForm from "../pages/Login/RegisterForm";
 import useLoginData from "../hook/useLoginData";
 import ChatService from "../services/ChatService";
 import useTabs from "../hook/useTabs";
+import CallVideo from "../components/callVideo/CallVideo";
 
 export default function Router() {
   function handleComp() {
@@ -47,7 +48,7 @@ export default function Router() {
       setComp(<FriendList />);
     }
   }, [location.pathname]);
-  
+
   return useRoutes([
     {
       path: "/auth",
@@ -56,7 +57,8 @@ export default function Router() {
         { path: "login", element: <LoginForm /> },
         { path: "register/:phoneP", element: <RegisterForm /> },
         { path: "forgot-password/:phoneP", element: <PasswordForm /> }, // Thêm PasswordForm vào routing
-        { path: "change-password/:phoneP", element: <ChangePasswordForm /> }
+        { path: "change-password/:phoneP", element: <ChangePasswordForm /> },
+        { path: "callVideo", element: <CallVideo /> },
       ],
     },
     {
