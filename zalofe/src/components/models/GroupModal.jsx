@@ -19,7 +19,7 @@ const GroupModal = ({ showCreateGroup, setShowCreateGroup }) => {
     const [token, setToken] = useState("");
     const [phone, setPhone] = useState("");
     const [profile, setProfile] = useState("");
-    const { l: list } = useLoginData({ token, setToken, setProfile, setPhone });
+    useLoginData({ token, setToken, setProfile, setPhone });
     // Hàm xử lý khi input được focus
     const handleInputFocus = () => {
         setIsInputFocused(!isInputFocused);
