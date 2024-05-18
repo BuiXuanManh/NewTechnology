@@ -16,7 +16,7 @@ const Message = () => {
   const [chat, setChatSelectId] = useState({});
 
   const service = new ChatService();
-  const {chats,setChats}= useContext(AppContext);
+  const { chats, setChats } = useContext(AppContext);
   const qr = useQuery({
     queryKey: ["chats"],
     queryFn: async () => {
@@ -58,6 +58,7 @@ const Message = () => {
                 handleOnClick={handleOnClick}
                 pId={profile?.id}
                 setChatSelectId={setChatSelectId}
+                chat={chat}
               />
             ))}
           </div>

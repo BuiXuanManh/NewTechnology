@@ -1,41 +1,46 @@
-import { faCameraRetro, faXmark } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import React, { useContext, useState } from 'react';
+import ChatService from '../../services/ChatService';
+import { AppContext } from '../../context/AppContext';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import React, { useEffect, useState } from 'react';
 import useLoginData from '../../hook/useLoginData';
 import { Avatar } from '@mui/material';
-import AvatarGroupModal from './AvatarGroupModal';
-import GroupService from '../../services/GroupService';
-import swal from 'sweetalert';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faXmark } from '@fortawesome/free-solid-svg-icons';
 
-const AddGroupModal = ({ showAddGroup, setShowAddGroup, groupId, queryChat }) => {
+const ShareModal = ({ showShare, setShowShare, message }) => {
     const handleClose = () => {
-        setShowAddGroup(false);
+        setShowShare(false);
     }
-    const [showAvatarGroup, setShowAvatarGroup] = useState(false);
-    const handleShowAvatarGroup = () => {
-        setShowAvatarGroup(true);
-    }
-
     const [token, setToken] = useState("");
     const [phone, setPhone] = useState("");
     const [profile, setProfile] = useState("");
-    const { l: list } = useLoginData({ token, setToken, setProfile, setPhone });
-    console.log("list ", list)
-    // Hàm xử lý khi input được focus
-
-    const queryClient = useQueryClient();
-    // queryClient.invalidateQueries(["friends"])
-    useEffect(() => { }, [list])
-    // const list = queryClient.getQueryData(["friends"]);
-    console.log(list);
+    useLoginData({ token, setToken, setProfile, setPhone });
+    const service = new ChatService();
+    const { chats, setChats } = useContext(AppContext);
+    const qr = useQuery({
+        queryKey: ["chats"],
+        queryFn: async () => {
+            try {
+                // console.log(token)
+                const res = await service.getChats(token);
+                if (res.data) {
+                    setChats(res.data);
+                    // Cookies.set("chats", JSON.stringify(res.data));
+                    // setNoSenderChats(res.data.filter(chat => !chat?.lastMessage?.sender));
+                    return res.data;
+                }
+            } catch (err) {
+                console.log(err);
+            }
+        }
+    });
     const [isInputFocused, setIsInputFocused] = useState(false);
     const handleInputFocus = () => {
         setIsInputFocused(!isInputFocused);
     };
     const divBorderClassName = isInputFocused ? "blue-500" : "gray-400";
     const [selectedItems, setSelectedItems] = useState([]);
-    const handleRadioChange = (item) => {
+    const handleCheckboxChange = (item) => {
         if (selectedItems.includes(item)) {
             // Nếu phần tử đã được chọn, loại bỏ nó ra khỏi danh sách
             setSelectedItems(selectedItems.filter(selectedItem => selectedItem !== item));
@@ -44,60 +49,38 @@ const AddGroupModal = ({ showAddGroup, setShowAddGroup, groupId, queryChat }) =>
             setSelectedItems([...selectedItems, item]);
         }
     };
-    const [members, setMembers] = useState([]);
-    const handleAddMember = () => {
-        let members = [];
+    const queryClient = useQueryClient();
+    const mutation = useMutation({
+        mutationKey: ["saveChat"],
+        mutationFn: async (mes) => {
+            return await service.chat(token, mes.chatId, mes.mes).then((res) => {
+                if (res.data) {
+                    console.log(res.data)
+                    chats.push(res.data)
+                    queryClient.invalidateQueries(["chat"]);
+                    queryClient.invalidateQueries(["chats"]);
+                    // Cookies.set("chats", JSON.stringify(chats));
+                    return res.data;
+                }
+            }).catch((err) => {
+                console.error(err)
+            })
+        }
+    })
+    const handleShare = () => {
         selectedItems.forEach((item) => {
-            members.push(item.profile?.id);
+            mutation.mutate({ chatId: item.id, mes: message });
         });
-        mutaion.mutate(members);
+        handleClose();
     }
-    let service = new GroupService();
-    console.log(groupId)
-    const qr = useQuery({
-        queryKey: ["members"],
-        queryFn: () => service.getMembers(token, groupId).then((res) => {
-            if (res?.data) {
-                setMembers(res.data.map(member => member.profile)); // directly set profiles
-                return res?.data;
-            }
-        }).catch((err) => {
-            console.error(err);
-        }),
-        enabled: token !== undefined && groupId !== undefined && members.length <= 0 && showAddGroup
-    })
-    console.log("members ", members)
-    const mutaion = useMutation({
-        mutationKey: ["addmemberGroup"],
-        mutationFn: async (data) => service.addMembers(token, groupId, data).then((res) => {
-            if (res.data) {
-                console.log(res.data);
-                setSelectedItems([]);
-                setShowAddGroup(false);
-                queryChat?.refresh();
-                qr.refetch();
-                queryClient.invalidateQueries(["chat"]);
-                queryClient.invalidateQueries(["members"]);
-                swal({
-                    title: "Thêm thành công",
-                    // text: "You have pressed the button!",
-                    icon: "success"
-                });
-                return res.data;
-            }
-        }).catch((err) => {
-            console.error(err);
-        })
-    })
-
     return (
-        <>{showAddGroup &&
-            <div className="fixed z-50 bg-black bg-opacity-30 justify-center items-center w-full inset-0 ">
-                <div className="z-50 p-4 min-w-[30rem] relative rounded pb-3 pt-1 mx-auto my-20 bg-white lg:max-w-[400px] max-w-screen-lg">
-                    <div className="relative bg-white  rounded-lg dark:bg-gray-700">
+        <>{showShare &&
+            <div className="fixed z-50 bg-black bg-opacity-30 justify-center mb-10 items-center w-full h-full inset-0 ">
+                <div className="z-50 p-4 min-w-[30rem] relative rounded pb-3 pt-1 mx-auto my-5 h-[80%] overflow-scroll bg-white lg:max-w-[400px] max-w-screen-lg">
+                    <div className="relative bg-white  rounded-lg  dark:bg-gray-700">
                         <div className="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
                             <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                                Thêm thành viên
+                                Chia sẻ
                             </h3>
                             <button onClick={() => handleClose()} className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-toggle="crud-modal">
                                 <svg className="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
@@ -114,26 +97,23 @@ const AddGroupModal = ({ showAddGroup, setShowAddGroup, groupId, queryChat }) =>
                                     </svg>
                                 </span>
                                 <input
-                                    // value={keyword}
-                                    // onChange={(e) => setKeyWord(e.target.value)}
                                     className="h-7 bg-white focus:outline-none px-4 py-2 border-none rounded-full"
                                     type="text"
                                     placeholder="Tìm kiếm"
                                     onFocus={handleInputFocus}
                                     onBlur={handleInputFocus}
-                                // onKeyPress={handleKeyPress}
                                 />
                             </div>
                         </div>
                         <div className='text-black grid grid-cols-3 w-full my-2'>
                             <div className='col-span-2 w-full'>
-                                <div><h3>Chọn thành viên</h3></div>
-                                {list?.map((item, index) => {
+                                <div><h3>Chọn phòng chat</h3></div>
+                                {chats?.map((item, index) => {
                                     return (
                                         <div key={index} className='flex gap-2 w-full mt-3'  >
-                                            <input type="radio" onClick={() => handleRadioChange(item)} disabled={members?.some(member => member.id === item?.profile?.id)} checked={members?.some(member => member.id === item?.profile?.id) || selectedItems.includes(item)} onChange={() => handleRadioChange(item)} />
-                                            <Avatar sx={{ width: 40, height: 40 }} src={item?.profile?.thumbnailAvatar} />
-                                            <div className='ml-2'> {item?.displayName} </div>
+                                            <input type="checkbox" onClick={() => handleCheckboxChange(item)} checked={selectedItems?.some(member => member.id === item?.id)} />
+                                            <Avatar sx={{ width: 40, height: 40 }} src={item?.avatar} />
+                                            <div className='ml-2'> {item?.name} </div>
                                         </div>
                                     );
                                 })}
@@ -146,10 +126,10 @@ const AddGroupModal = ({ showAddGroup, setShowAddGroup, groupId, queryChat }) =>
                                             return (
                                                 <div className='justify-between flex mt-4 p-2 bg-blue-100'>
                                                     <div key={index} className='flex w-full'>
-                                                        <Avatar sx={{ width: 20, height: 20 }} src={item?.profile?.thumbnailAvatar} />
-                                                        <div className='ml-1'> {item?.profile?.lastName} </div>
+                                                        <Avatar sx={{ width: 20, height: 20 }} src={item?.avatar} />
+                                                        <div className='ml-1'> {item?.name} </div>
                                                     </div>
-                                                    < FontAwesomeIcon icon={faXmark} className='cursor-pointer' onClick={() => handleRadioChange(item)} />
+                                                    < FontAwesomeIcon icon={faXmark} className='cursor-pointer' onClick={() => handleCheckboxChange(item)} />
                                                 </div>
                                             )
                                         })
@@ -160,7 +140,7 @@ const AddGroupModal = ({ showAddGroup, setShowAddGroup, groupId, queryChat }) =>
                         </div>
                         <div className='flex mt-3 justify-end gap-5'>
                             <button onClick={() => handleClose()} className=' p-2 rounded-md bg-gray-100'>Hủy</button>
-                            <button onClick={() => handleAddMember()} className={`${selectedItems.length <= 1 ? ' bg-blue-300 ' : "bg-blue-700"} p-2 rounded-md text-white`} disabled={selectedItems.length <= 1}>Thêm</button>
+                            <button onClick={() => handleShare()} className={`${selectedItems.length < 1 ? ' bg-blue-300 ' : "bg-blue-700"} p-2 rounded-md text-white`} disabled={selectedItems.length < 1}>Share</button>
                         </div>
                     </div>
                 </div>
@@ -169,4 +149,4 @@ const AddGroupModal = ({ showAddGroup, setShowAddGroup, groupId, queryChat }) =>
     );
 };
 
-export default AddGroupModal;
+export default ShareModal;

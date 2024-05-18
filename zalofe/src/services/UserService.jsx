@@ -12,7 +12,7 @@ export default class UserService {
         return api.get(`/api/v1/users/profile/friends?type=friend`, AuthService(token));
     }
     getFriendSent(token) {
-        return api.get(`/api/v1/users/profile/friends?type=sent`, AuthService(token));
+        return api.get(`/api/v1/users/profile/friends?type=request`, AuthService(token));
     }
     acceptFriend(token, id) {
         return api.put(`/api/v1/users/profile/friends/${id}/accept`, {}, AuthService(token));

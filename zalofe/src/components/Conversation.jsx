@@ -23,6 +23,7 @@ import Members from "./models/Members";
 import { set } from "date-fns";
 import { AppContext } from "../context/AppContext";
 import CallVideo from "./callVideo/CallVideo";
+import GroupService from "../services/GroupService";
 const StyledBadge = styled(Badge)(({ theme }) => ({
   "& .MuiBadge-badge": {
     backgroundColor: "#44b700",
@@ -137,7 +138,7 @@ const Conversation = () => {
           chats.push(res.data)
           querychat.refetch();
           //queryClient.invalidateQueries(["chat", chat?.id]);
-          Cookies.set("chats", JSON.stringify(chats));
+          // Cookies.set("chats", JSON.stringify(chats));
           return res.data;
         }
       }).catch((err) => {
@@ -157,13 +158,21 @@ const Conversation = () => {
   const handleShowMembers = () => {
     setShowMembers(true);
   }
+  let groupService = new GroupService();
+  const [member, setMember] = useState([]);
   const qr = useQuery({
     queryKey: ["members"],
+    queryFn: () => groupService.getMembers(token, chat?.groupId).then((res) => {
+      if (res?.data) {
+        setMember(res.data.map(member => member.profile)); // directly set profiles
+        return res?.data;
+      }
+    }).catch((err) => {
+      console.error(err);
+    }),
+    enabled: token !== undefined && chat?.groupId !== undefined && member.length <= 0 && showAddGroup
   })
   const [idLead, setIdLead] = useState("");
-  const member = qr?.data?.map((member) => {
-    return member.profile;
-  });
   useEffect(() => {
     if (member) {
       const groupLeader = qr?.data?.find(member => member.role === "GROUP_LEADER");
@@ -177,9 +186,8 @@ const Conversation = () => {
   const videoRef = useRef(null);
   const handleShowVideo = () => {
     const name = profile?.firstName + " " + profile?.lastName
-    videoRef.current.onClick();
+    // videoRef.current.onClick();
     setShowVideo(name);
-
   }
 
   return (
@@ -208,7 +216,7 @@ const Conversation = () => {
               </div>
               <div className="flex items-center text-sm text-[#7589a3]">
                 {chat?.isGroup ? <button onClick={() => handleShowMembers()}>thành viên</button> : <span>Vừa truy cập</span>}
-                <Members showMember={showMembers} setShowMember={setShowMembers} member={member} idLead={idLead} groupId={chat?.groupId} />
+                <Members showMember={showMembers} setShowMember={setShowMembers} member={member} setMember={setMember} idLead={idLead} groupId={chat?.groupId} />
                 <span className="text-[#D7DBE0]"> &nbsp;|&nbsp;</span>
                 <span className="flex items-center justify-center">
                   <img
@@ -242,7 +250,7 @@ const Conversation = () => {
                 </div>
               </div>
             </div>}
-            <a onClick={() => handleShowVideo()} className="p-2">
+            <a onClick={() => handleShowVideo()} className="p-2 cursor-pointer hover:bg-gray-200">
               <img src="/src/assets/video.png" alt="" className="m-1 h-5 w-5" />
             </a>
             {showVideo !== "" && showVideo !== null && <CallVideo videoRef={videoRef} name={showVideo} handleClose={() => setShowVideo("")} />}

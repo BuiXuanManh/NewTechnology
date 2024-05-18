@@ -4,11 +4,11 @@ import AgoraRTC from 'agora-rtc-sdk-ng';
 import { IonIcon } from '@ionic/react';
 import { CloseOutlined } from '@mui/icons-material';
 
-const CallVideo = ({ name, handleClose, videoRef }) => {
-    const [client] = useState(() => AgoraRTC.createClient({ mode: 'rtc', codec: "vp8" }));
+const CallVideo = ({ name, handleClose }) => {
+    const [client] = useState(() => AgoraRTC.createClient({ mode: 'rtc', codec: 'vp8' }));
     const [config, setConfig] = useState({
         appid: 'a4a08025b4c2430e8c2028952579050c',
-        token: '007eJxTYDiUP2Gp2cvDXCtnXCz2K0r5UWNoNJel58AV3ck5xVOzloorMCSaJBpYGBiZJpkkG5kYG6RaJBsZGFlYmhqZmlsamBokx5a4pDUEMjJ8YWhjZGSAQBCfg6EsM7UkOSOxhIEBALozH+w=',
+        token: '007eJxTYLjKsSEkz2xbs47t8eMFm/wmVklGcC9+c/Dr2t+5j9z5xc0VGBJNEg0sDIxMk0ySjUyMDVItko0MjCwsTY1MzS0NTA2SGRjc0xoCGRkUbr1kYWSAQBCfg6EsM7UkOSOxhIEBAHhXHyk=',
         uid: name,
         channel: 'vietchat',
     });
@@ -49,7 +49,7 @@ const CallVideo = ({ name, handleClose, videoRef }) => {
             const player = `
                 <div class="video-containers" id="video-wrapper-${uid}">
                     <p class="user-uid">
-                        <img class="volume-icon" id="volume-${uid}" src="./assets/volume-on.svg" /> ${uid}
+                        <img class="volume-icon" id="volume-${uid}" src="/assets/volume-on.svg" /> ${uid}
                     </p>
                     <div class="video-player player" id="stream-${uid}"></div>
                 </div>`;
@@ -74,7 +74,7 @@ const CallVideo = ({ name, handleClose, videoRef }) => {
             const newPlayer = `
                 <div class="video-containers" id="video-wrapper-${user.uid}">
                     <p class="user-uid">
-                        <img class="volume-icon" id="volume-${user.uid}" src="./assets/volume-on.svg" /> ${user.uid}
+                        <img class="volume-icon" id="volume-${user.uid}" src="/assets/volume-on.svg" /> ${user.uid}
                     </p>
                     <div class="video-player player" id="stream-${user.uid}"></div>
                 </div>`;
@@ -100,7 +100,7 @@ const CallVideo = ({ name, handleClose, videoRef }) => {
         evt.forEach(({ uid, level }) => {
             const volumeIcon = document.getElementById(`volume-${uid}`);
             if (volumeIcon) {
-                volumeIcon.src = level > 0 ? './assets/volume-on.svg' : './assets/volume-off.svg';
+                volumeIcon.src = level > 0 ? '/assets/volume-on.svg' : '/assets/volume-off.svg';
             }
         });
     };
@@ -152,9 +152,9 @@ const CallVideo = ({ name, handleClose, videoRef }) => {
 
     return (
         <>
-            <div className='body fixed mx-[35%] h-[47%] top-0 mt-[7%] bg-[#00665] z-50 flex'>
+            <div className="body fixed mx-[35%] h-[47%] top-0 mt-[7%] bg-[#00665] z-50 flex">
                 <div className="main bg-[#00665] text-white">
-                    <div className='flex justify-between'>
+                    <div className="flex justify-between">
                         <h1 id="site-title">Ivy Streams</h1>
                         <div onClick={() => handleClose()}>
                             <IonIcon icon={CloseOutlined} />
@@ -162,21 +162,20 @@ const CallVideo = ({ name, handleClose, videoRef }) => {
                     </div>
 
                     <div id="join-wrapper">
-                        <input id="username" type="text" className='text-black' placeholder="Enter your name..." />
-                        <button id="join-btn" ref={videoRef} onClick={handleJoinClick}>Join Stream</button>
+                        <button id="join-btn" onClick={() => handleJoinClick()}>Join Stream</button>
                     </div>
                     <div id="user-streams"></div>
                     <div id="footer" style={{ display: 'none' }}>
-                        <div className="icon-wrapper" onClick={handleCameraClick}>
-                            <img className="control-icon" id="camera-btn" src="assets/video.svg" />
+                        <div className="icon-wrapper" onClick={() => handleCameraClick()}>
+                            <img className="control-icon" id="camera-btn" src="/assets/video.svg" />
                             <p>Cam</p>
                         </div>
-                        <div className="icon-wrapper" onClick={handleMicClick}>
-                            <img className="control-icon" id="mic-btn" src="assets/microphone.svg" />
+                        <div className="icon-wrapper" onClick={() => handleMicClick()}>
+                            <img className="control-icon" id="mic-btn" src="/assets/microphone.svg" />
                             <p>Mic</p>
                         </div>
-                        <div className="icon-wrapper" onClick={handleLeaveClick}>
-                            <img className="control-icon" id="leave-btn" src="assets/leave.svg" />
+                        <div className="icon-wrapper" onClick={() => handleLeaveClick()}>
+                            <img className="control-icon" id="leave-btn" src="/assets/leave.svg" />
                             <p>Leave</p>
                         </div>
                     </div>
@@ -188,3 +187,4 @@ const CallVideo = ({ name, handleClose, videoRef }) => {
 };
 
 export default CallVideo;
+

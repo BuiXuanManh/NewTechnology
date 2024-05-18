@@ -7,10 +7,11 @@ import { useMutation } from '@tanstack/react-query';
 import GroupService from '../../services/GroupService';
 import swal from 'sweetalert';
 
-const Members = ({ showMember, setShowMember, member, idLead, groupId }) => {
+const Members = ({ showMember, setShowMember, member, setMember, idLead, groupId }) => {
     const handleClose = () => {
         setShowMember(false);
     }
+    // const [memberCanXoa, setMember] = useState(member ? member : []);
     const [token, setToken] = useState("");
     const [phone, setPhone] = useState("");
     const [profile, setProfile] = useState("");
@@ -20,21 +21,16 @@ const Members = ({ showMember, setShowMember, member, idLead, groupId }) => {
     let service = new GroupService();
     const mutaion = useMutation({
         mutationFn: (m) => service.delete(token, groupId, m?.id).then((res) => {
-            if (res?.data) {
-                console.log(res.data);
-                setShowMember(false);
-                swal({
-                    title: "Xóa thành công",
-                    // text: "You have pressed the button!",
-                    icon: "success"
-                });
-                member.filter((member) => {
-                    // Trả về true cho các phần tử bạn muốn giữ lại trong mảng
-                    // Trong trường hợp này, bạn muốn giữ lại các thành viên nào không phải là thành viên bạn muốn xóa
-                    return member.id !== m.id; // memberIdCanXoa là id của thành viên bạn muốn xóa
-                });
-                return res.data;
-            }
+            // setShowMember(false);
+            setMember(member.filter((member) => {
+                return member.id !== m.id; // memberIdCanXoa là id của thành viên bạn muốn xóa
+            }));
+            swal({
+                title: "Xóa thành công",
+                // text: "You have pressed the button!",
+                icon: "success"
+            });
+            return res.data;
         }).catch((err) => {
             console.error(err);
         }),

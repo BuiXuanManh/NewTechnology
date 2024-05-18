@@ -9,7 +9,8 @@ import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import ChatService from "../services/ChatService";
 import { faThumbsUp } from "@fortawesome/free-regular-svg-icons";
 import IconModal from "./models/IconModal";
-const MessageDetail = ({ message, chatId, isGroup, querychat }) => {
+import ShareModal from "./models/ShareModal";
+const MessageDetail = ({ message, chatId, isGroup, querychat, mess }) => {
   const { sender, content, createdAt, avatar, reactions, attachments, messageId, status, type } = message;
   const messageRef = useRef(null);
   // console.log(message)
@@ -121,15 +122,19 @@ const MessageDetail = ({ message, chatId, isGroup, querychat }) => {
   useEffect(() => {
 
   }, [showEmoDetails])
-
+  const [showShare, setShowShare] = useState(false);
+  const handleShowShare = () => {
+    setShowShare(true);
+    setIsHovered(true);
+  }
   return (
     <>
       <div
         ref={messageRef}
         className={`mb-3 flex ${isHovered ? "group" : ""} ${sender?.id === profile.id && sender ? "justify-end mr-20" : "justify-start"
           }`}
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
+        onMouseEnter={() => handleMouseEnter()}
+        onMouseLeave={() => handleMouseLeave()}
         onContextMenu={handleContextMenu}
       >
         {sender?.id === profile.id && sender !== "null" && (
@@ -144,13 +149,14 @@ const MessageDetail = ({ message, chatId, isGroup, querychat }) => {
                       className="h-4 w-4"
                     />
                   </a>
-                  <a href="">
+                  <a onClick={() => handleShowShare()}>
                     <img
                       src="/src/assets/reply.png"
                       alt=""
                       className="h-4 w-4"
                     />
                   </a>
+                  {showShare && message !== undefined && <ShareModal showShare={showShare} setShowShare={setShowShare} message={message} />}
                   <a href="">
                     <img
                       src="/src/assets/todos.png"
