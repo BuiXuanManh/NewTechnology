@@ -185,7 +185,7 @@ export default function AddFriendDialog() {
     <Fragment>
       <button
         onClick={handleClickOpen}
-        className="w-9 z-50 cursor-pointer hover:bg-gray-200 mx-1 justify-center items-center"
+        className="w-9 cursor-pointer hover:bg-gray-200 mx-1 justify-center items-center"
       >
         <img
           src="/src/assets/user-plus.png"

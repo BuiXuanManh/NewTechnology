@@ -12,6 +12,8 @@ import { useQuery } from '@tanstack/react-query';
 import UserService from '../services/UserService';
 import Cookies from 'js-cookie';
 import useLoginData from '../hook/useLoginData';
+import FriendOptionModal from '../pages/Modal/FriendOptionModal';
+
 export default function FriendList() {
 
   const data = [
@@ -29,11 +31,27 @@ export default function FriendList() {
     // },
     // Thêm các phần tử section và data khác nếu cần
   ];
+
   let service = new UserService();
+  const [modalPosition, setModalPosition] = useState({});
   const [token, setToken] = useState("");
   const [phone, setPhone] = useState("");
   const [profile, setProfile] = useState("");
   const { l: list } = useLoginData({ token, setToken, setProfile, setPhone });
+  const [friendOptionModal, setFriendOptionModal] = useState(false)
+  const handleShowFriendOption = (event) => {
+    const rect = event.target.getBoundingClientRect();
+    setModalPosition({ top: rect.top + window.scrollY, left: rect.left + window.scrollX });
+    setFriendOptionModal(true);
+  }
+
+  const handleCloseFriendOption = () => {
+    setFriendOptionModal(false);
+  }
+  const handleClose = () => {
+    setAnchorEl(null);
+
+  };
   console.log(list)
   const RenderItem = () => (
     (!list) ? (<Skeleton>{
@@ -48,6 +66,7 @@ export default function FriendList() {
               }
               {item?.displayName ? (<div className='w-full p-4 py-5 border-b'>{item?.displayName}</div>) : (<Skeleton variant="rectangular" width={210} height={60} />
               )}
+             
             </div>
           </div>
         </div>
@@ -61,13 +80,18 @@ export default function FriendList() {
                 <div key={index} className='py-4'>
                   {/* <div>{item.title}</div> */}
                   <div>
-                    <div className='p-4 flex flex-row items-center'>
+                    <div className='p-4 flex flex-row items-center hover:bg-gray-200 cursor-pointer'>
                       {(item?.user?.thubnaiAvatar && list.isLoading) ? < Skeleton variant="circular" width={40} height={40} />
                         : (<Avatar alt="" src={item?.profile?.thumbnailAvatar} className='m-4' />
                         )
                       }
                       {item?.displayName ? (<div className='w-full p-4 py-5 border-b'>{item?.displayName}</div>) : (<Skeleton variant="rectangular" width={210} height={60} />
                       )}
+                      <div className='hover:bg-gray-300 px-2'>
+                        <button className='mb-2' onClick={handleShowFriendOption}>...</button>
+                        <FriendOptionModal show={friendOptionModal} position={modalPosition} onClose={handleClose} />
+                      </div>
+                      
                     </div>
                   </div>
                 </div>
@@ -101,7 +125,8 @@ export default function FriendList() {
             <RenderItem />
           </div>
         </div>
-      </div>
+      </div>  
+     
     </div>
   );
 }

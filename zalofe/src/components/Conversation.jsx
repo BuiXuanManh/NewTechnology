@@ -23,6 +23,7 @@ import Members from "./models/Members";
 import { set } from "date-fns";
 import { AppContext } from "../context/AppContext";
 import CallVideo from "./callVideo/CallVideo";
+import ResultSearchMessage from "../pages/Message/ResultSearchMessage";
 const StyledBadge = styled(Badge)(({ theme }) => ({
   "& .MuiBadge-badge": {
     backgroundColor: "#44b700",
@@ -58,6 +59,11 @@ const Conversation = () => {
   const [token, setToken] = useState("");
   const [phone, setPhone] = useState("");
   const [profile, setProfile] = useState("");
+  const [searchQuery, setSearchQuery] = useState(""); // State for search query
+  const [filteredChats, setFilteredChats] = useState([]); // State for filtered messages
+  const [showSearchResult, setShowSearchResult] = useState(false);
+  const [showSearchModal, setShowSearchModal] = useState(false);
+  useLoginData({ token, setToken, setProfile, setPhone });
   useLoginData({ token, setToken, setProfile, setPhone });
   // const [chat, setChatSelectId] = useState();
   const [chats, setChats] = useState([])
@@ -71,6 +77,8 @@ const Conversation = () => {
       return service.getMessages(token, chatId).then((res) => {
         if (res.data) {
           setChats(res.data.content);
+          setFilteredChats(res.data.content); // Initialize filteredChats with all messages
+          console.log(res.data.content)
           return res.data.content;
         }
       }).catch((err) => {
@@ -79,6 +87,28 @@ const Conversation = () => {
     },
     enabled: chat?.id !== "" && chat?.id !== undefined && token !== "" && token !== undefined && chat?.id !== null && chat?.id !== "null"
   });
+
+
+  const handleSearch = (e) => {
+    // Lấy giá trị của ô tìm kiếm và chuyển thành chữ thường (không phân biệt chữ hoa chữ thường)
+    const query = e.target.value.toLowerCase();
+    
+    // Cập nhật giá trị của state 'searchQuery' với giá trị vừa lấy được
+    setSearchQuery(query);
+    setShowSearchModal(query.length > 0); 
+    
+    // Nếu có từ khóa tìm kiếm, lọc danh sách tin nhắn
+    // Chỉ giữ lại những tin nhắn có nội dung chứa từ khóa tìm kiếm
+    const filteredChats = chats.filter((chat) =>
+      chat.content.toLowerCase().includes(query)
+    );
+    setFilteredChats(filteredChats);
+    
+    // Hiển thị danh sách tin nhắn đã lọc trên console
+    console.log(filteredChats);
+  };
+
+
   const [newUrl, setNewUrl] = useState("")
   const [bodyMsg, setBodyMsg] = useState({})
   const uploadToS3 = async (select, message) => {
@@ -145,9 +175,13 @@ const Conversation = () => {
       })
     }
   })
+
+
+
   const [showSearch, setShowSearch] = useState(false);
   const handleShowSearch = () => {
     setShowSearch(!showSearch);
+    setShowSearchModal(true);
   }
   const [showAddGroup, setShowAddGroup] = useState(false)
   const handleShowAddGroup = () => {
@@ -156,6 +190,12 @@ const Conversation = () => {
   const [showMembers, setShowMembers] = useState(false)
   const handleShowMembers = () => {
     setShowMembers(true);
+  }
+
+  const handleCloseSearch = () => {
+    setShowSearchModal(false)
+    setShowSearch(false)
+    setSearchQuery("")
   }
   const qr = useQuery({
     queryKey: ["members"],
@@ -181,6 +221,10 @@ const Conversation = () => {
     setShowVideo(name);
 
   }
+  const [selectedMessageId, setSelectedMessageId] = useState(null);
+  const handleNavigateToMessage = (messageId) => {
+    setSelectedMessageId(messageId);
+  };
 
   return (
     <div className="h-screen w-full">
@@ -237,7 +281,13 @@ const Conversation = () => {
                 <div className='flex w-full'>
                   {/* <div className="text-gray-700 text-xs px-6 uppercase mb-1">Sao chép</div> */}
                   <div className='text-gray-700 text-xs px-6 uppercase mb-1 w-full'>
-                    <input type="text" className="w-full h-full bg-gray-200 focus:outline-none px-4 py-2 border-none rounded-full" placeholder="Tìm ..." />
+                    <input type="text" className="w-full h-full bg-gray-200 focus:outline-none px-4 py-2 border-none rounded-full" value={searchQuery}
+                        onChange={handleSearch} placeholder="Tìm ..." />
+                  </div>
+                  <div style={{marginRight: '5px', marginTop: '3px'}}>
+                    <button className="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-4 rounded text-xs"
+                    onClick={handleCloseSearch}
+                    >Đóng</button>
                   </div>
                 </div>
               </div>
@@ -267,7 +317,20 @@ const Conversation = () => {
       <div className="h-16">
         <MessageInput onSendMessage={onSendMessage} />
       </div>
+      {
+        showSearchModal && (
+          <ResultSearchMessage
+            searchQuery={searchQuery}
+            results={filteredChats}
+            onClose={() => setShowSearchModal(false)}
+            navigateToMessage={handleNavigateToMessage}
+            
+          />
+        )
+      }
     </div>
+
+    
   );
 };
 

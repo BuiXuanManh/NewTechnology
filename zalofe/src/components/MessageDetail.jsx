@@ -16,7 +16,7 @@ const MessageDetail = ({ message, chatId, isGroup, querychat }) => {
   const [isMyMessage, setIsMyMessage] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [reactionss, setReaction] = useState(message?.reactions)
-
+  // console.log(message)
   const handleMouseEnter = () => {
     setIsHovered(true);
   };

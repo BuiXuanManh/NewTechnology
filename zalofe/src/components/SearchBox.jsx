@@ -39,9 +39,9 @@ function SearchBox() {
             onChange={handleSearchChange}
             className="h-8 w-full rounded-md border bg-[#EAEDF0] p-2 pl-[30px] text-sm focus:outline-none"
           />
-          <AddFriendDialog />
+          <AddFriendDialog/>
           <Fragment>
-            <button onClick={() => onHanldeOpen()} className="w-11 z-50 cursor-pointer hover:bg-gray-200 mr-1 justify-center items-center">
+            <button onClick={() => onHanldeOpen()} className="w-11 cursor-pointer hover:bg-gray-200 mr-1 justify-center items-center">
               <img
                 src="/src/assets/group-user-plus.png"
                 alt=""

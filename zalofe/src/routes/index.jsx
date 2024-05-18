@@ -29,6 +29,7 @@ import useLoginData from "../hook/useLoginData";
 import ChatService from "../services/ChatService";
 import useTabs from "../hook/useTabs";
 import CallVideo from "../components/callVideo/CallVideo";
+import ResultSearchMessage from "../pages/Message/ResultSearchMessage";
 
 export default function Router() {
   function handleComp() {
@@ -72,6 +73,13 @@ export default function Router() {
           children: [
             { path: "", element: <Message /> },
             { path: "other-message", element: <OtherMessage /> },
+          ],
+        },
+        {
+          path: "/app",
+          element: <Conversation />,
+          children: [
+            { path: "", element: <ResultSearchMessage />},
           ],
         },
         { path: "/contact", element: [<SearchBox />, <Contact setComp={setComp} />], },
