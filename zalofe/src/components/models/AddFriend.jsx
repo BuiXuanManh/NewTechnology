@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useContext, useEffect, useState } from "react";
 import Button from "@mui/material/Button";
 import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
@@ -21,6 +21,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import UserService from "../../services/UserService";
 import swal from "sweetalert";
 import useLoginData from "../../hook/useLoginData";
+import { AppContext } from "../../context/AppContext";
 
 const recentSearchesData = [
   { id: 1, name: "John Doe", avatar: "/avatars/john.jpg" },
@@ -49,11 +50,10 @@ export default function AddFriendDialog() {
     code: "VN",
     dial_code: "+84",
   });
-  const { l, re } = useLoginData({ token, setToken, setPhone, setProfile });
+  useLoginData({ token, setToken, setPhone, setProfile });
   const [recentSearches, setRecentSearches] = useState(recentSearchesData);
   const [suggestedFriends, setSuggestedFriends] = useState(suggestedFriendsData);
-  console.log("l", l)
-  console.log("re", re)
+  const { sent, friend } = useContext(AppContext);
   const [selectedCountryValue, setSelectedCountryValue] = useState(selectedCountry);
 
   const handleClickOpen = () => {
@@ -125,12 +125,11 @@ export default function AddFriendDialog() {
         setShowFind(true)
         if (res?.data?.id) {
           console.log("findUser", findUser)
-          console.log("l", l)
-          l?.map((friend) => {
+          friend?.map((friend) => {
             if (friend?.profile?.id === res?.data?.id)
               setIsfriend(true);
           })
-          re?.map((request) => {
+          sent?.map((request) => {
             if (request?.profile?.id === res?.data?.id) {
               setIsRequest(true);
             }

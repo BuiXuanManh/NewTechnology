@@ -1,12 +1,13 @@
 import { faCameraRetro, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import useLoginData from '../../hook/useLoginData';
 import { Avatar } from '@mui/material';
 import AvatarGroupModal from './AvatarGroupModal';
 import GroupService from '../../services/GroupService';
 import swal from 'sweetalert';
+import { AppContext } from '../../context/AppContext';
 
 const AddGroupModal = ({ showAddGroup, setShowAddGroup, groupId, queryChat }) => {
     const handleClose = () => {
@@ -20,15 +21,9 @@ const AddGroupModal = ({ showAddGroup, setShowAddGroup, groupId, queryChat }) =>
     const [token, setToken] = useState("");
     const [phone, setPhone] = useState("");
     const [profile, setProfile] = useState("");
-    const { l: list } = useLoginData({ token, setToken, setProfile, setPhone });
-    console.log("list ", list)
-    // Hàm xử lý khi input được focus
-
+    useLoginData({ token, setToken, setProfile, setPhone });
+    const { sent, friend } = useContext(AppContext)
     const queryClient = useQueryClient();
-    // queryClient.invalidateQueries(["friends"])
-    useEffect(() => { }, [list])
-    // const list = queryClient.getQueryData(["friends"]);
-    console.log(list);
     const [isInputFocused, setIsInputFocused] = useState(false);
     const handleInputFocus = () => {
         setIsInputFocused(!isInputFocused);
@@ -53,7 +48,6 @@ const AddGroupModal = ({ showAddGroup, setShowAddGroup, groupId, queryChat }) =>
         mutaion.mutate(members);
     }
     let service = new GroupService();
-    console.log(groupId)
     const qr = useQuery({
         queryKey: ["members"],
         queryFn: () => service.getMembers(token, groupId).then((res) => {
@@ -128,7 +122,7 @@ const AddGroupModal = ({ showAddGroup, setShowAddGroup, groupId, queryChat }) =>
                         <div className='text-black grid grid-cols-3 w-full my-2'>
                             <div className='col-span-2 w-full'>
                                 <div><h3>Chọn thành viên</h3></div>
-                                {list?.map((item, index) => {
+                                {friend?.map((item, index) => {
                                     return (
                                         <div key={index} className='flex gap-2 w-full mt-3'  >
                                             <input type="radio" onClick={() => handleRadioChange(item)} disabled={members?.some(member => member.id === item?.profile?.id)} checked={members?.some(member => member.id === item?.profile?.id) || selectedItems.includes(item)} onChange={() => handleRadioChange(item)} />

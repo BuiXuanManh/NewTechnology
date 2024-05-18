@@ -5,8 +5,10 @@ const AppProvider = ({ children }) => {
     const [chats, setChats] = useState([]);
     const [messages, setMessages] = useState([]);
     const [chatId, setChatId] = useState(null);
+    const [sent, setSent] = useState([]);
+    const [friend, setFriend] = useState([]);
     return (
-        <AppContext.Provider value={{ chat, setChat, chats, setChats, messages, setMessages, chatId, setChatId  }}>
+        <AppContext.Provider value={{ chat, setChat, chats, setChats, messages, setMessages, chatId, setChatId, sent, setSent, friend, setFriend }}>
             {children}
         </AppContext.Provider>
     );

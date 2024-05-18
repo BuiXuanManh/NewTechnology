@@ -16,12 +16,11 @@ const Message = () => {
   const [chat, setChatSelectId] = useState({});
 
   const service = new ChatService();
-  const { chats, setChats } = useContext(AppContext);
+  const { chats, setChats, chatId } = useContext(AppContext);
   const qr = useQuery({
     queryKey: ["chats"],
     queryFn: async () => {
       try {
-        // console.log(token)
         const res = await service.getChats(token);
         if (res.data) {
           setChats(res.data);
@@ -36,7 +35,7 @@ const Message = () => {
     enabled: (token !== "" && token !== undefined),
   });
   // console.log(qr)
-  const { selectedId, handleOnClick } = useTabs({ setChatSelectId });
+  const { selectedId, handleOnClick } = useTabs();
   const queryClient = useQueryClient();
 
   return (
@@ -54,7 +53,7 @@ const Message = () => {
                 lastMessage={chat.lastMessage}
                 avatar={chat.avatar}
                 isLoading={qr.isLoading}
-                selectedId={selectedId}
+                chatId={chatId}
                 handleOnClick={handleOnClick}
                 pId={profile?.id}
                 setChatSelectId={setChatSelectId}

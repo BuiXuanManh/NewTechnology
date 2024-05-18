@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import Cookies from 'js-cookie';
 import { useQuery } from '@tanstack/react-query';
 import UserService from '../services/UserService';
+import { AppContext } from '../context/AppContext';
 const useLoginData = ({ token, setToken, setProfile, setPhone }) => {
     useEffect(() => {
         const loginData = () => {
@@ -17,20 +18,20 @@ const useLoginData = ({ token, setToken, setProfile, setPhone }) => {
         loginData();
     }, [token, Cookies.get("token")]);
     let service = new UserService();
-    const [l, setL] = useState([]);
-    const [re, setRe] = useState([]);
+    const { setSent, setFriend } = useContext(AppContext);
     const list = useQuery({
         queryKey: ["friends"],
         queryFn: () => {
-            if (token !== "" && token !== undefined) service.getFriends(token).then(res => {
+            if (token !== "" && token !== undefined) service.getFriends(token, "friend").then(res => {
                 if (res?.data) {
-                    setL(res.data);
+                    // setL(res.data);
+                    setFriend(res.data);
                     return res.data;
                 }
 
             })
         },
-        enabled: token !== "" && token !== undefined && l.length === 0,
+
         // cacheTime: 3600000,
     })
     const requests = useQuery({
@@ -40,7 +41,8 @@ const useLoginData = ({ token, setToken, setProfile, setPhone }) => {
                 service.getFriendSent(token).then(res => {
                     if (token) {
                         if (res?.data) {
-                            setRe(res.data);
+                            // setRe(res.data);
+                            setSent(res.data);
                             return res.data;
                         }
                     }
@@ -48,7 +50,7 @@ const useLoginData = ({ token, setToken, setProfile, setPhone }) => {
         }, enabled: token !== "" && token !== undefined
         // cacheTime: 3600000,
     })
-    return { l, re };
+    // return { l, re };
 }
 
 

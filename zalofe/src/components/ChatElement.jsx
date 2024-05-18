@@ -11,7 +11,7 @@ function ChatElement({
   name,
   lastMessage,
   id,
-  selectedId,
+  chatId,
   handleOnClick,
   isLoading,
   pId
@@ -100,7 +100,7 @@ function ChatElement({
   const timeDifference = formatTimeDifference(t);
   return (
     <a key={id} id={id} onClick={() => handleOnClick(id)}
-      className={`${selectedId === id ? 'bg-blue-100 ' : ' '}flex cursor-pointer hover:bg-gray-200 h-[5rem] min-w-80 items-center`}
+      className={`${chatId === id ? 'bg-blue-100 ' : ' '}flex cursor-pointer hover:bg-gray-200 h-[5rem] min-w-80 items-center`}
     >
       {isLoading ?
         <Skeleton>

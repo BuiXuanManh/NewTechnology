@@ -172,6 +172,11 @@ const Conversation = () => {
     }),
     enabled: token !== undefined && chat?.groupId !== undefined && member.length <= 0 && showAddGroup
   })
+  useEffect(() => {
+    if (chat?.id) {
+      qr.refetch();
+    }
+  }, [chat])
   const [idLead, setIdLead] = useState("");
   useEffect(() => {
     if (member) {
@@ -253,7 +258,7 @@ const Conversation = () => {
             <a onClick={() => handleShowVideo()} className="p-2 cursor-pointer hover:bg-gray-200">
               <img src="/src/assets/video.png" alt="" className="m-1 h-5 w-5" />
             </a>
-            {showVideo !== "" && showVideo !== null && <CallVideo videoRef={videoRef} name={showVideo} handleClose={() => setShowVideo("")} />}
+
             <a href="" className="p-2">
               <img
                 src="/src/assets/right-bar.png"
@@ -265,6 +270,7 @@ const Conversation = () => {
           </div>
         </div>
       </div>
+
       <div className="h-[calc(100vh-174px)] w-full flex-1 overflow-auto bg-[#A4BEEB] p-4 pr-3">
         {chats?.map((message) => (
           <MessageDetail key={message.id} message={message} chatId={chat?.id} querychat={querychat} isGroup={chat?.isGroup} />
@@ -275,6 +281,7 @@ const Conversation = () => {
       <div className="h-16">
         <MessageInput onSendMessage={onSendMessage} />
       </div>
+      {showVideo !== "" && showVideo !== null && <CallVideo videoRef={videoRef} id={id} name={profile?.firstName + " " + profile?.lastName} handleClose={() => setShowVideo("")} />}
     </div>
   );
 };

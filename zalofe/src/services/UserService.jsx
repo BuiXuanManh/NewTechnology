@@ -8,11 +8,11 @@ export default class UserService {
     findByPhone(phone, token) {
         return api.get(`/api/v1/users/profile/${phone}`, AuthService(token));
     }
-    getFriends(token) {
-        return api.get(`/api/v1/users/profile/friends?type=friend`, AuthService(token));
+    getFriends(token, type) {
+        return api.get(`/api/v1/users/profile/friends?type=${type}`, AuthService(token));
     }
     getFriendSent(token) {
-        return api.get(`/api/v1/users/profile/friends?type=request`, AuthService(token));
+        return api.get(`/api/v1/users/profile/friends?type=sent`, AuthService(token));
     }
     acceptFriend(token, id) {
         return api.put(`/api/v1/users/profile/friends/${id}/accept`, {}, AuthService(token));
