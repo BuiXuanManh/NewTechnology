@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { styled } from "@mui/material/styles";
 import Badge from "@mui/material/Badge";
 import Stack from "@mui/material/Stack";
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import MessageDetail from './MessageDetail';
 import { faAddressBook } from '@fortawesome/free-regular-svg-icons';
 import { grey } from '@mui/material/colors';
@@ -12,6 +12,7 @@ import { useQuery } from '@tanstack/react-query';
 import UserService from '../services/UserService';
 import Cookies from 'js-cookie';
 import useLoginData from '../hook/useLoginData';
+import { AppContext } from '../context/AppContext';
 export default function FriendList() {
 
   const data = [
@@ -33,16 +34,16 @@ export default function FriendList() {
   const [token, setToken] = useState("");
   const [phone, setPhone] = useState("");
   const [profile, setProfile] = useState("");
-  const { l: list } = useLoginData({ token, setToken, setProfile, setPhone });
-  console.log(list)
+  useLoginData({ token, setToken, setProfile, setPhone });
+  const { friend, sent } = useContext(AppContext)
   const RenderItem = () => (
-    (!list) ? (<Skeleton>{
-      list?.map((item, index) => (
+    (!friend) ? (<Skeleton>{
+      friend?.map((item, index) => (
         <div key={index} className='py-4'>
           {/* <div>{item.title}</div> */}
           <div>
             <div className='p-4 flex flex-row items-center'>
-              {(item?.user?.thubnaiAvatar && list.isLoading) ? < Skeleton variant="circular" width={40} height={40} />
+              {(item?.user?.thubnaiAvatar && friend.isLoading) ? < Skeleton variant="circular" width={40} height={40} />
                 : (<Avatar alt="" src={item?.profile?.thumbnailAvatar ?
                   item?.profile?.thumbnailAvatar : "avatar.jpg"} className='m-4' />)
               }
@@ -54,15 +55,15 @@ export default function FriendList() {
       ))}
     </Skeleton>) :
       (
-        <div> {list?.length > 0 ?
+        <div> {friend?.length > 0 ?
           (
             <div>
-              {list?.map((item, index) => (
+              {friend?.map((item, index) => (
                 <div key={index} className='py-4'>
                   {/* <div>{item.title}</div> */}
                   <div>
                     <div className='p-4 flex flex-row items-center'>
-                      {(item?.user?.thubnaiAvatar && list.isLoading) ? < Skeleton variant="circular" width={40} height={40} />
+                      {(item?.user?.thubnaiAvatar && friend.isLoading) ? < Skeleton variant="circular" width={40} height={40} />
                         : (<Avatar alt="" src={item?.profile?.thumbnailAvatar} className='m-4' />
                         )
                       }
