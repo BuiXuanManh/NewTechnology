@@ -126,7 +126,7 @@ const MessageDetail = ({ message, chatId, isGroup, querychat }) => {
     <>
       <div
         ref={messageRef}
-        className={`mb-3 flex ${isHovered ? "group" : ""} ${sender?.id === profile.id && sender ? "justify-end mr-20" : "justify-start"
+        className={` mb-3 flex ${isHovered ? "group" : ""} ${sender?.id === profile.id && sender ? "justify-end mr-20" : "justify-start"
           }`}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
@@ -158,7 +158,11 @@ const MessageDetail = ({ message, chatId, isGroup, querychat }) => {
                       className="h-4 w-4"
                     />
                   </a>
+<<<<<<< HEAD
                   <a onClick={() => showOption()} className="relative cursor-pointer">
+=======
+                  <a onClick={() => showOption()} className=" cursor-pointer relative">
+>>>>>>> eed874b4e83a34235056f301b976f89550dda49c
                     {show && <div className="bg-white absolute z-50 right-0 w-52 py-2 mt-1 border border-gray-200 shadow-2xl" style={{ display: "none;" }}>
                       <div className="py-2 border-b">
                         <div className='flex justify-end'>

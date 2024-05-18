@@ -15,12 +15,22 @@ export default function LoginForm() {
     const [phone, setPhone] = useState("");
     const [password, setPassword] = useState("");
     const [token, setToken] = useState('');
+<<<<<<< HEAD
     const { errors, handleBlur } = useHandleBlur();
+=======
+    const [errors, setErrors] = useState({
+        phone: '*',
+        password: '*'
+    });
+
+    
+>>>>>>> 5a67067dd7065df99ba946bb860f23a807820286
     const validateForm = () => {
         handleBlur({ field: 'phone', phone: phone });
         handleBlur({ field: 'password', password: password });
         return errors.phone === "*" && errors.password === "*";
     }
+<<<<<<< HEAD
     let service = new LoginService();
     const mutation = useMutation({
         mutationKey: ["login"],
@@ -45,6 +55,33 @@ export default function LoginForm() {
                     // text: "You have pressed the button!",
                     icon: "error"
                 });
+=======
+
+ 
+    const handleForgotPassword = () => {
+        navigate('/auth/forgot-password');
+    } // Điều hướng đến đường dẫn của PasswordForm
+    let errorService = new ErrorMessage();
+    let regexService = new RegexService();
+    const handleBlur = (field) => {
+        const newErrors = {...errors};
+        if (field === 'phone') {
+            if (!phone) {
+                newErrors.phone = errorService.error.phoneRequired;
+            } else if (!regexService.regex.phone.test(phone)) {
+                newErrors.phone = errorService.error.phone;
+            } else {
+                newErrors.phone = "*";
+            }
+        }
+        if (field === 'password') {
+            if (!password) {
+                newErrors.password = errorService.error.passwordRequired;
+            } else if (!regexService.regex.password.test(password)) {
+                newErrors.password = errorService.error.password;
+            } else {
+                newErrors.password = "*";
+>>>>>>> 5a67067dd7065df99ba946bb860f23a807820286
             }
         }
     });
@@ -226,8 +263,10 @@ export default function LoginForm() {
     return (
         <div className='w-full'>
             <div className="absolute inset-0">
+              
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 654" preserveAspectRatio="xMinYMin slice">
 
+<<<<<<< HEAD
                     <rect x="1" y="1" width="1280" height="654" fill="#e8f3ff" />
                     <path fill="#e8f3ff" d="M1181.68 655C1163.95 469.296 1031.95 86.8402 963 1H1279V655H1181.68Z" />
                     <path fill="#e8f3ff" d="M1.5 142.5C52.5 267 131.5 487 172 653H1.5V142.5Z" />
@@ -235,6 +274,13 @@ export default function LoginForm() {
                         d="M519.5 1.5H685H964.5C1046 135 1167 469 1180 655.5H767.5C704.5 505.5 604.5 304.5 464 148.5L519.5 1.5Z" />
                     <path fill="#d0e4fc"
                         d="M1 144V1.5H519.5C456 189 322.5 475.5 220 652.5H171.5C138.5 509 51.5 262.5 1 144Z" />
+=======
+                    <rect x="1" y="1" width="1280" height="654" fill="#e8f3ff"/>
+                    <path fill="#e8f3ff" d="M1181.68 655C1163.95 469.296 1031.95 86.8402 963 1H1279V655H1181.68Z"/>
+                    <path fill="#e8f3ff" d="M1.5 142.5C52.5 267 131.5 487 172 653H1.5V142.5Z"/>
+                    <path fill="#aad6ff" d="M519.5 1.5H685H964.5C1046 135 1167 469 1180 655.5H767.5C704.5 505.5 604.5 304.5 464 148.5L519.5 1.5Z"/>
+                    <path fill="#d0e4fc" d="M1 144V1.5H519.5C456 189 322.5 475.5 220 652.5H171.5C138.5 509 51.5 262.5 1 144Z"/>
+>>>>>>> 5a67067dd7065df99ba946bb860f23a807820286
 
                 </svg>
 
@@ -339,6 +385,7 @@ export default function LoginForm() {
                                 <a
                                     href={`/auth/forgot-password/${phone ? phone : null}`}
                                     className="font-medium text-black-100 hover:underline"
+                                    onClick={handleForgotPassword} 
                                 >
                                     Quên mật khẩu?
                                 </a>

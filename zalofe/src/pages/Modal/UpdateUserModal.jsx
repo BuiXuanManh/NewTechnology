@@ -1,9 +1,7 @@
 
 import React, { useEffect, useState } from "react";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+
 import { faLock, faMobileScreen, faPenToSquare, faCameraRetro } from '@fortawesome/free-solid-svg-icons';
-import { Avatar, Skeleton } from "@mui/material";
-import UserService from "../../services/UserService";
 import Alert from '@mui/material/Alert';
 import axios from "axios";
 import ProfileModal from "./ProfileModal";
@@ -22,6 +20,7 @@ export default function UpdateUserModal({ onClose }) {
   const [newBirthday, setNewBirthday] = useState(new Date(profile.birthday));
   const [userData, setUserData] = useState({});
   const navigation = useNavigate();
+<<<<<<< HEAD
   // Hàm để load dữ liệu người dùng từ API
   // const loadUserData = async () => {
   //   try {
@@ -37,6 +36,8 @@ export default function UpdateUserModal({ onClose }) {
   //     console.error('Lỗi khi tải dữ liệu người dùng:', error);
   //   }
   // };
+=======
+>>>>>>> eed874b4e83a34235056f301b976f89550dda49c
 
 
   function formatDate(dateString) {

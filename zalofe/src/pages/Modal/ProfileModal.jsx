@@ -3,7 +3,6 @@ import React, { useEffect, useState } from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faLock, faMobileScreen, faPenToSquare, faCameraRetro } from '@fortawesome/free-solid-svg-icons';
 import { Avatar, Skeleton } from "@mui/material";
-import UserService from "../../services/UserService";
 import UpdateUserModal from "./UpdateUserModal";
 import Cookies from "js-cookie";
 import axios from "axios";
@@ -28,7 +27,11 @@ export default function ProfileModal({ onClose, userData }) {
     useLoginData({ token, setToken, setProfile, setPhone });
     const navigation = useNavigate();
     const { updatedData } = useParams();
+<<<<<<< HEAD
 
+=======
+ 
+>>>>>>> eed874b4e83a34235056f301b976f89550dda49c
     const handleImageChange = (e) => {
         const file = e.target.files[0];
         setSelectedImage(file);
@@ -40,10 +43,17 @@ export default function ProfileModal({ onClose, userData }) {
         };
         reader.readAsDataURL(file);
     };
+<<<<<<< HEAD
 
     const handleSubmity = (e) => {
         e.preventDefault();
 
+=======
+
+    const handleSubmity = (e) => {
+        e.preventDefault();
+        
+>>>>>>> eed874b4e83a34235056f301b976f89550dda49c
     };
 
     const handleCancel = () => {
@@ -60,7 +70,11 @@ export default function ProfileModal({ onClose, userData }) {
     }, [updatedData]);
 
     const handleUpdateClick = () => {
+<<<<<<< HEAD
         setShowUpdateModal(true);
+=======
+        setShowUpdateModal(true); 
+>>>>>>> eed874b4e83a34235056f301b976f89550dda49c
     };
 
 
@@ -97,7 +111,11 @@ export default function ProfileModal({ onClose, userData }) {
                 Cookies.set("profile", JSON.stringify(data));
                 queryClient.invalidateQueries(["profilep"]);
                 window.location.reload();
+<<<<<<< HEAD
 
+=======
+             
+>>>>>>> eed874b4e83a34235056f301b976f89550dda49c
             })
             .catch(error => {
                 console.error(error.message);
@@ -120,13 +138,18 @@ export default function ProfileModal({ onClose, userData }) {
             .then(async (res) => {
                 console.log(res);
                 console.log(data);
+<<<<<<< HEAD
 
+=======
+              
+>>>>>>> eed874b4e83a34235056f301b976f89550dda49c
                 const resUpload = await axios.put(res.data, file).catch(e => console.log(e));
                 if (resUpload.status === 200) {
                     setData({ ...data, success: true, url: res.data })
                     const newUrl = res.data.substring(0, res.data.indexOf('?'));
                     console.log(newUrl);
                     submitEdit(newUrl);
+<<<<<<< HEAD
                     // setBodyMsg({
                     //     sender: 'id của người gửi',
                     //     replyMessageId: 'id',
@@ -140,6 +163,21 @@ export default function ProfileModal({ onClose, userData }) {
                     //     ]
                     // })
 
+=======
+                    setBodyMsg({
+                        sender: 'id của người gửi',
+                        replyMessageId: 'id',
+                        content: 'nội dung tin nhắn nếu có',
+                        attachments: [
+                            {
+                                type: 'IMAGE hoặc VIDEO',
+                                url: newUrl,
+                                filename: newUrl.split('/')[newUrl.split('/').length - 1]
+                            }
+                        ]
+                    })
+                   
+>>>>>>> eed874b4e83a34235056f301b976f89550dda49c
                 } else {
                     setData({ ...data, success: false })
                 }
@@ -161,7 +199,11 @@ export default function ProfileModal({ onClose, userData }) {
     }
     return (
         <>
+<<<<<<< HEAD
             {showUpdateModal ? (
+=======
+            {showUpdateModal ? ( 
+>>>>>>> eed874b4e83a34235056f301b976f89550dda49c
                 <UpdateUserModal
                     profile={profile}
                     phone={phone}
@@ -198,7 +240,11 @@ export default function ProfileModal({ onClose, userData }) {
                                                     <input type="file" name="file" accept="image/*"
                                                         onChange={handleImageChange}
                                                         className="form-control"
+<<<<<<< HEAD
                                                         style={{
+=======
+                                                        style={{ 
+>>>>>>> eed874b4e83a34235056f301b976f89550dda49c
                                                             opacity: 0,
                                                             position: 'absolute',
                                                             left: '-10px',
@@ -212,6 +258,7 @@ export default function ProfileModal({ onClose, userData }) {
                                             </div>
 
                                             {(selectedImage && imageUrl) && (
+<<<<<<< HEAD
                                                 <div style={{ position: 'relative', top: '50px', left: '-20px' }} className="grid grid-cols-2">
                                                     <button type="submit">Upload</button>
                                                     <button type="button" onClick={handleCancel}>Hủy</button>
@@ -222,12 +269,31 @@ export default function ProfileModal({ onClose, userData }) {
                                                 </div>
                                             )}
 
+=======
+                                                <div style={{position: 'relative',top: '50px', left: '-20px'}} className="grid grid-cols-2">                                       
+                                                    <button type="submit">Upload</button>
+                                                    <button type="button" onClick={handleCancel}>Hủy</button>
+                                                    <div style={{position: 'relative',top: '-40px', left: '140px'}}>   
+                                                        <img src={imageUrl} alt="Selected" style={{ width: '75px', height: '75px' }} />
+                                                    </div>
+                                                   
+                                                </div>
+                                             )}
+>>>>>>> eed874b4e83a34235056f301b976f89550dda49c
 
+                                        </form>
+
+<<<<<<< HEAD
+                                        <p className="mt-4 font-bold" style={{ marginLeft: '-150px', width: '100px' }}>{profile?.firstName} {profile?.lastName}</p>
+
+
+=======
                                         </form>
 
                                         <p className="mt-4 font-bold" style={{ marginLeft: '-150px', width: '100px' }}>{profile?.firstName} {profile?.lastName}</p>
 
-
+                                      
+>>>>>>> eed874b4e83a34235056f301b976f89550dda49c
                                     </div>
 
                                 </div>
