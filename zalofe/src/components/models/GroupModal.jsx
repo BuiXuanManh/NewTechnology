@@ -1,11 +1,12 @@
 import { faCameraRetro, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import useLoginData from '../../hook/useLoginData';
 import { Avatar } from '@mui/material';
 import AvatarGroupModal from './AvatarGroupModal';
 import GroupService from '../../services/GroupService';
+import { AppContext } from '../../context/AppContext';
 
 const GroupModal = ({ showCreateGroup, setShowCreateGroup }) => {
     const handleClose = () => {
@@ -20,6 +21,7 @@ const GroupModal = ({ showCreateGroup, setShowCreateGroup }) => {
     const [phone, setPhone] = useState("");
     const [profile, setProfile] = useState("");
     useLoginData({ token, setToken, setProfile, setPhone });
+    const { friend, sent } = useContext(AppContext)
     // Hàm xử lý khi input được focus
     const handleInputFocus = () => {
         setIsInputFocused(!isInputFocused);
@@ -115,7 +117,7 @@ const GroupModal = ({ showCreateGroup, setShowCreateGroup }) => {
                         <div className='text-black grid grid-cols-3 w-full my-2'>
                             <div className='col-span-2 w-full'>
                                 <div><h3>Chọn thành viên</h3></div>
-                                {list?.length > 0 && list?.map((item, index) => {
+                                {friend?.length > 0 && friend?.map((item, index) => {
                                     return (
                                         <div key={index} className='flex gap-2 w-full mt-3' onClick={() => handleRadioChange(item)}>
                                             <input type="radio" checked={selectedItems.includes(item)} onChange={() => handleRadioChange(item)} onClick={() => handleRadioChange(item)} />
