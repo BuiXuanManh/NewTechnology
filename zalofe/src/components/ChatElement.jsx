@@ -113,7 +113,7 @@ function ChatElement({
   useLoginData({ token, setToken, setProfile, setPhone });
   const queryClient = useQueryClient();
   const service = new ChatService();
-  const handleDeleteChatRoom = () => {
+  const handleDeleteMesssages = () => {
     if (token && chatId) {
       swal({
         title: "Bạn có chắc chắn muốn xoá lịch sử phòng chat không?",
@@ -124,6 +124,40 @@ function ChatElement({
         .then((willDelete) => {
           if (willDelete) {
             service.deleteChats(token, chatId).then((res) => {
+              queryClient.invalidateQueries(["chats"]);
+              setShowMenu(false);
+              swal({
+                title: "Xoá lịch sử phòng chat thành công",
+                icon: "success"
+              });
+              return res.data;
+            }).catch((err) => {
+              swal({
+                title: "Xóa lịch sử phòng chat thất bại",
+                icon: "error"
+              });
+              console.error(err);
+            });
+          }
+        });
+    } else {
+      swal({
+        title: "Token hoặc Chat ID không hợp lệ",
+        icon: "error"
+      });
+    }
+  };
+  const handleDeleteChatRoom = () => {
+    if (token && chatId) {
+      swal({
+        title: "Bạn có chắc chắn muốn xoá phòng chat không?",
+        icon: "warning",
+        buttons: true,
+        dangerMode: true,
+      })
+        .then((willDelete) => {
+          if (willDelete) {
+            service.deleteChatRoom(token, chatId, "DELETED").then((res) => {
               queryClient.invalidateQueries(["chats"]);
               setShowMenu(false);
               swal({
@@ -146,7 +180,7 @@ function ChatElement({
         icon: "error"
       });
     }
-  };
+  }
   return (
     <a key={id} id={id} onClick={() => handleOnClick(id)}
       className={`${chatId === id ? 'bg-blue-100 ' : ' '}flex cursor-pointer hover:bg-gray-200 h-[5rem] min-w-80 items-center`}
@@ -260,10 +294,15 @@ function ChatElement({
             </div>
 
           </div>
-          {showMenu && <div className="absolute ml-72 mt-24 bg-gray-300 h-11 m-2 flex">
-            <div onClick={() => handleDeleteChatRoom()} className="text-red-500 hover:bg-blue-200">
+          {showMenu && <div className="absolute ml-72 mt-36 bg-gray-300 m-2 flex-col">
+            <div onClick={() => handleDeleteChatRoom()} className="hover:text-red-500 hover:bg-blue-200">
               <div className="p-2">
                 Xóa hội thoại
+              </div>
+            </div>
+            <div onClick={() => handleDeleteMesssages()} className="hover:text-red-500 hover:bg-blue-200">
+              <div className="p-2">
+                Xóa tất cả tin nhắn
               </div>
             </div>
           </div>}
