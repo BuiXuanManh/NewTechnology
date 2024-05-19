@@ -50,16 +50,21 @@ const AddGroupModal = ({ showAddGroup, setShowAddGroup, groupId, queryChat }) =>
     let service = new GroupService();
     const qr = useQuery({
         queryKey: ["members"],
-        queryFn: () => service.getMembers(token, groupId).then((res) => {
-            if (res?.data) {
-                setMembers(res.data.map(member => member.profile)); // directly set profiles
-                return res?.data;
-            }
-        }).catch((err) => {
-            console.error(err);
-        }),
-        enabled: token !== undefined && groupId !== undefined && members.length <= 0 && showAddGroup
+        queryFn: () => {
+            if (token !== undefined && groupId !== undefined)
+                service.getMembers(token, groupId).then((res) => {
+                    if (res?.data) {
+                        setMembers(res.data.map(member => member.profile)); // directly set profiles
+                        return res?.data;
+                    }
+                }).catch((err) => {
+                    console.error(err);
+                })
+        }
     })
+    useEffect(() => {
+        qr.refetch();
+    }, [groupId])
     console.log("members ", members)
     const mutaion = useMutation({
         mutationKey: ["addmemberGroup"],

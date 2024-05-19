@@ -2,6 +2,14 @@ import api from "../api/api";
 import AuthService from "./AuthService";
 
 export default class GroupService {
+    changeLead(token, groupId, memberId) {
+        return api.put(`/api/v1/groups/${groupId}/members/${memberId}`, {
+            role: "GROUP_LEADER"
+        }, AuthService(token));
+    }
+    leaveGroup(token, groupId) {
+        return api.put(`/api/v1/users/profile/groups/${groupId}/leave`, {}, AuthService(token));
+    }
     createGroup(token, data) {
         return api.post("/api/v1/groups", data, AuthService(token));
     }

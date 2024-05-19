@@ -221,7 +221,7 @@ const Conversation = () => {
               </div>
               <div className="flex items-center text-sm text-[#7589a3]">
                 {chat?.isGroup ? <button onClick={() => handleShowMembers()}>thành viên</button> : <span>Vừa truy cập</span>}
-                <Members showMember={showMembers} setShowMember={setShowMembers} member={member} setMember={setMember} idLead={idLead} groupId={chat?.groupId} />
+                <Members showMember={showMembers} setShowMember={setShowMembers} member={member} setMember={setMember} idLead={idLead} setIdLead={setIdLead} groupId={chat?.groupId} />
                 <span className="text-[#D7DBE0]"> &nbsp;|&nbsp;</span>
                 <span className="flex items-center justify-center">
                   <img

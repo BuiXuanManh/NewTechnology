@@ -2,9 +2,14 @@ import { formatDistanceToNow } from "date-fns";
 import { differenceInMinutes, differenceInHours, differenceInDays, differenceInMonths, differenceInYears } from 'date-fns';
 import { Avatar, Skeleton } from "@mui/material";
 import moment from "moment/moment";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import DateService from "../services/DateService";
 import { useEffect, useState } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEllipsisH } from "@fortawesome/free-solid-svg-icons";
+import swal from "sweetalert";
+import ChatService from "../services/ChatService";
+import useLoginData from "../hook/useLoginData";
 
 function ChatElement({
   avatar,
@@ -98,6 +103,50 @@ function ChatElement({
 
   const t = DateService(timestamp);
   const timeDifference = formatTimeDifference(t);
+  const [showMenu, setShowMenu] = useState(false);
+  const handleShowMenu = () => {
+    setShowMenu(!showMenu);
+  }
+  const [token, setToken] = useState("");
+  const [phone, setPhone] = useState("");
+  const [profile, setProfile] = useState("");
+  useLoginData({ token, setToken, setProfile, setPhone });
+  const queryClient = useQueryClient();
+  const service = new ChatService();
+  const handleDeleteChatRoom = () => {
+    if (token && chatId) {
+      swal({
+        title: "Bạn có chắc chắn muốn xoá lịch sử phòng chat không?",
+        icon: "warning",
+        buttons: true,
+        dangerMode: true,
+      })
+        .then((willDelete) => {
+          if (willDelete) {
+            service.deleteChats(token, chatId).then((res) => {
+              queryClient.invalidateQueries(["chats"]);
+              setShowMenu(false);
+              swal({
+                title: "Xoá phòng chat thành công",
+                icon: "success"
+              });
+              return res.data;
+            }).catch((err) => {
+              swal({
+                title: "Xóa phòng chat thất bại",
+                icon: "error"
+              });
+              console.error(err);
+            });
+          }
+        });
+    } else {
+      swal({
+        title: "Token hoặc Chat ID không hợp lệ",
+        icon: "error"
+      });
+    }
+  };
   return (
     <a key={id} id={id} onClick={() => handleOnClick(id)}
       className={`${chatId === id ? 'bg-blue-100 ' : ' '}flex cursor-pointer hover:bg-gray-200 h-[5rem] min-w-80 items-center`}
@@ -196,6 +245,9 @@ function ChatElement({
               <div>
                 <span className="truncate text-xs">{timeDifference}</span>
               </div>
+              <div onClick={() => handleShowMenu()} className="">
+                <FontAwesomeIcon icon={faEllipsisH} className="text-gray-400" />
+              </div>
               {/* {unreadCount != 0 ? (
             <>
               <div className="flex h-4 w-4 flex-grow items-center justify-center place-self-end rounded-full bg-[#C81A1F] text-white">
@@ -208,6 +260,13 @@ function ChatElement({
             </div>
 
           </div>
+          {showMenu && <div className="absolute ml-72 mt-24 bg-gray-300 h-11 m-2 flex">
+            <div onClick={() => handleDeleteChatRoom()} className="text-red-500 hover:bg-blue-200">
+              <div className="p-2">
+                Xóa hội thoại
+              </div>
+            </div>
+          </div>}
         </>}
     </a>
   );
@@ -215,15 +274,3 @@ function ChatElement({
 
 export default ChatElement;
 
-
-{/* <div className="grid gap-y-1">
-  <div>
-    <span className="text-base text-[#081C36]">{userName}</span>
-  </div>
-  <div className="transition-min-width flex min-w-[calc(100vw-200px)] items-center text-sm text-[#7589A3] duration-200">
-    <span>Bạn:&nbsp;</span>
-    <span className="overflow-hidden truncate overflow-ellipsis whitespace-nowrap md:w-[175px]">
-      {messageContent}
-    </span>
-  </div>
-</div>; */}

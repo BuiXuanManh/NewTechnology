@@ -7,6 +7,7 @@ import { Avatar } from '@mui/material';
 import AvatarGroupModal from './AvatarGroupModal';
 import GroupService from '../../services/GroupService';
 import { AppContext } from '../../context/AppContext';
+import swal from 'sweetalert';
 
 const GroupModal = ({ showCreateGroup, setShowCreateGroup }) => {
     const handleClose = () => {
@@ -43,6 +44,14 @@ const GroupModal = ({ showCreateGroup, setShowCreateGroup }) => {
     const [name, setname] = useState('');
     const deAvatar = "https://res.zaloapp.com/pc/avt_group/6_work.jpg"
     const handleCreateGroup = () => {
+        if (name?.trim() === "") {
+            swal({
+                title: "Tên nhóm không được để trống",
+                // text: "You have pressed the button!",
+                icon: "warning"
+            });
+            return;
+        }
         let members = [];
         let names = []
         selectedItems.forEach((item) => {

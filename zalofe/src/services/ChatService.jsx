@@ -2,6 +2,9 @@ import api from "../api/api";
 import AuthService from "./AuthService";
 
 export default class ChatService {
+    deleteChats(token, chatId) {
+        return api.delete(`/api/v1/chats/${chatId}/messages`, AuthService(token));
+    }
     getChats(token) {
         return api.get("/api/v1/users/profile/chats", AuthService(token));
     }

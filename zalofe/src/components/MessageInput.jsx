@@ -78,8 +78,8 @@ const MessageInput = ({ onSendMessage }) => {
     <>
       <div className="flex gap-2 bg-white h-10">
         <input type="file" className="hidden" ref={imageRef} onChange={onSelectFiles} />
-        <div onClick={() => imageRef.current.onClick} className="flex ml-5 hover:bg-gray-200 px-2 items-center cursor-pointer">
-          <FontAwesomeIcon icon={faPaperclip} onClick={() => imageRef.current.click()} />
+        <div onClick={() => imageRef.current.click()} className="flex ml-5 hover:bg-gray-200 px-2 items-center cursor-pointer">
+          <FontAwesomeIcon icon={faPaperclip} />
         </div>
         {previews?.length > 0 && (
           <div className="flex ">
