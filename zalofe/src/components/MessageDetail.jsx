@@ -149,7 +149,7 @@ const MessageDetail = ({ message, chatId, isGroup, querychat, mess }) => {
                       className="h-4 w-4"
                     />
                   </a>
-                  <a onClick={() => handleShowShare()}>
+                  <a className="cursor-pointer" onClick={() => handleShowShare()}>
                     <img
                       src="/src/assets/reply.png"
                       alt=""
@@ -315,14 +315,48 @@ const MessageDetail = ({ message, chatId, isGroup, querychat, mess }) => {
                     className="h-4 w-4"
                   />
                 </a>
-                <a href="">
-                  <img src="/src/assets/reply.png" alt="" className="h-4 w-4" />
+                <a className="cursor-pointer" onClick={() => handleShowShare()}>
+                  <img
+                    src="/src/assets/reply.png"
+                    alt=""
+                    className="h-4 w-4"
+                  />
                 </a>
+                {showShare && message !== undefined && <ShareModal showShare={showShare} setShowShare={setShowShare} message={message} />}
                 <a href="">
-                  <img src="/src/assets/todos.png" alt="" className="h-4 w-4" />
+                  <img
+                    src="/src/assets/todos.png"
+                    alt=""
+                    className="h-4 w-4"
+                  />
                 </a>
-                <a href="">
-                  <img src="/src/assets/option.png" alt="" className="h-4 w-4" />
+                <a onClick={() => showOption()} className="relative cursor-pointer">
+                  {show && <div className="bg-white absolute z-50 right-0 w-52 py-2 mt-1 border border-gray-200 shadow-2xl" style={{ display: "none;" }}>
+                    <div className="py-2 border-b">
+                      <div className='flex justify-end'>
+                        {/* <div className="text-gray-700 text-xs px-6 uppercase mb-1">Sao chép</div> */}
+                        <div className='text-gray-700 text-xs px-6 uppercase mb-1 '>
+                          <button onClick={() => showOption()} >
+                            <FontAwesomeIcon icon={faXmark} />
+                          </button>
+                        </div>
+                      </div>
+                      <button className="w-full flex items-center px-6 py-1.5 space-x-2 hover:bg-gray-200">
+                        <span onClick={() => navigator.clipboard.writeText(content)} className="cursor-pointer text-sm text-gray-700">Sao chép</span>
+                      </button>
+                      <button onClick={() => handleUnSend()} className="cursor-pointer w-full flex items-center py-1.5 px-6 space-x-2 hover:bg-gray-200">
+                        <span className="text-sm text-gray-700">Thu hồi</span>
+                      </button>
+                      <button onClick={() => handleDelete()} className="w-full cursor-pointer flex items-center py-1.5 px-6 space-x-2 hover:bg-gray-200">
+                        <span className="text-sm text-gray-700 ml-1">Xoá</span>
+                      </button>
+                    </div>
+                  </div>}
+                  <img
+                    src="/src/assets/option.png"
+                    alt=""
+                    className="h-4 w-4"
+                  />
                 </a>
               </div>
             ) : (
