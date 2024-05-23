@@ -20,10 +20,10 @@ import swal from 'sweetalert';
 import FileService from "../services/FileService";
 import AddGroupModal from "./models/AddGroupModal";
 import Members from "./models/Members";
-import { set } from "date-fns";
 import { AppContext } from "../context/AppContext";
 import CallVideo from "./callVideo/CallVideo";
 import GroupService from "../services/GroupService";
+import connect from "./socket/Socket";
 const StyledBadge = styled(Badge)(({ theme }) => ({
   "& .MuiBadge-badge": {
     backgroundColor: "#44b700",
@@ -65,7 +65,7 @@ const Conversation = () => {
   // useTabs({ chat, setChatSelectId });
   let service = new ChatService();
   let fileService = new FileService();
-  const { chatId, chat } = useContext(AppContext);
+  const { chatId, chat, setChat } = useContext(AppContext);
   const querychat = useQuery({
     queryKey: ["chat", chat?.id],
     queryFn: async () => {
@@ -82,6 +82,7 @@ const Conversation = () => {
   });
   const [newUrl, setNewUrl] = useState("")
   const [bodyMsg, setBodyMsg] = useState({})
+
   const uploadToS3 = async (select, message) => {
     console.log("mes", message)
     console.log("file", select)
@@ -123,8 +124,13 @@ const Conversation = () => {
   }
   async function onSendMessage(message, file) {
     console.log("file", file)
-    if (profile?.id && chat?.id && !file && message)
-      mutation.mutate({ content: message })
+    if (profile?.id && chat?.id && !file && message) {
+      // mutation.mutate({ content: message })
+      connect(chat, { sender: profile?.id, content: message }, setChats);
+      // const sender = { id: profile?.id, firstName: profile?.firstName, lastName: profile?.lastName }
+      // const newMessage = { sender, content: message }
+      // setChats([...chats, newMessage])
+    }
     else if (file) {
       await uploadToS3(file, message);
     }
