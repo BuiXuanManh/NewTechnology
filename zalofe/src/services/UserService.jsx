@@ -20,5 +20,8 @@ export default class UserService {
     declineFriend(token, id) {
         return api.put(`/api/v1/users/profile/friends/${id}/decline`, {}, AuthService(token));
     }
+    deleteFriend(token, id) {
+        return api.put(`/api/v1/users/profile/friends/${id}`, {}, AuthService(token));
+    }
 
 }
