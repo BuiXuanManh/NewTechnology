@@ -159,14 +159,11 @@ export default function AddFriendDialog() {
       `Add friend with prefix: ${prefix}, phone number: ${phoneNumber}`,
     );
     mutation.mutate();
-
     handleClose();
   };
-
   const handleAddSuggestedFriend = (friend) => {
     // console.log(`Add suggested friend: ${friend.name}`);
   };
-
   const handleSelectCountry = (e) => {
     const selectedCountryCode = e.target.value;
     const selectedCountry = countries.find(

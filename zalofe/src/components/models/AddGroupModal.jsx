@@ -9,7 +9,7 @@ import GroupService from '../../services/GroupService';
 import swal from 'sweetalert';
 import { AppContext } from '../../context/AppContext';
 
-const AddGroupModal = ({ showAddGroup, setShowAddGroup, groupId, queryChat }) => {
+const AddGroupModal = ({ showAddGroup, setShowAddGroup, members, setMembers, groupId, queryChat }) => {
     const handleClose = () => {
         setShowAddGroup(false);
     }
@@ -39,7 +39,6 @@ const AddGroupModal = ({ showAddGroup, setShowAddGroup, groupId, queryChat }) =>
             setSelectedItems([...selectedItems, item]);
         }
     };
-    const [members, setMembers] = useState([]);
     const handleAddMember = () => {
         let members = [];
         selectedItems.forEach((item) => {
@@ -48,24 +47,6 @@ const AddGroupModal = ({ showAddGroup, setShowAddGroup, groupId, queryChat }) =>
         mutaion.mutate(members);
     }
     let service = new GroupService();
-    const qr = useQuery({
-        queryKey: ["members"],
-        queryFn: () => {
-            if (token !== undefined && groupId !== undefined)
-                service.getMembers(token, groupId).then((res) => {
-                    if (res?.data) {
-                        setMembers(res.data.map(member => member.profile)); // directly set profiles
-                        return res?.data;
-                    }
-                }).catch((err) => {
-                    console.error(err);
-                })
-        }
-    })
-    useEffect(() => {
-        qr.refetch();
-    }, [groupId])
-    console.log("members ", members)
     const mutaion = useMutation({
         mutationKey: ["addmemberGroup"],
         mutationFn: async (data) => service.addMembers(token, groupId, data).then((res) => {
@@ -74,7 +55,6 @@ const AddGroupModal = ({ showAddGroup, setShowAddGroup, groupId, queryChat }) =>
                 setSelectedItems([]);
                 setShowAddGroup(false);
                 queryChat?.refresh();
-                qr.refetch();
                 queryClient.invalidateQueries(["chat"]);
                 queryClient.invalidateQueries(["members"]);
                 swal({

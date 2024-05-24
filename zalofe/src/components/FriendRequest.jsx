@@ -146,92 +146,47 @@ const FriendRequest = () => {
         console.log(decline);
     }
     const RenderItem = () => (
-        <div>
-            {/* {(!sent?.data || sent.isLoading) ? (
-                <Skeleton>
-                    {
-                        friendsRequest?.data?.map((item, index) => (
-                            <div key={index} className='w-full mb-4'>
-                                <div>{item.title}</div>
-                                <div className="flex w-full mt-4 gap-2 rounded-lg">
-                                    <div className='p-4 mx-2 flex w-full bg-white rounded-lg'>
-                                        <div>
-                                            <Avatar alt="" src={item?.profile?.thumbnailAvatar} className='m-4' />
+        (
+            sent?.length > 0 ? (
+                sent?.map((item, index) => (
+                    <div key={index} className='w-full mb-4'>
+                        <div>{item.title}</div>
+                        <div className="flex w-full mt-4 gap-2 rounded-lg">
+                            <div className='p-4 mx-2 flex w-full bg-white rounded-lg'>
+                                <div>
+                                    <Avatar alt="" src={item?.profile?.thumbnailAvatar} className='m-4' />
+                                </div>
+
+                                <div className="flex w-full pb-4 border-b justify-between">
+                                    <div className="w-full">
+                                        <div className='w-full font-semibold mt-3'>{item.displayName}</div>
+                                        <div className="h-10 mt-2">
+                                            <span className="text-gray-500">
+                                                {/* {item.content} */}
+                                                Xin chào mình là {item.displayName} kết bạn với mình nhé
+                                            </span>
                                         </div>
-
-                                        <div className="flex w-full pb-4 border-b justify-between">
-                                            <div className="w-full">
-                                                <div className='w-full font-semibold mt-3'>{item.displayName}</div>
-                                                <div className="h-10 mt-2">
-                                                    <span className="text-gray-500">
-                                                    </span>
-                                                </div>
-                                                <div className="justify-between flex mt-3 w-full">
-                                                    <button className="bg-blue-400 text-white rounded-2xl px-5 py-1">Đồng ý</button>
-                                                    <button className="bg-gray-400 text-white rounded-2xl px-5">Từ chối</button>
-                                                </div>
-
-                                            </div>
-                                            <div className="text-gray-400">
-                                                <FontAwesomeIcon className="w-5 h-5 cursor-pointer" icon={faCommentDots} />
-                                            </div>
+                                        <div className="gap-5 flex mt-3 w-full">
+                                            <button onClick={() => handleAcceptFriend(item?.profile?.id)} className="bg-blue-400 text-white rounded-2xl px-5 py-1">Đồng ý</button>
+                                            <button onClick={() => handleDeclineFriend(item?.profile?.id)} className="bg-gray-400 text-white rounded-2xl px-5">Từ chối</button>
                                         </div>
 
                                     </div>
-
-                                </div>
-                            </div>
-                        ))
-                    }
-                </Skeleton>
-            ) : */}
-            (
-            <div> {sent?.length > 0 ? (
-                <div>
-                    {
-                        sent?.map((item, index) => (
-                            <div key={index} className='w-full mb-4'>
-                                <div>{item.title}</div>
-                                <div className="flex w-full mt-4 gap-2 rounded-lg">
-                                    <div className='p-4 mx-2 flex w-full bg-white rounded-lg'>
-                                        <div>
-                                            <Avatar alt="" src={item?.profile?.thumbnailAvatar} className='m-4' />
-                                        </div>
-
-                                        <div className="flex w-full pb-4 border-b justify-between">
-                                            <div className="w-full">
-                                                <div className='w-full font-semibold mt-3'>{item.displayName}</div>
-                                                <div className="h-10 mt-2">
-                                                    <span className="text-gray-500">
-                                                        {/* {item.content} */}
-                                                        Xin chào mình là {item.displayName} kết bạn với mình nhé
-                                                    </span>
-                                                </div>
-                                                <div className="gap-5 flex mt-3 w-full">
-                                                    <button onClick={() => handleAcceptFriend(item?.profile?.id)} className="bg-blue-400 text-white rounded-2xl px-5 py-1">Đồng ý</button>
-                                                    <button onClick={() => handleDeclineFriend(item?.profile?.id)} className="bg-gray-400 text-white rounded-2xl px-5">Từ chối</button>
-                                                </div>
-
-                                            </div>
-                                            <div className="text-gray-400">
-                                                <FontAwesomeIcon className="w-5 h-5 cursor-pointer" icon={faCommentDots} />
-                                            </div>
-                                        </div>
-
+                                    <div className="text-gray-400">
+                                        <FontAwesomeIcon className="w-5 h-5 cursor-pointer" icon={faCommentDots} />
                                     </div>
-
                                 </div>
+
                             </div>
-                        ))
-                    }
-                </div>
+
+                        </div>
+                    </div>
+                ))
+
             ) : <div>
                 Bạn ko có lời mời nào
             </div>
-            }
-            </div>
-            )
-        </div>
+        )
     );
 
     return (

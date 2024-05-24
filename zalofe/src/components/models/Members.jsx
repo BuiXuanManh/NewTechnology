@@ -7,25 +7,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import GroupService from '../../services/GroupService';
 import swal from 'sweetalert';
 
-const Members = ({ showMember, setShowMember, idLead, setIdLead, groupId }) => {
-    const [member, setMember] = useState([]);
-    const qr = useQuery({
-        queryKey: ["members"],
-        queryFn: () => {
-            if (token !== undefined && groupId !== undefined)
-                service.getMembers(token, groupId).then((res) => {
-                    if (res?.data) {
-                        setMember(res.data.map(member => member.profile)); // directly set profiles
-                        return res?.data;
-                    }
-                }).catch((err) => {
-                    console.error(err);
-                })
-        }
-    })
-    useEffect(() => {
-        qr.refetch();
-    }, [groupId])
+const Members = ({ showMember, setShowMember, member, setMember, idLead, setIdLead, groupId }) => {
+
     const handleClose = () => {
         setShowMember(false);
     }

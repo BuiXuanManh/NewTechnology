@@ -113,7 +113,7 @@ const Conversation = () => {
                 filename: newUrl.split('/')[newUrl.split('/').length - 1]
               }
             ]
-          }, setChats);
+          }, setChats, token);
           // mutation.mutate(body)
         }
       })
@@ -129,7 +129,7 @@ const Conversation = () => {
     console.log("file", file)
     if (profile?.id && chat?.id && !file && message) {
       // mutation.mutate({ content: message })
-      connect(chat, { sender: profile?.id, content: message }, setChats);
+      connect(chat, { sender: profile?.id, content: message }, setChats, chats);
       // const sender = { id: profile?.id, firstName: profile?.firstName, lastName: profile?.lastName }
       // const newMessage = { sender, content: message }
       // setChats([...chats, newMessage])
@@ -138,39 +138,21 @@ const Conversation = () => {
       await uploadToS3(file, message);
     }
   }
-  const mutation = useMutation({
-    mutationKey: ["saveChat"],
-    mutationFn: async (mes) => {
-      return await service.chat(token, chat?.id, mes).then((res) => {
-        if (res.data) {
-          console.log(res.data)
-          chats.push(res.data)
-          querychat.refetch();
-          //queryClient.invalidateQueries(["chat", chat?.id]);
-          // Cookies.set("chats", JSON.stringify(chats));
-          return res.data;
-        }
-      }).catch((err) => {
-        console.error(err)
-      })
-    }
-  })
-
   const handleSearch = (e) => {
     // Lấy giá trị của ô tìm kiếm và chuyển thành chữ thường (không phân biệt chữ hoa chữ thường)
     const query = e.target.value.toLowerCase();
-    
+
     // Cập nhật giá trị của state 'searchQuery' với giá trị vừa lấy được
     setSearchQuery(query);
-    setShowSearchModal(query.length > 0); 
-    
+    setShowSearchModal(query.length > 0);
+
     // Nếu có từ khóa tìm kiếm, lọc danh sách tin nhắn
     // Chỉ giữ lại những tin nhắn có nội dung chứa từ khóa tìm kiếm
     const filteredChats = chats.filter((chat) =>
       chat.content.toLowerCase().includes(query)
     );
     setFilteredChats(filteredChats);
-    
+
     // Hiển thị danh sách tin nhắn đã lọc trên console
     console.log(filteredChats);
   };
@@ -230,13 +212,36 @@ const Conversation = () => {
     // videoRef.current.onClick();
     setShowVideo(name);
 
-  
-  }
-  const [selectedMessageId, setSelectedMessageId] = useState(null);
-  const handleNavigateToMessage = (messageId) => {
-    setSelectedMessageId(messageId);
-  };
 
+  }
+  const handleNavigateToMessage = (messageId) => {
+    const messageRef = messageRefs.current[messageId];
+    if (messageRef) { // Kiểm tra xem ref có tồn tại không
+      messageRef.scrollIntoView({ behavior: 'smooth' }); // Cuộn mượt tới tin nhắn
+    }
+  };
+  const messageRefs = useRef({});
+  // const handleScrollToElement = () => {
+  //   // Cuộn mượt
+  // };
+  const [members, setMembers] = useState([]);
+  const qrMember = useQuery({
+    queryKey: ["members"],
+    queryFn: () => {
+      if (token !== undefined && chat?.groupId !== undefined)
+        groupService.getMembers(token, chat?.groupId).then((res) => {
+          if (res?.data) {
+            setMembers(res.data.map(member => member.profile)); // directly set profiles
+            return res?.data;
+          }
+        }).catch((err) => {
+          console.error(err);
+        })
+    }
+  })
+  useEffect(() => {
+    // qr.refetch();
+  }, [chats])
   return (
     <div className="h-screen w-full">
       <div className="h-[68px] w-full px-4">
@@ -263,7 +268,7 @@ const Conversation = () => {
               </div>
               <div className="flex items-center text-sm text-[#7589a3]">
                 {chat?.isGroup ? <button onClick={() => handleShowMembers()}>thành viên</button> : <span>Vừa truy cập</span>}
-                <Members showMember={showMembers} setShowMember={setShowMembers} member={member} setMember={setMember} idLead={idLead} setIdLead={setIdLead} groupId={chat?.groupId} />
+                <Members showMember={showMembers} setShowMember={setShowMembers} member={members} setMember={setMembers} idLead={idLead} setIdLead={setIdLead} groupId={chat?.groupId} />
                 <span className="text-[#D7DBE0]"> &nbsp;|&nbsp;</span>
                 <span className="flex items-center justify-center">
                   <img
@@ -279,7 +284,7 @@ const Conversation = () => {
             {chat?.isGroup && <a onClick={() => handleShowAddGroup()} className=" cursor-pointer hover:bg-gray-200">
               <img src="/src/assets/group-user-plus.png" alt="" />
             </a>}
-            {chat?.groupId && <AddGroupModal groupId={chat?.groupId} querychat={querychat} showAddGroup={showAddGroup} setShowAddGroup={setShowAddGroup} />}
+            {chat?.groupId && <AddGroupModal members={members} setMembers={setMembers} groupId={chat?.groupId} querychat={querychat} showAddGroup={showAddGroup} setShowAddGroup={setShowAddGroup} />}
             <a onClick={() => handleShowSearch()} className="p-2 cursor-pointer">
               <img
                 src="/src/assets/mini-search.png"
@@ -293,7 +298,12 @@ const Conversation = () => {
                   {/* <div className="text-gray-700 text-xs px-6 uppercase mb-1">Sao chép</div> */}
                   <div className='text-gray-700 text-xs px-6 uppercase mb-1 w-full'>
                     <input type="text" className="w-full h-full bg-gray-200 focus:outline-none px-4 py-2 border-none rounded-full" value={searchQuery}
-                    onChange={handleSearch} placeholder="Tìm ..." />
+                      onChange={handleSearch} placeholder="Tìm ..." />
+                  </div>
+                  <div style={{ marginRight: '5px', marginTop: '3px' }}>
+                    <button className="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-4 rounded text-xs"
+                      onClick={handleCloseSearch}
+                    >Đóng</button>
                   </div>
                 </div>
               </div>
@@ -316,7 +326,7 @@ const Conversation = () => {
 
       <div className="h-[calc(100vh-174px)] w-full flex-1 overflow-auto bg-[#A4BEEB] p-4 pr-3">
         {chats?.map((message) => (
-          <MessageDetail key={message.id} message={message} chatId={chat?.id} querychat={querychat} isGroup={chat?.isGroup} />
+          <MessageDetail searchQuery={searchQuery} setChats={setChats} mesref={messageRefs} key={message.id} message={message} chatId={chat?.id} querychat={querychat} isGroup={chat?.isGroup} />
         ))}
       </div>
       <div className=" bg-white">
@@ -332,7 +342,7 @@ const Conversation = () => {
             results={filteredChats}
             onClose={() => setShowSearchModal(false)}
             navigateToMessage={handleNavigateToMessage}
-            
+
           />
         )
       }

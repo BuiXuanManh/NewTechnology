@@ -10,7 +10,8 @@ import ChatService from "../services/ChatService";
 import { faThumbsUp } from "@fortawesome/free-regular-svg-icons";
 import IconModal from "./models/IconModal";
 import ShareModal from "./models/ShareModal";
-const MessageDetail = ({ message, chatId, isGroup, querychat, mess }) => {
+import { listen } from "./socket/Socket";
+const MessageDetail = ({ message, chatId, isGroup, querychat, mess, mesref, searchQuery, setChats }) => {
   const { sender, content, createdAt, avatar, reactions, attachments, messageId, status, type } = message;
   const messageRef = useRef(null);
   // console.log(message)
@@ -38,7 +39,9 @@ const MessageDetail = ({ message, chatId, isGroup, querychat, mess }) => {
     setIsMyMessage(!isMyMessage);
     setIsHovered(true);
   };
-
+  useEffect(() => {
+    console.log("reactions", reactions)
+  }, [message?.reactions, reactions])
   const [token, setToken] = useState("");
   const [phone, setPhone] = useState("");
   const [profile, setProfile] = useState("");
@@ -95,9 +98,10 @@ const MessageDetail = ({ message, chatId, isGroup, querychat, mess }) => {
     mutationFn: async (emotion) => {
       return await service.reaction(chatId, messageId, emotion, token).then((res) => {
         if (res.data) {
-          console.log(res.data);
-          setReaction(res.data.reactions)
-          // querychat.refetch()
+          listen(chatId, setChats, setReaction, token);
+          console.log(reactionss)
+          setReaction(react => [...react, res.data.reactions])
+          querychat.refetch()
           queryClient.invalidateQueries(["chat"]);
         }
       }).catch((err) => {
@@ -130,7 +134,7 @@ const MessageDetail = ({ message, chatId, isGroup, querychat, mess }) => {
   return (
     <>
       <div
-        ref={messageRef}
+        ref={el => mesref.current[messageId] = el}
         className={`mb-3 flex ${isHovered ? "group" : ""} ${sender?.id === profile.id && sender ? "justify-end mr-20" : "justify-start"
           }`}
         onMouseEnter={() => handleMouseEnter()}
@@ -215,15 +219,74 @@ const MessageDetail = ({ message, chatId, isGroup, querychat, mess }) => {
               <img src={attachments[0]?.url} width={160} height={160} alt="img" />
               <div
                 className={`${sender?.id === profile?.id && status !== "UNSEND" ? "bg-blue-200 " : "bg-[#FFFFFF] "
-                  } flex flex-col items-start rounded-md p-3 w-40 transition-all duration-300 border border-t-2`}
+                  } flex flex-col items-start relative rounded-md p-3 w-40 transition-all duration-300 border border-t-2`}
               >
 
                 <div className="items-center">
-                  <div className={`text-[#081c36]  ${sender ? "" : ""}`}>
+                  <div className={`text-[#081c36] ${searchQuery?.trim() && content?.includes(searchQuery) ? "bg-yellow-300" : ""}  ${sender ? "" : ""}`}>
                     {content}
                   </div>
                 </div>
                 <span className="mt-3 text-xs text-gray-500">{createdAt}</span>
+                {status !== "UNSEND" && type !== "EVENT" && (
+                  <div className="">
+                    {reactionss && reactionss.length > 0 &&
+                      <div className="absolute cursor-pointer transition-all duration-300 -bottom-3 right-10 ring-gray-400 ring-1 text-gray-500 bg-white p-1 rounded-full flex items-center justify-center">
+                        <div onClick={() => handleClose()} className="flex">
+                          {reactionss?.map((reaction, index) => {
+                            // Kiểm tra xem loại phản ứng đã được in ra chưa
+                            if (!renderedTypes.includes(reaction.type)) {
+                              // Nếu chưa, in ra hình ảnh tương ứng và thêm loại phản ứng vào mảng renderedTypes
+                              renderedTypes.push(reaction.type);
+                              return (
+                                <div className="flex items-center justify-end min-w-5" key={index}>
+                                  <img
+                                    src={reaction.type === "LIKE" ? icons[0] : reaction.type === "LOVE" ? icons[1] : reaction.type === "CRY" ? icons[2] : reaction.type === "ANGER" ? icons[3] : icons[4]}
+                                    alt=""
+                                    className="h-5 w-5"
+                                  />
+                                </div>
+                              );
+                            }
+                          })}
+                          {quans !== 0 && quans &&
+                            <p>{quans}</p>
+                          }
+                        </div>
+                      </div>
+                    }
+                  </div>
+                )}
+                <IconModal reactions={reactionss} icons={icons} showEmoDetails={showEmoDetails} setShowEmoDetails={setShowEmoDetails} />
+                {isHovered && status !== "UNSEND" && type !== "EVENT" && (
+                  <div onMouseEnter={handleEmo} className="duration-300" onMouseLeave={handleNotEmo}>
+                    <div className="absolute cursor-pointer transition-all duration-300 -bottom-3 right-2 ring-gray-400 ring-1 text-gray-500 bg-white p-1 rounded-full flex items-center justify-center">
+                      {reactions?.length <= 0 ? <FontAwesomeIcon icon={faThumbsUp} className="relative" /> :
+                        <div>
+                          <img
+                            src={reactionss[0]?.type === "LIKE" ? icons[0] : reactionss[0]?.type === "LOVE" ? icons[1] : reactionss[0]?.type === "CRY" ? icons[2] : reactionss[0]?.type === "ANGER" ? icons[3] : icons[4]}
+                            alt=""
+                            className="h-5 w-5"
+                          />
+                        </div>
+                      }
+                      {isEmo && <div className="absolute flex bottom-5 h-10 bg-white gap-2 rounded-full px-4 justify-center items-center min-w-52">
+                        {icons.map((icon, index) => {
+                          return (
+                            <img
+                              key={index}
+                              src={icon}
+                              onClick={() => handleReaction(index === 0 ? "LIKE" : index === 1 ? "LOVE" : index === 2 ? "CRY" : index === 3 ? "ANGER" : "WOW")}
+                              alt=""
+                              className="h-7 w-7 hover:h-10 hover:w-10 cursor-pointer"
+                            />
+                          );
+                        })}
+                      </div>}
+                    </div>
+
+                  </div>
+                )}
               </div>
             </div>
             : <div
@@ -236,7 +299,7 @@ const MessageDetail = ({ message, chatId, isGroup, querychat, mess }) => {
                 </div>}
               </div>
               <div className="flex items-center mt-1">
-                <p className={`${status === 'UNSEND' ? 'text-gray-500 text-sm ' : 'text-[#081c36] '} ${sender?.id === profile?.id ? "" : ""}`}>
+                <p className={`${searchQuery?.trim() && content?.includes(searchQuery) ? "bg-yellow-300" : ""} ${status === 'UNSEND' ? 'text-gray-500 text-sm ' : 'text-[#081c36] '} ${sender?.id === profile?.id ? "" : ""}`}>
                   {content}
                 </p>
               </div>
@@ -342,7 +405,7 @@ const MessageDetail = ({ message, chatId, isGroup, querychat, mess }) => {
                         </div>
                       </div>
                       <button className="w-full flex items-center px-6 py-1.5 space-x-2 hover:bg-gray-200">
-                        <span onClick={() => navigator.clipboard.writeText(content)} className="cursor-pointer text-sm text-gray-700">Sao chép</span>
+                        <span onClick={() => navigator.clipboard.writeText(content)} className={`cursor-pointer text-sm text-gray-700`}>Sao chép</span>
                       </button>
                       <button onClick={() => handleUnSend()} className="cursor-pointer w-full flex items-center py-1.5 px-6 space-x-2 hover:bg-gray-200">
                         <span className="text-sm text-gray-700">Thu hồi</span>
