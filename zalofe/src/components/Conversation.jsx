@@ -297,6 +297,11 @@ const Conversation = () => {
                     <input type="text" className="w-full h-full bg-gray-200 focus:outline-none px-4 py-2 border-none rounded-full" value={searchQuery}
                     onChange={handleSearch} placeholder="Tìm ..." />
                   </div>
+                  <div style={{marginRight: '5px', marginTop: '3px'}}>
+                    <button className="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-4 rounded text-xs"
+                    onClick={handleCloseSearch}
+                    >Đóng</button>
+                  </div>
                 </div>
               </div>
             </div>}
