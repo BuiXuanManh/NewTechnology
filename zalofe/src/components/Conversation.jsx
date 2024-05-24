@@ -86,7 +86,6 @@ const Conversation = () => {
     enabled: chat?.id !== "" && chat?.id !== undefined && token !== "" && token !== undefined && chat?.id !== null && chat?.id !== "null"
   });
   const [newUrl, setNewUrl] = useState("")
-  const [bodyMsg, setBodyMsg] = useState({})
 
   const uploadToS3 = async (select, message) => {
     console.log("mes", message)
@@ -103,9 +102,9 @@ const Conversation = () => {
         const resUpload = await api.put(res.data, select).catch(e => console.log(e));
         if (resUpload.status === 200) {
           const newUrl = res.data.substring(0, res.data.indexOf('?'));
-          console.log(newUrl)
           setNewUrl(newUrl);
-          const body = {
+          connect(chat, {
+            sender: profile?.id,
             content: message,
             attachments: [
               {
@@ -114,9 +113,8 @@ const Conversation = () => {
                 filename: newUrl.split('/')[newUrl.split('/').length - 1]
               }
             ]
-          }
-          setBodyMsg(body);
-          mutation.mutate(body)
+          }, setChats);
+          // mutation.mutate(body)
         }
       })
       .catch(err => {
