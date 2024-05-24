@@ -7,7 +7,8 @@ const connect = (chat, message, setChats, token) => {
         console.log(payload.body);
         setChats(prevChats => [...prevChats, JSON.parse(payload.body)]);
     };
-    let Sock = new SockJS('http://localhost:8080/api/ws');
+    // let Sock = new SockJS('http://localhost:8080/api/ws');
+    let Sock = new SockJS('http://ec2-13-213-1-120.ap-southeast-1.compute.amazonaws.com:8080/api/ws');
     stompClient = over(Sock);
     const onConnected = () => {
         stompClient.subscribe(`/chatroom/${chat?.id}`, handleMessages);
@@ -21,7 +22,8 @@ export const disconnect = () => {
     }
 }
 export const listen = (chatId, setChats, setReaction, token) => {
-    let Sock = new SockJS('http://localhost:8080/api/ws');
+    let Sock = new SockJS('http://ec2-13-213-1-120.ap-southeast-1.compute.amazonaws.com:8080/api/ws');
+    // let Sock = new SockJS('http://localhost:8080/api/ws');
     stompClient = over(Sock);
     const onConnected = () => {
         const handleMessages = (payload) => {
@@ -40,7 +42,7 @@ export const listen = (chatId, setChats, setReaction, token) => {
                 }
 
                 // Optional: Sort the chats if necessary
-                updatedChats.sort((a, b) => a.timestamp - b.timestamp);
+                // updatedChats.sort((a, b) => a.timestamp - b.timestamp);
 
                 return updatedChats;
             });
@@ -48,6 +50,7 @@ export const listen = (chatId, setChats, setReaction, token) => {
         };
         stompClient.subscribe(`/chatroom/${chatId}`, handleMessages);
         stompClient.connect({ Authorization: `Bearer ${token}` }, onConnected, (error) => console.log(error));
+
         // stompClient.send(`/app/chat/${chatId}`, {}, JSON.stringify(message));
     }
 }

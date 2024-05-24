@@ -86,7 +86,6 @@ const Conversation = () => {
     enabled: chat?.id !== "" && chat?.id !== undefined && token !== "" && token !== undefined && chat?.id !== null && chat?.id !== "null"
   });
   const [newUrl, setNewUrl] = useState("")
-
   const uploadToS3 = async (select, message) => {
     console.log("mes", message)
     console.log("file", select)
@@ -125,11 +124,12 @@ const Conversation = () => {
         });
       })
   }
+  console.log("toklennnnn", token)
   async function onSendMessage(message, file) {
     console.log("file", file)
     if (profile?.id && chat?.id && !file && message) {
       // mutation.mutate({ content: message })
-      connect(chat, { sender: profile?.id, content: message }, setChats, chats);
+      connect(chat, { sender: profile?.id, content: message }, setChats, token);
       // const sender = { id: profile?.id, firstName: profile?.firstName, lastName: profile?.lastName }
       // const newMessage = { sender, content: message }
       // setChats([...chats, newMessage])
@@ -305,9 +305,9 @@ const Conversation = () => {
                       onClick={handleCloseSearch}
                     >Đóng</button>
                   </div>
-                  <div style={{marginRight: '5px', marginTop: '3px'}}>
+                  <div style={{ marginRight: '5px', marginTop: '3px' }}>
                     <button className="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-4 rounded text-xs"
-                    onClick={handleCloseSearch}
+                      onClick={handleCloseSearch}
                     >Đóng</button>
                   </div>
                 </div>
