@@ -7,8 +7,8 @@ const connect = (chat, message, setChats, token) => {
         console.log(payload.body);
         setChats(prevChats => [...prevChats, JSON.parse(payload.body)]);
     };
-    // let Sock = new SockJS('http://localhost:8080/api/ws');
-    let Sock = new SockJS('http://ec2-13-213-1-120.ap-southeast-1.compute.amazonaws.com:8080/api/ws');
+    let Sock = new SockJS('http://localhost:8080/api/ws');
+    // let Sock = new SockJS('http://ec2-13-213-1-120.ap-southeast-1.compute.amazonaws.com:8080/api/ws');
     stompClient = over(Sock);
     const onConnected = () => {
         stompClient.subscribe(`/chatroom/${chat?.id}`, handleMessages);
